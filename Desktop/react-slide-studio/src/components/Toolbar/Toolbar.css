@@ -1,0 +1,470 @@
+.toolbar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-bottom: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  color: white;
+}
+
+.toolbar-tabs {
+  display: flex;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.tab {
+  padding: 12px 24px;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.tab:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.tab.active {
+  color: white;
+  border-bottom-color: #ffd700;
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.toolbar-content {
+  padding: 12px 16px;
+}
+
+.insert-tools, .format-tools {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.tool-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tool-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  background: none;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  color: #5f6368;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 60px;
+}
+
+.tool-btn:hover {
+  background-color: #f1f3f4;
+  border-color: #d0d0d0;
+}
+
+.tool-btn i {
+  font-size: 16px;
+  margin-bottom: 2px;
+}
+
+.tool-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-toggle::after {
+  content: '▼';
+  font-size: 8px;
+  margin-left: 4px;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #fff;
+  min-width: 120px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  z-index: 1000;
+}
+
+.tool-dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  color: #202124;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: #f1f3f4;
+}
+
+.format-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-group label {
+  font-size: 12px;
+  color: #5f6368;
+  font-weight: 500;
+}
+
+.control-group select,
+.control-group input[type="number"] {
+  padding: 4px 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 12px;
+  width: 80px;
+}
+
+.control-group input[type="color"] {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.format-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  color: #5f6368;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.format-btn:hover {
+  background-color: #f1f3f4;
+}
+
+.format-btn.active {
+  background-color: #e8f0fe;
+  color: #1a73e8;
+  border-color: #1a73e8;
+}
+
+.delete-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: #ea4335;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.delete-btn:hover {
+  background-color: #d33b2c;
+}
+
+.no-selection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+  font-size: 14px;
+  padding: 20px;
+  text-align: center;
+}
+
+/* Enhanced Font Controls */
+.font-family-select {
+  min-width: 150px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 12px;
+}
+
+.font-family-select option {
+  background-color: #333;
+  color: white;
+}
+
+.font-size-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.size-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.size-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.font-size-select {
+  width: 60px;
+  padding: 4px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  text-align: center;
+}
+
+.font-size-select option {
+  background-color: #333;
+  color: white;
+}
+
+.text-style-controls, .alignment-controls {
+  display: flex;
+  gap: 2px;
+}
+
+/* Color Picker */
+.color-picker-container {
+  position: relative;
+}
+
+.color-preview-btn {
+  width: 32px;
+  height: 32px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.color-preview-btn:hover {
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: scale(1.05);
+}
+
+.color-palette {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  min-width: 200px;
+}
+
+.color-option {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.color-option:hover {
+  transform: scale(1.1);
+  border-color: #333;
+}
+
+/* Enhanced Controls */
+.color-input {
+  width: 40px;
+  height: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.range-input {
+  width: 100px;
+  margin-right: 8px;
+}
+
+.range-value {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  min-width: 30px;
+}
+
+/* Design Tools */
+.design-tools {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.background-picker-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.background-picker-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.background-themes {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  min-width: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.theme-option {
+  width: 80px;
+  height: 60px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: end;
+  padding: 8px;
+}
+
+.theme-option:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.theme-name {
+  font-size: 10px;
+  font-weight: 500;
+  color: #333;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-align: center;
+  width: 100%;
+}
+
+/* Enhanced Labels */
+.control-group label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  margin-bottom: 4px;
+  display: block;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .toolbar-content {
+    padding: 8px 12px;
+  }
+  
+  .insert-tools, .format-tools {
+    gap: 8px;
+  }
+  
+  .tool-btn {
+    min-width: 50px;
+    padding: 6px 8px;
+  }
+  
+  .tool-btn span {
+    font-size: 10px;
+  }
+  
+  .format-controls {
+    gap: 8px;
+  }
+  
+  .control-group {
+    gap: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tab {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+  
+  .tool-btn span {
+    display: none;
+  }
+  
+  .control-group label {
+    display: none;
+  }
+  
+  .format-controls {
+    justify-content: center;
+  }
+}

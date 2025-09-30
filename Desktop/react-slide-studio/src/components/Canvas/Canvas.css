@@ -1,0 +1,139 @@
+.canvas-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  padding: 20px;
+  overflow: auto;
+}
+
+.canvas-wrapper {
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.canvas {
+  width: 800px;
+  height: 600px;
+  background-color: #ffffff;
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+}
+
+.canvas-element {
+  position: relative;
+}
+
+.canvas-element.dragging {
+  opacity: 0.8;
+  transform: scale(1.02);
+  transition: transform 0.1s ease;
+}
+
+.canvas-element:hover {
+  z-index: 10;
+}
+
+.resize-handles {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  right: -8px;
+  bottom: -8px;
+  pointer-events: none;
+}
+
+.resize-handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #1a73e8;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  pointer-events: all;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.resize-handle.nw {
+  top: 0;
+  left: 0;
+  cursor: nw-resize;
+}
+
+.resize-handle.ne {
+  top: 0;
+  right: 0;
+  cursor: ne-resize;
+}
+
+.resize-handle.sw {
+  bottom: 0;
+  left: 0;
+  cursor: sw-resize;
+}
+
+.resize-handle.se {
+  bottom: 0;
+  right: 0;
+  cursor: se-resize;
+}
+
+.resize-handle:hover {
+  background-color: #1557b0;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .canvas {
+    width: 640px;
+    height: 480px;
+  }
+  
+  .canvas-container {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .canvas {
+    width: 480px;
+    height: 360px;
+  }
+  
+  .canvas-container {
+    padding: 12px;
+  }
+  
+  .resize-handle {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .canvas {
+    width: 320px;
+    height: 240px;
+  }
+  
+  .canvas-container {
+    padding: 8px;
+  }
+  
+  .canvas-wrapper {
+    border-radius: 4px;
+  }
+}
+
+/* Ensure canvas scales properly on very small screens */
+@media (max-width: 360px) {
+  .canvas {
+    width: 280px;
+    height: 210px;
+  }
+}

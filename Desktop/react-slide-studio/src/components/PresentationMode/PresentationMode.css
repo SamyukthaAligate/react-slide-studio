@@ -1,0 +1,166 @@
+.presentation-mode {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+}
+
+.presentation-controls {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10001;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.presentation-mode:hover .presentation-controls {
+  opacity: 1;
+}
+
+.control-btn {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  backdrop-filter: blur(10px);
+}
+
+.control-btn:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.control-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.slide-counter {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+}
+
+.navigation-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.presentation-slide {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.presentation-help {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10001;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.presentation-mode:hover .presentation-help {
+  opacity: 1;
+}
+
+.help-text {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  backdrop-filter: blur(10px);
+  text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .presentation-controls {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+  }
+  
+  .control-btn {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .slide-counter {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+  
+  .navigation-controls {
+    gap: 4px;
+  }
+  
+  .presentation-help {
+    bottom: 10px;
+  }
+  
+  .help-text {
+    font-size: 10px;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .presentation-controls {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+  }
+  
+  .navigation-controls {
+    order: -1;
+  }
+  
+  .slide-counter {
+    order: 0;
+  }
+  
+  .control-btn:first-child {
+    order: 1;
+  }
+}
+
+/* Hide controls on touch devices after interaction */
+@media (hover: none) and (pointer: coarse) {
+  .presentation-controls,
+  .presentation-help {
+    opacity: 0.8;
+  }
+  
+  .presentation-mode:active .presentation-controls,
+  .presentation-mode:active .presentation-help {
+    opacity: 1;
+  }
+}

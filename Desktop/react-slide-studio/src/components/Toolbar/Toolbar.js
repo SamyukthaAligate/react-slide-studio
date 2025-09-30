@@ -171,6 +171,24 @@ const Toolbar = ({
     }
   };
 
+  const handleVideoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        onAddElement({
+          type: 'video',
+          src: event.target.result,
+          x: 100,
+          y: 100,
+          width: 400,
+          height: 300
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const updateSelectedElement = (property, value) => {
     if (selectedElement) {
       onUpdateElement(selectedElement.id, { [property]: value });
@@ -256,6 +274,25 @@ const Toolbar = ({
                       type="file" 
                       accept="image/*" 
                       onChange={handleImageUpload}
+                      style={{ display: 'none' }}
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <div className="tool-dropdown">
+                <button className="tool-btn dropdown-toggle" title="Insert video">
+                  <i className="fas fa-video"></i>
+                  <span>Video</span>
+                </button>
+                <div className="dropdown-content">
+                  <label className="dropdown-item">
+                    <i className="fas fa-upload"></i>
+                    Upload Video
+                    <input 
+                      type="file" 
+                      accept="video/*" 
+                      onChange={handleVideoUpload}
                       style={{ display: 'none' }}
                     />
                   </label>

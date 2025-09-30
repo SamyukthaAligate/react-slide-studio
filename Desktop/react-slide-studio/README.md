@@ -1,6 +1,36 @@
 # React Slide Studio
 
-A fully functional Google Slides replica built with React and CSS. This application provides a complete presentation creation experience with drag-and-drop functionality, text editing, shape insertion, image upload, and presentation mode.
+A fully functional Google Slides replica built with React and CSS. This application provides a complete presentation creation experience with drag-and-drop functionality, text editing, shape insertion, image/video upload, save/load capabilities, and presentation mode.
+
+## 🌟 New Features (v2.0)
+
+### 💾 **Save & Load System**
+- **Save Presentations**: Save your work locally with `Ctrl+S`
+- **Multiple Presentations**: Create and manage multiple presentations
+- **Open Recent**: Access all saved presentations from File menu
+- **Persistent Storage**: Presentations saved in browser localStorage
+- **Auto-Save Metadata**: Tracks title and last modified date
+
+### 🎥 **Video Support**
+- **Upload Videos**: Add MP4, WebM videos to slides
+- **Video Controls**: Play, pause, and control volume in editor
+- **Presentation Playback**: Videos work seamlessly in presentation mode
+- **Drag & Resize**: Move and resize videos like any other element
+
+### 📋 **Interactive Menus**
+- **File Menu**: New, Save, Open Recent, Export options
+- **Edit Menu**: Undo, Redo, Cut, Copy, Paste
+- **View Menu**: Presentation mode, Zoom controls
+- **Insert Menu**: Quick access to add elements
+- **Format Menu**: Text formatting shortcuts
+- **Tools Menu**: Advanced features and settings
+- **Help Menu**: User guide, shortcuts, tips & tricks
+
+### ❓ **Help System**
+- **User Guide**: Step-by-step instructions
+- **Keyboard Shortcuts**: Complete shortcut reference
+- **Tips & Tricks**: Productivity tips for power users
+- **Interactive Modal**: Beautiful tabbed interface
 
 ## Features
 
@@ -9,8 +39,11 @@ A fully functional Google Slides replica built with React and CSS. This applicat
 - **Text Elements**: Add text boxes with full formatting options (font, size, color, alignment)
 - **Shapes**: Insert rectangles, circles, and triangles with customizable colors and borders
 - **Images**: Upload and insert images from your device
+- **Videos**: Upload and insert videos with playback controls (NEW!)
+- **Charts**: Create bar, pie, and line charts with sample data
 - **Drag & Drop**: Move and resize elements with intuitive mouse interactions
 - **Presentation Mode**: Full-screen presentation with keyboard navigation
+- **Undo/Redo**: 50-level history for all actions
 
 ### 🎯 **User Interface**
 - **Google Slides-inspired Design**: Clean, modern interface matching Google's design language
@@ -79,27 +112,47 @@ A fully functional Google Slides replica built with React and CSS. This applicat
 
 | Action | Shortcut |
 |--------|----------|
+| **File Operations** | |
+| Save presentation | `Ctrl+S` |
+| New presentation | `Ctrl+N` |
+| **Editing** | |
+| Undo | `Ctrl+Z` |
+| Redo | `Ctrl+Y` |
+| Delete selected element | `Delete` |
+| Deselect element | `Escape` |
+| **Text Formatting** | |
+| Bold | `Ctrl+B` |
+| Italic | `Ctrl+I` |
+| Underline | `Ctrl+U` |
+| **Presentation** | |
+| Start presentation | `F5` |
 | Next slide (presentation) | `→` or `Space` |
 | Previous slide (presentation) | `←` |
 | Exit presentation | `Escape` |
-| Delete selected element | `Delete` |
-| Deselect element | `Escape` |
 
 ## Project Structure
 
 ```
 src/
 ├── components/
-│   ├── Header/           # Top navigation bar
+│   ├── Header/           # Top navigation bar with menus
 │   ├── Toolbar/          # Insert and format tools
 │   ├── SlidePanel/       # Slide thumbnails sidebar
 │   ├── Canvas/           # Main editing area
-│   └── PresentationMode/ # Full-screen presentation
+│   ├── PresentationMode/ # Full-screen presentation
+│   └── HelpModal/        # Help system (NEW!)
 ├── App.js               # Main application component
 ├── App.css              # Global styles
 ├── index.js             # React entry point
 └── index.css            # Base styles
 ```
+
+## Documentation
+
+- **[PROJECT_EXPLANATION.md](PROJECT_EXPLANATION.md)** - Complete project overview and technical details
+- **[NEW_FEATURES.md](NEW_FEATURES.md)** - Detailed documentation of all new features
+- **[USAGE_GUIDE.md](USAGE_GUIDE.md)** - Quick start guide and tutorials
+- **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Technical implementation details
 
 ## Technical Features
 

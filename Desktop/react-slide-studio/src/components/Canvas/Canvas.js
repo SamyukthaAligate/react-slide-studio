@@ -567,6 +567,46 @@ const Canvas = ({
       );
     }
 
+    if (element.type === 'video') {
+      return (
+        <div key={element.id} className={`canvas-element ${isDragging && isSelected ? 'dragging' : ''}`}>
+          <video
+            src={element.src}
+            controls
+            style={{
+              ...elementStyle,
+              objectFit: 'cover',
+              border: isSelected ? '2px solid #1a73e8' : '2px solid transparent',
+              borderRadius: '4px',
+              backgroundColor: '#000'
+            }}
+            onClick={(e) => handleElementClick(e, element)}
+            onMouseDown={(e) => handleMouseDown(e, element)}
+          />
+          {isSelected && (
+            <div className="resize-handles">
+              <div 
+                className="resize-handle nw" 
+                onMouseDown={(e) => handleMouseDown(e, element, 'nw')}
+              />
+              <div 
+                className="resize-handle ne" 
+                onMouseDown={(e) => handleMouseDown(e, element, 'ne')}
+              />
+              <div 
+                className="resize-handle sw" 
+                onMouseDown={(e) => handleMouseDown(e, element, 'sw')}
+              />
+              <div 
+                className="resize-handle se" 
+                onMouseDown={(e) => handleMouseDown(e, element, 'se')}
+              />
+            </div>
+          )}
+        </div>
+      );
+    }
+
     return null;
   };
 

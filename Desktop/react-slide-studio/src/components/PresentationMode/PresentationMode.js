@@ -269,6 +269,22 @@ const PresentationMode = ({ slides, currentSlideIndex, onSlideChange, onExit }) 
       );
     }
 
+    if (element.type === 'video') {
+      return (
+        <video
+          key={element.id}
+          src={element.src}
+          controls
+          style={{
+            ...elementStyle,
+            objectFit: 'cover',
+            borderRadius: '4px',
+            backgroundColor: '#000'
+          }}
+        />
+      );
+    }
+
     return null;
   };
 

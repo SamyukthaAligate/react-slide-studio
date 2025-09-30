@@ -1,0 +1,397 @@
+.help-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.help-modal {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.help-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 32px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.help-modal-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #202124;
+  font-size: 24px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.help-modal-header h2 i {
+  color: #1a73e8;
+}
+
+.close-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #5f6368;
+  transition: all 0.2s;
+}
+
+.close-btn:hover {
+  background-color: #f1f3f4;
+  color: #202124;
+}
+
+.help-modal-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 16px 32px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.help-tab {
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #5f6368;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.help-tab:hover {
+  color: #202124;
+  background-color: #f1f3f4;
+  border-radius: 8px 8px 0 0;
+}
+
+.help-tab.active {
+  color: #1a73e8;
+  border-bottom-color: #1a73e8;
+}
+
+.help-modal-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px;
+}
+
+/* Guide Content */
+.guide-intro {
+  margin-bottom: 32px;
+}
+
+.guide-intro h3 {
+  color: #202124;
+  font-size: 20px;
+  margin: 0 0 8px 0;
+}
+
+.guide-intro p {
+  color: #5f6368;
+  font-size: 14px;
+  margin: 0;
+}
+
+.guide-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.guide-step {
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+
+.guide-step:hover {
+  background: #e8f0fe;
+  transform: translateX(4px);
+}
+
+.step-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.step-content h4 {
+  color: #202124;
+  font-size: 16px;
+  margin: 0 0 8px 0;
+  font-weight: 500;
+}
+
+.step-content p {
+  color: #5f6368;
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Shortcuts Content */
+.shortcuts-intro {
+  margin-bottom: 24px;
+}
+
+.shortcuts-intro h3 {
+  color: #202124;
+  font-size: 20px;
+  margin: 0 0 8px 0;
+}
+
+.shortcuts-intro p {
+  color: #5f6368;
+  font-size: 14px;
+  margin: 0;
+}
+
+.shortcuts-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.shortcut-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.shortcut-item:hover {
+  background: #e8f0fe;
+}
+
+.shortcut-keys {
+  padding: 8px 12px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: #202124;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.shortcut-description {
+  color: #5f6368;
+  font-size: 14px;
+}
+
+/* Tips Content */
+.tips-intro {
+  margin-bottom: 24px;
+}
+
+.tips-intro h3 {
+  color: #202124;
+  font-size: 20px;
+  margin: 0 0 8px 0;
+}
+
+.tips-intro p {
+  color: #5f6368;
+  font-size: 14px;
+  margin: 0;
+}
+
+.tips-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.tip-item {
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+  background: #fff8e1;
+  border-left: 4px solid #fbbc04;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.tip-item:hover {
+  background: #fff3cd;
+  transform: translateX(4px);
+}
+
+.tip-icon {
+  width: 40px;
+  height: 40px;
+  background: #fbbc04;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.tip-content h4 {
+  color: #202124;
+  font-size: 16px;
+  margin: 0 0 8px 0;
+  font-weight: 500;
+}
+
+.tip-content p {
+  color: #5f6368;
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Footer */
+.help-modal-footer {
+  padding: 20px 32px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.help-modal-footer p {
+  color: #5f6368;
+  font-size: 13px;
+  margin: 0;
+}
+
+.primary-btn {
+  padding: 10px 24px;
+  background: #1a73e8;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.primary-btn:hover {
+  background: #1557b0;
+  box-shadow: 0 2px 8px rgba(26, 115, 232, 0.3);
+}
+
+/* Scrollbar Styling */
+.help-modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.help-modal-content::-webkit-scrollbar-track {
+  background: #f1f3f4;
+  border-radius: 4px;
+}
+
+.help-modal-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.help-modal-content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .help-modal {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .help-modal-header,
+  .help-modal-content,
+  .help-modal-footer {
+    padding: 20px;
+  }
+
+  .help-modal-tabs {
+    padding: 12px 20px 0;
+  }
+
+  .help-tab {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .shortcuts-list {
+    grid-template-columns: 1fr;
+  }
+
+  .help-modal-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .help-modal-footer p {
+    text-align: center;
+  }
+}

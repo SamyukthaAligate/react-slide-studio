@@ -6,6 +6,9 @@ import SlidePanel from './components/SlidePanel/SlidePanel';
 import Canvas from './components/Canvas/Canvas';
 import PresentationMode from './components/PresentationMode/PresentationMode';
 import HelpModal from './components/HelpModal/HelpModal';
+import ShareModal from './components/ShareModal/ShareModal';
+import ChartModal from './components/ChartModal/ChartModal';
+import { exportToPDF } from './utils/pdfExport';
 import './App.css';
 
 function App() {
@@ -26,6 +29,8 @@ function App() {
   const [currentPresentationId, setCurrentPresentationId] = useState(null);
   const [savedPresentations, setSavedPresentations] = useState([]);
   const [showHelp, setShowHelp] = useState(false);
+  const [showShare, setShowShare] = useState(false);
+  const [showChartModal, setShowChartModal] = useState(false);
   
   // Undo/Redo functionality
   const [history, setHistory] = useState([]);
@@ -101,6 +106,36 @@ function App() {
       setHistoryIndex(-1);
     }
   }, [savedPresentations]);
+
+  // Delete presentation
+  const deletePresentation = useCallback((presentationId) => {
+    if (window.confirm('Are you sure you want to delete this presentation?')) {
+      const updatedPresentations = savedPresentations.filter(p => p.id !== presentationId);
+      setSavedPresentations(updatedPresentations);
+      localStorage.setItem('savedPresentations', JSON.stringify(updatedPresentations));
+      
+      // If deleting current presentation, create new one
+      if (currentPresentationId === presentationId) {
+        createNewPresentation();
+      }
+    }
+  }, [savedPresentations, currentPresentationId]);
+
+  // Download as PDF
+  const downloadAsPDF = useCallback(async () => {
+    try {
+      alert('Generating PDF... This may take a few moments.');
+      const result = await exportToPDF(slides, presentationTitle);
+      if (result.success) {
+        alert('PDF downloaded successfully!');
+      } else {
+        alert(`Error generating PDF: ${result.error}`);
+      }
+    } catch (error) {
+      alert('Failed to generate PDF. Please try again.');
+      console.error('PDF export error:', error);
+    }
+  }, [slides, presentationTitle]);
 
   // Save state to history for undo/redo
   const saveToHistory = useCallback((newSlides) => {
@@ -411,9 +446,13 @@ function App() {
         onSave={savePresentation}
         onNew={createNewPresentation}
         onOpen={openPresentation}
+        onDelete={deletePresentation}
+        onDownloadPDF={downloadAsPDF}
         savedPresentations={savedPresentations}
         onAddElement={handleHeaderAddElement}
         onShowHelp={() => setShowHelp(true)}
+        onShowShare={() => setShowShare(true)}
+        onShowChartModal={() => setShowChartModal(true)}
       />
       <Toolbar 
         onAddElement={addElement}
@@ -440,9 +479,12 @@ function App() {
           onSelectElement={setSelectedElement}
           onUpdateElement={updateElement}
           onDeleteElement={deleteElement}
+          onAddElement={addElement}
         />
       </div>
       {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
+      {showShare && <ShareModal onClose={() => setShowShare(false)} presentationTitle={presentationTitle} />}
+      {showChartModal && <ChartModal onClose={() => setShowChartModal(false)} onCreateChart={addElement} />}
     </div>
   );
 }

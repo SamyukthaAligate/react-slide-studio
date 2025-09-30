@@ -7,19 +7,86 @@ const Canvas = ({
   selectedElement, 
   onSelectElement, 
   onUpdateElement, 
-  onDeleteElement 
+  onDeleteElement,
+  onAddElement 
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [resizeHandle, setResizeHandle] = useState(null);
   const [isEditingText, setIsEditingText] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
   const canvasRef = useRef(null);
 
   const handleCanvasClick = (e) => {
     if (e.target === canvasRef.current) {
       onSelectElement(null);
       setIsEditingText(false);
+    }
+  };
+
+  // Drag and drop for images
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      
+      // Check if it's an image or video
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const rect = canvasRef.current.getBoundingClientRect();
+          const x = e.clientX - rect.left - 100; // Center on drop point
+          const y = e.clientY - rect.top - 75;
+
+          if (onAddElement) {
+            onAddElement({
+              type: 'image',
+              src: event.target.result,
+              x: Math.max(0, x),
+              y: Math.max(0, y),
+              width: 200,
+              height: 150
+            });
+          }
+        };
+        reader.readAsDataURL(file);
+      } else if (file.type.startsWith('video/')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const rect = canvasRef.current.getBoundingClientRect();
+          const x = e.clientX - rect.left - 200;
+          const y = e.clientY - rect.top - 150;
+
+          if (onAddElement) {
+            onAddElement({
+              type: 'video',
+              src: event.target.result,
+              x: Math.max(0, x),
+              y: Math.max(0, y),
+              width: 400,
+              height: 300
+            });
+          }
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
@@ -615,11 +682,28 @@ const Canvas = ({
       <div className="canvas-wrapper">
         <div
           ref={canvasRef}
-          className="canvas"
-          style={{ backgroundColor: slide.background }}
+          className={`canvas ${isDragOver ? 'drag-over' : ''}`}
+          style={{ 
+            backgroundColor: slide.background,
+            backgroundImage: slide.backgroundImage ? `url(${slide.backgroundImage})` : 'none',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
           onClick={handleCanvasClick}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
         >
           {slide.elements.map(renderElement)}
+          {isDragOver && (
+            <div className="drag-overlay">
+              <div className="drag-message">
+                <i className="fas fa-cloud-upload-alt"></i>
+                <p>Drop image or video here</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

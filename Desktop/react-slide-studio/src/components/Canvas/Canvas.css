@@ -22,6 +22,42 @@
   position: relative;
   overflow: hidden;
   cursor: default;
+  transition: all 0.3s ease;
+}
+
+.canvas.drag-over {
+  border: 3px dashed #1a73e8;
+  background-color: #e8f0fe;
+}
+
+.drag-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(26, 115, 232, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.drag-message {
+  text-align: center;
+  color: #1a73e8;
+}
+
+.drag-message i {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.drag-message p {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0;
 }
 
 .canvas-element {

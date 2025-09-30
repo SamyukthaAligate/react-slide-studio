@@ -319,7 +319,13 @@ const PresentationMode = ({ slides, currentSlideIndex, onSlideChange, onExit }) 
 
       <div 
         className="presentation-slide"
-        style={{ backgroundColor: currentSlide.background }}
+        style={{ 
+          backgroundColor: currentSlide.background,
+          backgroundImage: currentSlide.backgroundImage ? `url(${currentSlide.backgroundImage})` : 'none',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
         onClick={nextSlide}
       >
         {currentSlide.elements.map(renderElement)}

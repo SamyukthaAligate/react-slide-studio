@@ -12,9 +12,13 @@ const Header = ({
   onSave,
   onNew,
   onOpen,
+  onDelete,
+  onDownloadPDF,
   savedPresentations,
   onAddElement,
-  onShowHelp
+  onShowHelp,
+  onShowShare,
+  onShowChartModal
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
@@ -117,15 +121,26 @@ const Header = ({
                   <div className="submenu-content">
                     {savedPresentations && savedPresentations.length > 0 ? (
                       savedPresentations.map((ppt, index) => (
-                        <button 
-                          key={index} 
-                          className="dropdown-item"
-                          onClick={() => handleMenuAction(() => onOpen(ppt.id))}
-                        >
-                          <i className="fas fa-file-powerpoint"></i>
-                          {ppt.title}
-                          <span className="file-date">{new Date(ppt.lastModified).toLocaleDateString()}</span>
-                        </button>
+                        <div key={index} className="submenu-item-wrapper">
+                          <button 
+                            className="dropdown-item"
+                            onClick={() => handleMenuAction(() => onOpen(ppt.id))}
+                          >
+                            <i className="fas fa-file-powerpoint"></i>
+                            {ppt.title}
+                            <span className="file-date">{new Date(ppt.lastModified).toLocaleDateString()}</span>
+                          </button>
+                          <button
+                            className="delete-file-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleMenuAction(() => onDelete(ppt.id));
+                            }}
+                            title="Delete presentation"
+                          >
+                            <i className="fas fa-trash"></i>
+                          </button>
+                        </div>
                       ))
                     ) : (
                       <div className="dropdown-item disabled">No saved presentations</div>
@@ -133,13 +148,9 @@ const Header = ({
                   </div>
                 </div>
                 <div className="dropdown-divider"></div>
-                <button className="dropdown-item">
+                <button className="dropdown-item" onClick={() => handleMenuAction(onDownloadPDF)}>
                   <i className="fas fa-download"></i>
                   Download as PDF
-                </button>
-                <button className="dropdown-item">
-                  <i className="fas fa-file-export"></i>
-                  Export as Images
                 </button>
               </div>
             )}
@@ -246,9 +257,9 @@ const Header = ({
                   <i className="fas fa-shapes"></i>
                   Shape
                 </button>
-                <button className="dropdown-item" onClick={() => handleMenuAction(() => onAddElement('chart'))}>
+                <button className="dropdown-item" onClick={() => handleMenuAction(onShowChartModal)}>
                   <i className="fas fa-chart-bar"></i>
-                  Chart
+                  Custom Chart
                 </button>
                 <div className="dropdown-divider"></div>
                 <button className="dropdown-item">
@@ -272,41 +283,41 @@ const Header = ({
               Format
             </button>
             {activeMenu === 'format' && (
-              <div className="dropdown-menu">
-                <button className="dropdown-item">
+              <div className="dropdown-menu" onClick={(e) => e.stopPropagation()}>
+                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Bold'))}>
                   <i className="fas fa-bold"></i>
                   Bold
                   <span className="shortcut">Ctrl+B</span>
                 </button>
-                <button className="dropdown-item">
+                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Italic'))}>
                   <i className="fas fa-italic"></i>
                   Italic
                   <span className="shortcut">Ctrl+I</span>
                 </button>
-                <button className="dropdown-item">
+                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Underline'))}>
                   <i className="fas fa-underline"></i>
                   Underline
                   <span className="shortcut">Ctrl+U</span>
                 </button>
                 <div className="dropdown-divider"></div>
-                <button className="dropdown-item">
+                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Align Left'))}>
                   <i className="fas fa-align-left"></i>
                   Align Left
                 </button>
-                <button className="dropdown-item">
+                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Align Center'))}>
                   <i className="fas fa-align-center"></i>
                   Align Center
                 </button>
-                <button className="dropdown-item">
+                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Align Right'))}>
                   <i className="fas fa-align-right"></i>
                   Align Right
                 </button>
                 <div className="dropdown-divider"></div>
-                <button className="dropdown-item">
+                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Text Color'))}>
                   <i className="fas fa-palette"></i>
                   Text Color
                 </button>
-                <button className="dropdown-item">
+                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Background Color'))}>
                   <i className="fas fa-fill-drip"></i>
                   Background Color
                 </button>
@@ -407,7 +418,7 @@ const Header = ({
       </div>
 
       <div className="header-right">
-        <button className="share-btn">
+        <button className="share-btn" onClick={onShowShare}>
           <i className="fas fa-share-alt"></i>
           Share
         </button>

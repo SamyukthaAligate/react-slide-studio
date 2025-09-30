@@ -35,9 +35,11 @@
 
 .toolbar-content {
   padding: 12px 16px;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
-.insert-tools, .format-tools {
+.insert-tools, .format-tools, .design-tools {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -467,4 +469,123 @@
   .format-controls {
     justify-content: center;
   }
+}
+
+/* Custom Color Input */
+.custom-color-input {
+  width: 40px;
+  height: 40px;
+  border: 2px solid white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Transparent Color Option */
+.color-option.transparent {
+  background: linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc),
+              linear-gradient(45deg, #ccc 25%, white 25%, white 75%, #ccc 75%, #ccc);
+  background-size: 10px 10px;
+  background-position: 0 0, 5px 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ea4335;
+}
+
+/* Size Controls */
+.size-controls {
+  display: flex;
+  gap: 8px;
+}
+
+/* Design Tab Styles */
+.custom-bg-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.color-input-large {
+  width: 60px;
+  height: 40px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.color-value {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+/* Background Image Controls */
+.bg-image-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.upload-bg-btn {
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.upload-bg-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.remove-bg-btn {
+  padding: 10px 16px;
+  background: rgba(234, 67, 53, 0.2);
+  border: 2px solid rgba(234, 67, 53, 0.3);
+  border-radius: 8px;
+  color: #ff6b6b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.remove-bg-btn:hover {
+  background: rgba(234, 67, 53, 0.3);
+  border-color: rgba(234, 67, 53, 0.5);
+}
+
+/* Quick Colors */
+.quick-colors {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+.quick-color-btn {
+  width: 40px;
+  height: 40px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quick-color-btn:hover {
+  transform: scale(1.1);
+  border-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }

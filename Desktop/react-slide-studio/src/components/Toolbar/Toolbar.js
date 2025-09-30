@@ -445,8 +445,86 @@ const Toolbar = ({
                                 }}
                               />
                             ))}
+                            <input
+                              type="color"
+                              value={selectedElement.color || '#000000'}
+                              onChange={(e) => updateSelectedElement('color', e.target.value)}
+                              className="custom-color-input"
+                              title="Custom color"
+                            />
                           </div>
                         )}
+                      </div>
+                    </div>
+
+                    <div className="control-group">
+                      <label>Text Background:</label>
+                      <div className="color-picker-container">
+                        <button 
+                          className="color-preview-btn"
+                          style={{ backgroundColor: selectedElement.backgroundColor || 'transparent' }}
+                          onClick={() => setShowBackgroundPicker(!showBackgroundPicker)}
+                        />
+                        {showBackgroundPicker && (
+                          <div className="color-palette">
+                            <button
+                              className="color-option transparent"
+                              onClick={() => {
+                                updateSelectedElement('backgroundColor', 'transparent');
+                                setShowBackgroundPicker(false);
+                              }}
+                              title="Transparent"
+                            >
+                              <i className="fas fa-ban"></i>
+                            </button>
+                            {textColors.map(color => (
+                              <button
+                                key={color}
+                                className="color-option"
+                                style={{ backgroundColor: color }}
+                                onClick={() => {
+                                  updateSelectedElement('backgroundColor', color);
+                                  setShowBackgroundPicker(false);
+                                }}
+                              />
+                            ))}
+                            <input
+                              type="color"
+                              value={selectedElement.backgroundColor === 'transparent' ? '#ffffff' : selectedElement.backgroundColor || '#ffffff'}
+                              onChange={(e) => updateSelectedElement('backgroundColor', e.target.value)}
+                              className="custom-color-input"
+                              title="Custom color"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="control-group">
+                      <label>Size:</label>
+                      <div className="size-controls">
+                        <button 
+                          className="format-btn"
+                          onClick={() => {
+                            const newWidth = (selectedElement.width || 200) * 1.1;
+                            const newHeight = (selectedElement.height || 50) * 1.1;
+                            onUpdateElement(selectedElement.id, { width: newWidth, height: newHeight });
+                          }}
+                          title="Increase size"
+                        >
+                          <i className="fas fa-search-plus"></i>
+                        </button>
+                        <button 
+                          className="format-btn"
+                          onClick={() => {
+                            const newWidth = (selectedElement.width || 200) * 0.9;
+                            const newHeight = (selectedElement.height || 50) * 0.9;
+                            onUpdateElement(selectedElement.id, { width: newWidth, height: newHeight });
+                          }}
+                          title="Decrease size"
+                        >
+                          <i className="fas fa-search-minus"></i>
+                        </button>
                       </div>
                     </div>
 
@@ -542,7 +620,7 @@ const Toolbar = ({
         {activeTab === 'design' && (
           <div className="design-tools">
             <div className="control-group">
-              <label>Slide Background:</label>
+              <label>Background Themes:</label>
               <button 
                 className="background-picker-btn"
                 onClick={() => setShowBackgroundPicker(!showBackgroundPicker)}
@@ -568,6 +646,95 @@ const Toolbar = ({
                   ))}
                 </div>
               )}
+            </div>
+
+            <div className="control-group">
+              <label>Custom Background Color:</label>
+              <div className="custom-bg-controls">
+                <input 
+                  type="color" 
+                  value={slides[currentSlideIndex]?.background || '#ffffff'}
+                  onChange={(e) => {
+                    const updatedSlide = {
+                      ...slides[currentSlideIndex],
+                      background: e.target.value,
+                      backgroundImage: null,
+                      theme: 'custom'
+                    };
+                    onUpdateSlide(currentSlideIndex, updatedSlide);
+                  }}
+                  className="color-input-large"
+                />
+                <span className="color-value">{slides[currentSlideIndex]?.background || '#ffffff'}</span>
+              </div>
+            </div>
+
+            <div className="control-group">
+              <label>Background Image:</label>
+              <div className="bg-image-controls">
+                <label className="upload-bg-btn">
+                  <i className="fas fa-image"></i>
+                  Upload Image
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          const updatedSlide = {
+                            ...slides[currentSlideIndex],
+                            backgroundImage: event.target.result,
+                            theme: 'custom'
+                          };
+                          onUpdateSlide(currentSlideIndex, updatedSlide);
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                    style={{ display: 'none' }}
+                  />
+                </label>
+                {slides[currentSlideIndex]?.backgroundImage && (
+                  <button 
+                    className="remove-bg-btn"
+                    onClick={() => {
+                      const updatedSlide = {
+                        ...slides[currentSlideIndex],
+                        backgroundImage: null
+                      };
+                      onUpdateSlide(currentSlideIndex, updatedSlide);
+                    }}
+                  >
+                    <i className="fas fa-times"></i>
+                    Remove
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="control-group">
+              <label>Quick Colors:</label>
+              <div className="quick-colors">
+                {textColors.slice(0, 12).map(color => (
+                  <button
+                    key={color}
+                    className="quick-color-btn"
+                    style={{ backgroundColor: color }}
+                    onClick={() => {
+                      const updatedSlide = {
+                        ...slides[currentSlideIndex],
+                        background: color,
+                        backgroundImage: null,
+                        theme: 'custom'
+                      };
+                      onUpdateSlide(currentSlideIndex, updatedSlide);
+                    }}
+                    title={color}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         )}

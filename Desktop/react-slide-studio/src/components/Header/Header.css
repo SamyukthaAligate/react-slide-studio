@@ -199,8 +199,9 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   min-width: 240px;
   padding: 8px 0;
-  z-index: 1000;
+  z-index: 10000;
   animation: dropdownFadeIn 0.15s ease-out;
+  pointer-events: auto;
 }
 
 @keyframes dropdownFadeIn {
@@ -228,6 +229,8 @@
   gap: 12px;
   transition: background-color 0.15s;
   position: relative;
+  pointer-events: auto;
+  user-select: none;
 }
 
 .dropdown-item:hover:not(.disabled) {
@@ -292,6 +295,42 @@
 
 .dropdown-submenu:hover .submenu-content {
   display: block;
+}
+
+.submenu-item-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.submenu-item-wrapper .dropdown-item {
+  flex: 1;
+  padding-right: 40px;
+}
+
+.delete-file-btn {
+  position: absolute;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  color: #ea4335;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.2s;
+}
+
+.submenu-item-wrapper:hover .delete-file-btn {
+  opacity: 1;
+}
+
+.delete-file-btn:hover {
+  background-color: #fce8e6;
 }
 
 /* Responsive Design */

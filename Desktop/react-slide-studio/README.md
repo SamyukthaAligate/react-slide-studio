@@ -1,61 +1,83 @@
-# React Slide Studio
+# React Slide Studio 🎨
 
-A fully functional Google Slides replica built with React and CSS. This application provides a complete presentation creation experience with drag-and-drop functionality, text editing, shape insertion, image/video upload, save/load capabilities, and presentation mode.
+A fully functional, modern presentation tool built with React and CSS. Create stunning presentations with an intuitive interface, powerful features, and complete responsiveness across all devices.
 
-## 🌟 New Features (v2.0)
+![Version](https://img.shields.io/badge/version-3.0-blue)
+![React](https://img.shields.io/badge/React-18-61dafb)
+![License](https://img.shields.io/badge/license-MIT-green)
+
+## ✨ Latest Features (v3.0)
+
+### 📐 **Element Resizing & Dimensions**
+- **Universal Size Controls**: Increase/decrease size for all element types (10% increments)
+- **Precise Dimensions**: Direct width/height input controls (50-800px width, 30-600px height)
+- **Responsive Scaling**: Elements scale properly across all screen sizes
+- **Visual Feedback**: Real-time dimension display while editing
+
+### 📱 **Fully Responsive Interface**
+- **Mobile Hamburger Menu**: Smooth slide-in navigation for tablets and mobile
+- **Adaptive Dropdowns**: All menus optimized for touch devices (44px min touch targets)
+- **Breakpoint System**: 
+  - Desktop (>1024px): Full features
+  - Tablet (768px-1024px): Compact layouts
+  - Mobile (480px-768px): Touch-optimized
+  - Small mobile (<480px): Ultra-compact
+
+### 🔍 **Zoom Functionality**
+- **Zoom Range**: 50% to 200% with 10% increments
+- **Keyboard Shortcuts**: 
+  - `Ctrl/Cmd + +` - Zoom In
+  - `Ctrl/Cmd + -` - Zoom Out
+  - `Ctrl/Cmd + 0` - Fit to Screen (100%)
+- **Visual Indicator**: Real-time zoom level display in View menu
+- **Smooth Scaling**: Canvas scales with proper transform origin
+
+### 🛠️ **Tools Menu**
+- **Spell Check**: Scans text elements on current slide
+- **Ruler & Guides**: 
+  - Toggleable horizontal and vertical rulers
+  - Pixel markers every 50px
+  - Corner close button for easy removal
+  - Responsive sizing for different screens
+- **Arrange Objects**: 
+  - Bring to Front / Send to Back
+  - Bring Forward / Send Backward
+  - Layer management for selected elements
+- **Group Elements**: Multi-select grouping (coming soon)
+- **Settings Modal**: 
+  - Display settings (rulers toggle)
+  - Zoom controls
+  - About section
 
 ### 💾 **Save & Load System**
-- **Save Presentations**: Save your work locally with `Ctrl+S`
-- **Multiple Presentations**: Create and manage multiple presentations
-- **Open Recent**: Access all saved presentations from File menu
-- **Persistent Storage**: Presentations saved in browser localStorage
+- **Local Storage**: Save presentations in browser
+- **Multiple Presentations**: Create and manage unlimited presentations
+- **Open Recent**: Quick access to saved presentations with delete option
 - **Auto-Save Metadata**: Tracks title and last modified date
+- **PDF Export**: Download presentations as PDF
 
-### 🎥 **Video Support**
-- **Upload Videos**: Add MP4, WebM videos to slides
-- **Video Controls**: Play, pause, and control volume in editor
-- **Presentation Playback**: Videos work seamlessly in presentation mode
-- **Drag & Resize**: Move and resize videos like any other element
+### 🎥 **Media Support**
+- **Images**: Upload and insert images with drag & drop
+- **Videos**: Add MP4, WebM videos with playback controls
+- **Charts**: Create bar, pie, and line charts with custom data
+- **Shapes**: Rectangles, circles, triangles with customizable colors
 
-### 📋 **Interactive Menus**
-- **File Menu**: New, Save, Open Recent, Export options
-- **Edit Menu**: Undo, Redo, Cut, Copy, Paste
-- **View Menu**: Presentation mode, Zoom controls
-- **Insert Menu**: Quick access to add elements
-- **Format Menu**: Text formatting shortcuts
-- **Tools Menu**: Advanced features and settings
-- **Help Menu**: User guide, shortcuts, tips & tricks
-
-### ❓ **Help System**
-- **User Guide**: Step-by-step instructions
-- **Keyboard Shortcuts**: Complete shortcut reference
-- **Tips & Tricks**: Productivity tips for power users
-- **Interactive Modal**: Beautiful tabbed interface
-
-## Features
+## 🚀 Features
 
 ### 🎨 **Core Functionality**
 - **Slide Management**: Add, delete, duplicate, and navigate between slides
-- **Text Elements**: Add text boxes with full formatting options (font, size, color, alignment)
-- **Shapes**: Insert rectangles, circles, and triangles with customizable colors and borders
-- **Images**: Upload and insert images from your device
-- **Videos**: Upload and insert videos with playback controls (NEW!)
-- **Charts**: Create bar, pie, and line charts with sample data
-- **Drag & Drop**: Move and resize elements with intuitive mouse interactions
-- **Presentation Mode**: Full-screen presentation with keyboard navigation
+- **Text Elements**: Full formatting (15+ fonts, sizes 8-72px, colors, alignment)
+- **Drag & Drop**: Intuitive mouse interactions for all elements
+- **Presentation Mode**: Full-screen with keyboard navigation
 - **Undo/Redo**: 50-level history for all actions
+- **Real-time Editing**: Double-click text to edit inline
 
 ### 🎯 **User Interface**
-- **Google Slides-inspired Design**: Clean, modern interface matching Google's design language
-- **Responsive Layout**: Works seamlessly on desktop, tablet, and mobile devices
-- **Context Menus**: Right-click functionality for slide operations
-- **Keyboard Shortcuts**: Standard shortcuts for navigation and editing
-- **Real-time Editing**: Double-click text elements to edit inline
-
-### 📱 **Responsive Design**
-- **Desktop**: Full-featured experience with all tools visible
-- **Tablet**: Optimized layout with collapsible panels
-- **Mobile**: Touch-friendly interface with simplified controls
+- **Modern Design**: Clean, Google Slides-inspired interface
+- **Interactive Menus**: File, Edit, View, Insert, Tools, Help
+- **Context Menus**: Right-click for slide operations
+- **Help System**: User guide, shortcuts, tips & tricks
+- **Accessibility**: High contrast mode, reduced motion support
 
 ## Getting Started
 
@@ -108,26 +130,30 @@ A fully functional Google Slides replica built with React and CSS. This applicat
 - Use arrow keys or spacebar to navigate
 - Press Escape to exit presentation mode
 
-### Keyboard Shortcuts
+### ⌨️ Keyboard Shortcuts
 
 | Action | Shortcut |
 |--------|----------|
 | **File Operations** | |
-| Save presentation | `Ctrl+S` |
-| New presentation | `Ctrl+N` |
+| Save presentation | `Ctrl+S` / `Cmd+S` |
+| New presentation | `Ctrl+N` / `Cmd+N` |
 | **Editing** | |
-| Undo | `Ctrl+Z` |
-| Redo | `Ctrl+Y` |
+| Undo | `Ctrl+Z` / `Cmd+Z` |
+| Redo | `Ctrl+Y` / `Cmd+Y` |
 | Delete selected element | `Delete` |
 | Deselect element | `Escape` |
 | **Text Formatting** | |
-| Bold | `Ctrl+B` |
-| Italic | `Ctrl+I` |
-| Underline | `Ctrl+U` |
+| Bold | `Ctrl+B` / `Cmd+B` |
+| Italic | `Ctrl+I` / `Cmd+I` |
+| Underline | `Ctrl+U` / `Cmd+U` |
+| **View & Zoom** | |
+| Zoom In | `Ctrl++` / `Cmd++` |
+| Zoom Out | `Ctrl+-` / `Cmd+-` |
+| Fit to Screen | `Ctrl+0` / `Cmd+0` |
 | **Presentation** | |
 | Start presentation | `F5` |
-| Next slide (presentation) | `→` or `Space` |
-| Previous slide (presentation) | `←` |
+| Next slide | `→` or `Space` |
+| Previous slide | `←` |
 | Exit presentation | `Escape` |
 
 ## Project Structure
@@ -147,14 +173,7 @@ src/
 └── index.css            # Base styles
 ```
 
-## Documentation
-
-- **[PROJECT_EXPLANATION.md](PROJECT_EXPLANATION.md)** - Complete project overview and technical details
-- **[NEW_FEATURES.md](NEW_FEATURES.md)** - Detailed documentation of all new features
-- **[USAGE_GUIDE.md](USAGE_GUIDE.md)** - Quick start guide and tutorials
-- **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Technical implementation details
-
-## Technical Features
+## 🏗️ Technical Features
 
 ### **State Management**
 - React hooks for component state
@@ -176,29 +195,51 @@ src/
 - useCallback for event handlers
 - Efficient re-rendering strategies
 
-## Browser Support
+## 🌐 Browser Support
 
-- Chrome (recommended)
-- Firefox
-- Safari
-- Edge
+- ✅ Chrome (recommended)
+- ✅ Firefox
+- ✅ Safari
+- ✅ Edge
+- ✅ Mobile browsers (iOS Safari, Chrome Mobile)
 
-## Contributing
+## 📊 Project Stats
+
+- **Components**: 10+ React components
+- **Lines of Code**: 5000+
+- **Features**: 50+ implemented features
+- **Responsive Breakpoints**: 4 (1024px, 768px, 480px, 360px)
+- **Keyboard Shortcuts**: 15+
+
+## 🤝 Contributing
 
 This project is built with modern React patterns and follows best practices for:
-- Component composition
-- State management
-- Event handling
-- Responsive design
-- Accessibility
+- Component composition and reusability
+- State management with hooks
+- Event handling and performance optimization
+- Responsive design and mobile-first approach
+- Accessibility (WCAG 2.1 guidelines)
+- Clean code and documentation
 
-## License
+## 📄 License
 
 This project is open source and available under the MIT License.
 
-## Acknowledgments
+## 🙏 Acknowledgments
 
 - Inspired by Google Slides interface and functionality
 - Built with React 18 and modern CSS features
 - Uses Font Awesome for icons
-- Roboto font for typography
+- Roboto font family for typography
+- HTML5 Canvas API for rendering
+
+## 📞 Support
+
+For issues, questions, or suggestions:
+- Create an issue on GitHub
+- Check the Help menu in the application
+- Review keyboard shortcuts with `?` key
+
+---
+
+**Made with ❤️ using React**

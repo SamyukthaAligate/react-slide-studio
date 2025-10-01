@@ -598,6 +598,94 @@ const Toolbar = ({
                       />
                       <span className="range-value">{selectedElement.strokeWidth || 2}px</span>
                     </div>
+
+                    <div className="control-group">
+                      <label>Size:</label>
+                      <div className="size-controls">
+                        <button 
+                          className="format-btn"
+                          onClick={() => {
+                            const newWidth = (selectedElement.width || 100) * 1.1;
+                            const newHeight = (selectedElement.height || 100) * 1.1;
+                            onUpdateElement(selectedElement.id, { width: newWidth, height: newHeight });
+                          }}
+                          title="Increase size"
+                        >
+                          <i className="fas fa-search-plus"></i>
+                        </button>
+                        <button 
+                          className="format-btn"
+                          onClick={() => {
+                            const newWidth = (selectedElement.width || 100) * 0.9;
+                            const newHeight = (selectedElement.height || 100) * 0.9;
+                            onUpdateElement(selectedElement.id, { width: newWidth, height: newHeight });
+                          }}
+                          title="Decrease size"
+                        >
+                          <i className="fas fa-search-minus"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {(selectedElement.type === 'image' || selectedElement.type === 'video' || selectedElement.type === 'chart') && (
+                  <>
+                    <div className="control-group">
+                      <label>Size:</label>
+                      <div className="size-controls">
+                        <button 
+                          className="format-btn"
+                          onClick={() => {
+                            const newWidth = (selectedElement.width || 200) * 1.1;
+                            const newHeight = (selectedElement.height || 150) * 1.1;
+                            onUpdateElement(selectedElement.id, { width: newWidth, height: newHeight });
+                          }}
+                          title="Increase size"
+                        >
+                          <i className="fas fa-search-plus"></i>
+                        </button>
+                        <button 
+                          className="format-btn"
+                          onClick={() => {
+                            const newWidth = (selectedElement.width || 200) * 0.9;
+                            const newHeight = (selectedElement.height || 150) * 0.9;
+                            onUpdateElement(selectedElement.id, { width: newWidth, height: newHeight });
+                          }}
+                          title="Decrease size"
+                        >
+                          <i className="fas fa-search-minus"></i>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="control-group">
+                      <label>Dimensions:</label>
+                      <div className="dimension-controls">
+                        <div className="dimension-input-group">
+                          <label>W:</label>
+                          <input 
+                            type="number" 
+                            value={Math.round(selectedElement.width || 200)}
+                            onChange={(e) => updateSelectedElement('width', parseInt(e.target.value) || 50)}
+                            className="dimension-input"
+                            min="50"
+                            max="800"
+                          />
+                        </div>
+                        <div className="dimension-input-group">
+                          <label>H:</label>
+                          <input 
+                            type="number" 
+                            value={Math.round(selectedElement.height || 150)}
+                            onChange={(e) => updateSelectedElement('height', parseInt(e.target.value) || 30)}
+                            className="dimension-input"
+                            min="30"
+                            max="600"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </>
                 )}
 

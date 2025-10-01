@@ -18,10 +18,21 @@ const Header = ({
   onAddElement,
   onShowHelp,
   onShowShare,
-  onShowChartModal
+  onShowChartModal,
+  onZoomIn,
+  onZoomOut,
+  onFitToScreen,
+  zoomLevel,
+  onSpellCheck,
+  onToggleRulers,
+  onArrangeObjects,
+  onGroupElements,
+  onShowSettings,
+  showRulers
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
   const handleTitleClick = () => {
@@ -46,11 +57,17 @@ const Header = ({
     setActiveMenu(activeMenu === menuName ? null : menuName);
   };
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+    setActiveMenu(null);
+  };
+
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setActiveMenu(null);
+        setIsMobileMenuOpen(false);
       }
     };
 
@@ -60,6 +77,7 @@ const Header = ({
 
   const handleMenuAction = (action) => {
     setActiveMenu(null);
+    setIsMobileMenuOpen(false);
     action();
   };
 
@@ -90,7 +108,10 @@ const Header = ({
       </div>
       
       <div className="header-center" ref={menuRef}>
-        <div className="menu-items">
+        <button className="mobile-menu-toggle" onClick={toggleMobileMenu}>
+          <i className={`fas ${isMobileMenuOpen ? 'fa-times' : 'fa-bars'}`}></i>
+        </button>
+        <div className={`menu-items ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
           {/* File Menu */}
           <div className="menu-dropdown">
             <button 
@@ -177,17 +198,17 @@ const Header = ({
                   <span className="shortcut">Ctrl+Y</span>
                 </button>
                 <div className="dropdown-divider"></div>
-                <button className="dropdown-item">
+                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Cut'))}>
                   <i className="fas fa-cut"></i>
                   Cut
                   <span className="shortcut">Ctrl+X</span>
                 </button>
-                <button className="dropdown-item">
+                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Copy'))}>
                   <i className="fas fa-copy"></i>
                   Copy
                   <span className="shortcut">Ctrl+C</span>
                 </button>
-                <button className="dropdown-item">
+                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Paste'))}>
                   <i className="fas fa-paste"></i>
                   Paste
                   <span className="shortcut">Ctrl+V</span>
@@ -212,20 +233,25 @@ const Header = ({
                   <span className="shortcut">F5</span>
                 </button>
                 <div className="dropdown-divider"></div>
-                <button className="dropdown-item">
+                <button className="dropdown-item" onClick={() => handleMenuAction(onZoomIn)}>
                   <i className="fas fa-search-plus"></i>
                   Zoom In
                   <span className="shortcut">Ctrl++</span>
                 </button>
-                <button className="dropdown-item">
+                <button className="dropdown-item" onClick={() => handleMenuAction(onZoomOut)}>
                   <i className="fas fa-search-minus"></i>
                   Zoom Out
                   <span className="shortcut">Ctrl+-</span>
                 </button>
-                <button className="dropdown-item">
+                <button className="dropdown-item" onClick={() => handleMenuAction(onFitToScreen)}>
                   <i className="fas fa-expand"></i>
                   Fit to Screen
                 </button>
+                <div className="dropdown-divider"></div>
+                <div className="dropdown-item zoom-level-display">
+                  <i className="fas fa-percentage"></i>
+                  Zoom: {zoomLevel}%
+                </div>
               </div>
             )}
           </div>
@@ -262,64 +288,13 @@ const Header = ({
                   Custom Chart
                 </button>
                 <div className="dropdown-divider"></div>
-                <button className="dropdown-item">
+                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Insert Table'))}>
                   <i className="fas fa-table"></i>
                   Table
                 </button>
-                <button className="dropdown-item">
+                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Insert Link'))}>
                   <i className="fas fa-link"></i>
                   Link
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Format Menu */}
-          <div className="menu-dropdown">
-            <button 
-              className={`menu-item ${activeMenu === 'format' ? 'active' : ''}`}
-              onClick={() => toggleMenu('format')}
-            >
-              Format
-            </button>
-            {activeMenu === 'format' && (
-              <div className="dropdown-menu" onClick={(e) => e.stopPropagation()}>
-                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Bold'))}>
-                  <i className="fas fa-bold"></i>
-                  Bold
-                  <span className="shortcut">Ctrl+B</span>
-                </button>
-                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Italic'))}>
-                  <i className="fas fa-italic"></i>
-                  Italic
-                  <span className="shortcut">Ctrl+I</span>
-                </button>
-                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Underline'))}>
-                  <i className="fas fa-underline"></i>
-                  Underline
-                  <span className="shortcut">Ctrl+U</span>
-                </button>
-                <div className="dropdown-divider"></div>
-                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Align Left'))}>
-                  <i className="fas fa-align-left"></i>
-                  Align Left
-                </button>
-                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Align Center'))}>
-                  <i className="fas fa-align-center"></i>
-                  Align Center
-                </button>
-                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Align Right'))}>
-                  <i className="fas fa-align-right"></i>
-                  Align Right
-                </button>
-                <div className="dropdown-divider"></div>
-                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Text Color'))}>
-                  <i className="fas fa-palette"></i>
-                  Text Color
-                </button>
-                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Background Color'))}>
-                  <i className="fas fa-fill-drip"></i>
-                  Background Color
                 </button>
               </div>
             )}
@@ -335,25 +310,47 @@ const Header = ({
             </button>
             {activeMenu === 'tools' && (
               <div className="dropdown-menu">
-                <button className="dropdown-item">
+                <button className="dropdown-item" onClick={() => handleMenuAction(onSpellCheck)}>
                   <i className="fas fa-spell-check"></i>
                   Spell Check
                 </button>
-                <button className="dropdown-item">
+                <button className="dropdown-item" onClick={() => handleMenuAction(onToggleRulers)}>
                   <i className="fas fa-ruler"></i>
                   Ruler & Guides
+                  {showRulers && <i className="fas fa-check" style={{ marginLeft: 'auto', color: '#34a853' }}></i>}
                 </button>
                 <div className="dropdown-divider"></div>
-                <button className="dropdown-item">
-                  <i className="fas fa-layer-group"></i>
-                  Arrange Objects
-                </button>
-                <button className="dropdown-item">
+                <div className="dropdown-submenu">
+                  <button className="dropdown-item">
+                    <i className="fas fa-layer-group"></i>
+                    Arrange Objects
+                    <i className="fas fa-chevron-right"></i>
+                  </button>
+                  <div className="submenu-content arrange-submenu">
+                    <button className="dropdown-item" onClick={() => handleMenuAction(() => onArrangeObjects('bring-to-front'))}>
+                      <i className="fas fa-arrow-up"></i>
+                      Bring to Front
+                    </button>
+                    <button className="dropdown-item" onClick={() => handleMenuAction(() => onArrangeObjects('bring-forward'))}>
+                      <i className="fas fa-chevron-up"></i>
+                      Bring Forward
+                    </button>
+                    <button className="dropdown-item" onClick={() => handleMenuAction(() => onArrangeObjects('send-backward'))}>
+                      <i className="fas fa-chevron-down"></i>
+                      Send Backward
+                    </button>
+                    <button className="dropdown-item" onClick={() => handleMenuAction(() => onArrangeObjects('send-to-back'))}>
+                      <i className="fas fa-arrow-down"></i>
+                      Send to Back
+                    </button>
+                  </div>
+                </div>
+                <button className="dropdown-item" onClick={() => handleMenuAction(onGroupElements)}>
                   <i className="fas fa-object-group"></i>
                   Group Elements
                 </button>
                 <div className="dropdown-divider"></div>
-                <button className="dropdown-item">
+                <button className="dropdown-item" onClick={() => handleMenuAction(onShowSettings)}>
                   <i className="fas fa-cog"></i>
                   Settings
                 </button>
@@ -380,16 +377,12 @@ const Header = ({
                   Keyboard Shortcuts
                 </button>
                 <div className="dropdown-divider"></div>
-                <button className="dropdown-item">
+                <button className="dropdown-item" onClick={() => handleMenuAction(onShowHelp)}>
                   <i className="fas fa-lightbulb"></i>
                   Tips & Tricks
                 </button>
-                <button className="dropdown-item">
-                  <i className="fas fa-video"></i>
-                  Video Tutorials
-                </button>
                 <div className="dropdown-divider"></div>
-                <button className="dropdown-item">
+                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('About Slide Studio'))}>
                   <i className="fas fa-info-circle"></i>
                   About Slide Studio
                 </button>

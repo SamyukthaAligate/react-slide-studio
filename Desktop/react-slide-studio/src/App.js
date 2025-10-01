@@ -31,6 +31,9 @@ function App() {
   const [showHelp, setShowHelp] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showChartModal, setShowChartModal] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(100); // Zoom level in percentage
+  const [showRulers, setShowRulers] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   
   // Undo/Redo functionality
   const [history, setHistory] = useState([]);
@@ -395,6 +398,80 @@ function App() {
     setIsPresentationMode(false);
   }, []);
 
+  // Zoom functionality
+  const zoomIn = useCallback(() => {
+    setZoomLevel(prev => Math.min(prev + 10, 200)); // Max 200%
+  }, []);
+
+  const zoomOut = useCallback(() => {
+    setZoomLevel(prev => Math.max(prev - 10, 50)); // Min 50%
+  }, []);
+
+  const fitToScreen = useCallback(() => {
+    setZoomLevel(100); // Reset to 100%
+  }, []);
+
+  // Tools functionality
+  const toggleRulers = useCallback(() => {
+    setShowRulers(prev => !prev);
+  }, []);
+
+  const arrangeObjects = useCallback((arrangement) => {
+    if (!selectedElement) {
+      alert('Please select an element first');
+      return;
+    }
+
+    const currentSlide = slides[currentSlideIndex];
+    const elementIndex = currentSlide.elements.findIndex(el => el.id === selectedElement.id);
+    
+    if (elementIndex === -1) return;
+
+    const newElements = [...currentSlide.elements];
+    const element = newElements.splice(elementIndex, 1)[0];
+
+    switch(arrangement) {
+      case 'bring-to-front':
+        newElements.push(element);
+        break;
+      case 'send-to-back':
+        newElements.unshift(element);
+        break;
+      case 'bring-forward':
+        if (elementIndex < newElements.length) {
+          newElements.splice(elementIndex + 1, 0, element);
+        } else {
+          newElements.push(element);
+        }
+        break;
+      case 'send-backward':
+        if (elementIndex > 0) {
+          newElements.splice(elementIndex - 1, 0, element);
+        } else {
+          newElements.unshift(element);
+        }
+        break;
+      default:
+        newElements.splice(elementIndex, 0, element);
+    }
+
+    const updatedSlide = { ...currentSlide, elements: newElements };
+    updateSlide(currentSlideIndex, updatedSlide);
+  }, [selectedElement, slides, currentSlideIndex, updateSlide]);
+
+  const spellCheck = useCallback(() => {
+    const textElements = slides[currentSlideIndex].elements.filter(el => el.type === 'text');
+    if (textElements.length === 0) {
+      alert('No text elements found on this slide');
+      return;
+    }
+    alert(`Spell check feature: Found ${textElements.length} text element(s) on this slide. Full spell check functionality coming soon!`);
+  }, [slides, currentSlideIndex]);
+
+  const groupElements = useCallback(() => {
+    alert('Group Elements: Select multiple elements (Ctrl+Click) to group them together. Feature coming soon!');
+  }, []);
+
   // Keyboard shortcuts
   React.useEffect(() => {
     const handleKeyDown = (e) => {
@@ -411,6 +488,15 @@ function App() {
         } else if (e.key === 'n') {
           e.preventDefault();
           createNewPresentation();
+        } else if (e.key === '=' || e.key === '+') {
+          e.preventDefault();
+          zoomIn();
+        } else if (e.key === '-' || e.key === '_') {
+          e.preventDefault();
+          zoomOut();
+        } else if (e.key === '0') {
+          e.preventDefault();
+          fitToScreen();
         }
       } else if (e.key === 'F5') {
         e.preventDefault();
@@ -420,7 +506,7 @@ function App() {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo, savePresentation, createNewPresentation, startPresentation]);
+  }, [undo, redo, savePresentation, createNewPresentation, startPresentation, zoomIn, zoomOut, fitToScreen]);
 
   if (isPresentationMode) {
     return (
@@ -453,6 +539,16 @@ function App() {
         onShowHelp={() => setShowHelp(true)}
         onShowShare={() => setShowShare(true)}
         onShowChartModal={() => setShowChartModal(true)}
+        onZoomIn={zoomIn}
+        onZoomOut={zoomOut}
+        onFitToScreen={fitToScreen}
+        zoomLevel={zoomLevel}
+        onSpellCheck={spellCheck}
+        onToggleRulers={toggleRulers}
+        onArrangeObjects={arrangeObjects}
+        onGroupElements={groupElements}
+        onShowSettings={() => setShowSettings(true)}
+        showRulers={showRulers}
       />
       <Toolbar 
         onAddElement={addElement}
@@ -480,11 +576,49 @@ function App() {
           onUpdateElement={updateElement}
           onDeleteElement={deleteElement}
           onAddElement={addElement}
+          zoomLevel={zoomLevel}
+          showRulers={showRulers}
+          onToggleRulers={toggleRulers}
         />
       </div>
       {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
       {showShare && <ShareModal onClose={() => setShowShare(false)} presentationTitle={presentationTitle} />}
       {showChartModal && <ChartModal onClose={() => setShowChartModal(false)} onCreateChart={addElement} />}
+      {showSettings && (
+        <div className="modal-overlay" onClick={() => setShowSettings(false)}>
+          <div className="settings-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2><i className="fas fa-cog"></i> Settings</h2>
+              <button className="close-btn" onClick={() => setShowSettings(false)}>
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <div className="modal-content">
+              <div className="settings-section">
+                <h3>Display Settings</h3>
+                <label className="settings-option">
+                  <input type="checkbox" checked={showRulers} onChange={toggleRulers} />
+                  <span>Show Rulers & Guides</span>
+                </label>
+              </div>
+              <div className="settings-section">
+                <h3>Zoom Settings</h3>
+                <p>Current Zoom: {zoomLevel}%</p>
+                <div className="zoom-controls">
+                  <button onClick={zoomOut} className="settings-btn">-</button>
+                  <button onClick={fitToScreen} className="settings-btn">Reset</button>
+                  <button onClick={zoomIn} className="settings-btn">+</button>
+                </div>
+              </div>
+              <div className="settings-section">
+                <h3>About</h3>
+                <p>React Slide Studio v1.0</p>
+                <p>A modern presentation tool built with React</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

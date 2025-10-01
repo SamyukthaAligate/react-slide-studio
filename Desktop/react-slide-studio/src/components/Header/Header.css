@@ -333,14 +333,105 @@
   background-color: #fce8e6;
 }
 
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+  display: none;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  color: #5f6368;
+  font-size: 20px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.mobile-menu-toggle:hover {
+  background-color: #f1f3f4;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
-  .menu-items {
-    display: none;
+  .mobile-menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  
-  .header-center {
-    display: none;
+
+  .menu-items {
+    position: fixed;
+    top: 60px;
+    left: -100%;
+    width: 280px;
+    height: calc(100vh - 60px);
+    background: white;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+    flex-direction: column;
+    padding: 16px 0;
+    transition: left 0.3s ease;
+    z-index: 9999;
+    overflow-y: auto;
+  }
+
+  .menu-items.mobile-open {
+    left: 0;
+  }
+
+  .menu-dropdown {
+    width: 100%;
+  }
+
+  .menu-item {
+    width: 100%;
+    text-align: left;
+    padding: 12px 20px;
+    border-radius: 0;
+  }
+
+  .dropdown-menu {
+    position: static;
+    box-shadow: none;
+    border: none;
+    border-left: 3px solid #1a73e8;
+    margin: 0;
+    padding: 0;
+    background: #f8f9fa;
+  }
+
+  .dropdown-item {
+    padding: 12px 20px 12px 32px;
+  }
+
+  .submenu-content {
+    position: static;
+    box-shadow: none;
+    border: none;
+    border-left: 3px solid #34a853;
+    margin: 0;
+    padding: 0;
+    background: #e8f0fe;
+    display: block;
+    max-height: none;
+  }
+
+  .dropdown-submenu:hover .submenu-content {
+    display: block;
+  }
+
+  .submenu-item-wrapper .dropdown-item {
+    padding: 10px 20px 10px 40px;
+  }
+
+  .undo-redo-controls {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: white;
+    padding: 8px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
   }
 }
 
@@ -364,6 +455,24 @@
   .share-btn span, .present-btn span {
     display: none;
   }
+
+  .menu-items {
+    width: 240px;
+  }
+
+  .dropdown-menu {
+    border-radius: 0;
+  }
+
+  /* Better touch targets for tablets */
+  .dropdown-item {
+    min-height: 40px;
+    touch-action: manipulation;
+  }
+
+  .dropdown-item:active {
+    background-color: #e8f0fe;
+  }
 }
 
 @media (max-width: 480px) {
@@ -377,5 +486,357 @@
   
   .share-btn, .present-btn {
     padding: 8px 12px;
+  }
+
+  .menu-items {
+    width: 200px;
+  }
+
+  .presentation-title {
+    max-width: 100px;
+  }
+
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+  }
+
+  .user-avatar i {
+    font-size: 16px;
+  }
+
+  /* Enhanced touch targets for mobile */
+  .dropdown-item {
+    min-height: 36px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(26, 115, 232, 0.1);
+  }
+
+  .dropdown-item:active {
+    background-color: #e8f0fe;
+    transform: scale(0.98);
+  }
+
+  /* Format menu text wrapping on small screens */
+  .dropdown-item {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* Overlay for mobile menu */
+@media (max-width: 1024px) {
+  .menu-items.mobile-open::before {
+    content: '';
+    position: fixed;
+    top: 60px;
+    left: 280px;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: -1;
+  }
+
+  /* Format menu specific responsive styles */
+  .dropdown-menu .dropdown-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 44px;
+    padding: 12px 20px 12px 32px;
+  }
+
+  .dropdown-menu .dropdown-item i {
+    font-size: 16px;
+    min-width: 24px;
+  }
+
+  .dropdown-menu .shortcut {
+    font-size: 11px;
+    padding: 2px 6px;
+    background: rgba(26, 115, 232, 0.1);
+    border-radius: 4px;
+  }
+
+  .dropdown-divider {
+    margin: 4px 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Compact format menu for tablets */
+  .dropdown-menu .dropdown-item {
+    padding: 10px 16px 10px 28px;
+    min-height: 40px;
+    font-size: 13px;
+  }
+
+  .dropdown-menu .dropdown-item i {
+    font-size: 14px;
+    min-width: 20px;
+  }
+
+  .dropdown-menu .shortcut {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Mobile-optimized format menu */
+  .dropdown-menu .dropdown-item {
+    padding: 8px 12px 8px 24px;
+    min-height: 36px;
+    font-size: 12px;
+  }
+
+  .dropdown-menu .dropdown-item i {
+    font-size: 13px;
+    min-width: 18px;
+  }
+
+  .dropdown-menu .shortcut {
+    display: none; /* Hide shortcuts on very small screens */
+  }
+
+  .dropdown-divider {
+    margin: 2px 12px;
+  }
+
+  /* Optimize Format menu icon and text layout */
+  .dropdown-item i {
+    flex-shrink: 0;
+  }
+
+  .dropdown-item .shortcut {
+    flex-shrink: 0;
+  }
+}
+
+/* Additional responsive enhancements for all screen sizes */
+@media (hover: none) and (pointer: coarse) {
+  /* Touch device optimizations */
+  .dropdown-item {
+    min-height: 44px; /* Larger touch targets */
+    padding: 12px 16px;
+  }
+
+  .dropdown-item:hover {
+    background-color: transparent; /* Disable hover on touch devices */
+  }
+
+  .dropdown-item:active {
+    background-color: #e8f0fe;
+  }
+}
+
+/* Landscape mobile optimization */
+@media (max-width: 768px) and (orientation: landscape) {
+  .menu-items {
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+  }
+
+  .dropdown-menu {
+    max-height: none;
+  }
+
+  .dropdown-item {
+    padding: 8px 16px 8px 28px;
+    min-height: 36px;
+  }
+}
+
+/* Enhanced dropdown responsiveness for all menus */
+@media (max-width: 1024px) {
+  /* File, Edit, View, Insert, Tools, Help menus */
+  .menu-dropdown .dropdown-menu {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .menu-dropdown .dropdown-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* Ensure icons don't shrink */
+  .menu-dropdown .dropdown-item i {
+    flex-shrink: 0;
+  }
+
+  /* Ensure shortcuts stay on the right */
+  .menu-dropdown .dropdown-item .shortcut {
+    margin-left: auto;
+  }
+
+  /* File date in Open Recent submenu */
+  .menu-dropdown .dropdown-item .file-date {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Compact all dropdown menus */
+  .menu-dropdown .dropdown-menu {
+    font-size: 13px;
+  }
+
+  .menu-dropdown .dropdown-item {
+    padding: 10px 16px 10px 28px;
+    gap: 10px;
+  }
+
+  .menu-dropdown .dropdown-item i {
+    font-size: 14px;
+  }
+
+  .menu-dropdown .shortcut {
+    font-size: 10px;
+    padding: 2px 4px;
+  }
+
+  /* Submenu adjustments */
+  .submenu-content {
+    font-size: 12px;
+  }
+
+  .submenu-item-wrapper .dropdown-item {
+    padding: 8px 16px 8px 36px;
+  }
+
+  .delete-file-btn {
+    width: 28px;
+    height: 28px;
+    right: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Ultra-compact for small screens */
+  .menu-dropdown .dropdown-menu {
+    font-size: 12px;
+  }
+
+  .menu-dropdown .dropdown-item {
+    padding: 8px 12px 8px 24px;
+    gap: 8px;
+  }
+
+  .menu-dropdown .dropdown-item i {
+    font-size: 13px;
+    min-width: 16px;
+  }
+
+  /* Hide all shortcuts on very small screens */
+  .menu-dropdown .shortcut {
+    display: none;
+  }
+
+  /* Compact submenu */
+  .submenu-content {
+    font-size: 11px;
+  }
+
+  .submenu-item-wrapper .dropdown-item {
+    padding: 6px 12px 6px 32px;
+  }
+
+  .delete-file-btn {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+  }
+
+  /* Compact dividers */
+  .dropdown-divider {
+    margin: 2px 12px;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .dropdown-menu {
+    animation: none;
+  }
+
+  .dropdown-item:active {
+    transform: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .dropdown-item {
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .dropdown-item:hover:not(.disabled) {
+    border-color: #1a73e8;
+  }
+}
+
+/* Zoom level display */
+.zoom-level-display {
+  background-color: #e8f0fe;
+  color: #1a73e8;
+  font-weight: 600;
+  cursor: default;
+  pointer-events: none;
+  justify-content: center;
+}
+
+.zoom-level-display i {
+  color: #1a73e8;
+}
+
+.zoom-level-display:hover {
+  background-color: #e8f0fe;
+}
+
+/* Arrange Objects Submenu */
+.arrange-submenu {
+  min-width: 200px;
+}
+
+.arrange-submenu .dropdown-item {
+  padding: 10px 16px;
+}
+
+.arrange-submenu .dropdown-item i {
+  width: 20px;
+  text-align: center;
+}
+
+/* Responsive arrange submenu */
+@media (max-width: 1024px) {
+  .arrange-submenu {
+    position: static;
+    box-shadow: none;
+    border: none;
+    border-left: 3px solid #fbbc04;
+    margin: 0;
+    padding: 0;
+    background: #fff3e0;
+  }
+
+  .arrange-submenu .dropdown-item {
+    padding: 10px 20px 10px 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .arrange-submenu .dropdown-item {
+    padding: 8px 16px 8px 36px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .arrange-submenu .dropdown-item {
+    padding: 6px 12px 6px 32px;
+    font-size: 12px;
   }
 }

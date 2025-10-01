@@ -8,7 +8,10 @@ const Canvas = ({
   onSelectElement, 
   onUpdateElement, 
   onDeleteElement,
-  onAddElement 
+  onAddElement,
+  zoomLevel = 100,
+  showRulers = false,
+  onToggleRulers
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -677,9 +680,43 @@ const Canvas = ({
     return null;
   };
 
+  const zoomScale = zoomLevel / 100;
+
   return (
     <div className="canvas-container">
-      <div className="canvas-wrapper">
+      {showRulers && (
+        <>
+          <div className="ruler-corner">
+            <button 
+              className="ruler-close-btn" 
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onToggleRulers) {
+                  onToggleRulers();
+                }
+              }}
+              title="Hide Rulers (Click to remove)"
+            >
+              <i className="fas fa-times"></i>
+            </button>
+          </div>
+          <div className="ruler ruler-horizontal">
+            {Array.from({ length: 17 }, (_, i) => (
+              <div key={i} className="ruler-mark" style={{ left: `${i * 50}px` }}>
+                <span className="ruler-label">{i * 50}</span>
+              </div>
+            ))}
+          </div>
+          <div className="ruler ruler-vertical">
+            {Array.from({ length: 13 }, (_, i) => (
+              <div key={i} className="ruler-mark" style={{ top: `${i * 50}px` }}>
+                <span className="ruler-label">{i * 50}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+      <div className="canvas-wrapper" style={{ transform: `scale(${zoomScale})`, transformOrigin: 'top center', marginLeft: showRulers ? '30px' : '0', marginTop: showRulers ? '30px' : '20px' }}>
         <div
           ref={canvasRef}
           className={`canvas ${isDragOver ? 'drag-over' : ''}`}

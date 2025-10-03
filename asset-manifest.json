@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/react-slide-studio/static/css/main.6e719564.css",
+    "main.js": "/react-slide-studio/static/js/main.7cb79215.js",
+    "static/js/977.54935f4b.chunk.js": "/react-slide-studio/static/js/977.54935f4b.chunk.js",
+    "static/js/455.21055470.chunk.js": "/react-slide-studio/static/js/455.21055470.chunk.js",
+    "index.html": "/react-slide-studio/index.html",
+    "main.6e719564.css.map": "/react-slide-studio/static/css/main.6e719564.css.map",
+    "main.7cb79215.js.map": "/react-slide-studio/static/js/main.7cb79215.js.map",
+    "977.54935f4b.chunk.js.map": "/react-slide-studio/static/js/977.54935f4b.chunk.js.map",
+    "455.21055470.chunk.js.map": "/react-slide-studio/static/js/455.21055470.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.6e719564.css",
+    "static/js/main.7cb79215.js"
+  ]
+}

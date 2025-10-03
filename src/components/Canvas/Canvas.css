@@ -1,0 +1,357 @@
+.canvas-container {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  background-color: #f8f9fa;
+  padding: 20px;
+  overflow: auto;
+}
+
+.canvas-wrapper {
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+  margin: 20px auto;
+}
+
+.canvas {
+  width: 800px;
+  height: 600px;
+  background-color: #ffffff;
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+  transition: all 0.3s ease;
+}
+
+.canvas.drag-over {
+  border: 3px dashed #1a73e8;
+  background-color: #e8f0fe;
+}
+
+.drag-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(26, 115, 232, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.drag-message {
+  text-align: center;
+  color: #1a73e8;
+}
+
+.drag-message i {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.drag-message p {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.canvas-element {
+  position: relative;
+}
+
+.canvas-element.dragging {
+  opacity: 0.8;
+  transform: scale(1.02);
+  transition: transform 0.1s ease;
+}
+
+.canvas-element:hover {
+  z-index: 10;
+}
+
+.resize-handles {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  right: -8px;
+  bottom: -8px;
+  pointer-events: none;
+}
+
+.resize-handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #1a73e8;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  pointer-events: all;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.resize-handle.nw {
+  top: 0;
+  left: 0;
+  cursor: nw-resize;
+}
+
+.resize-handle.ne {
+  top: 0;
+  right: 0;
+  cursor: ne-resize;
+}
+
+.resize-handle.sw {
+  bottom: 0;
+  left: 0;
+  cursor: sw-resize;
+}
+
+.resize-handle.se {
+  bottom: 0;
+  right: 0;
+  cursor: se-resize;
+}
+
+.resize-handle:hover {
+  background-color: #1557b0;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .canvas {
+    width: 640px;
+    height: 480px;
+  }
+  
+  .canvas-container {
+    padding: 16px;
+  }
+
+  .canvas-wrapper {
+    margin: 16px auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .canvas {
+    width: 480px;
+    height: 360px;
+  }
+  
+  .canvas-container {
+    padding: 12px;
+    align-items: flex-start;
+  }
+  
+  .resize-handle {
+    width: 12px;
+    height: 12px;
+  }
+
+  .canvas-wrapper {
+    margin: 12px auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .canvas {
+    width: 320px;
+    height: 240px;
+  }
+  
+  .canvas-container {
+    padding: 8px;
+  }
+  
+  .canvas-wrapper {
+    border-radius: 4px;
+    margin: 8px auto;
+  }
+}
+
+/* Ensure canvas scales properly on very small screens */
+@media (max-width: 360px) {
+  .canvas {
+    width: 280px;
+    height: 210px;
+  }
+
+  .canvas-container {
+    padding: 4px;
+  }
+}
+
+/* Zoom-specific responsive adjustments */
+@media (max-width: 768px) {
+  .canvas-wrapper {
+    transform-origin: top center !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .canvas-container {
+    overflow-x: auto;
+    overflow-y: auto;
+  }
+}
+
+/* Rulers */
+.ruler {
+  position: absolute;
+  background-color: #e0e0e0;
+  z-index: 100;
+}
+
+.ruler-corner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 30px;
+  height: 30px;
+  background-color: #d0d0d0;
+  border-right: 1px solid #bdbdbd;
+  border-bottom: 1px solid #bdbdbd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 101;
+}
+
+.ruler-close-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background-color: #ea4335;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.ruler-close-btn:hover {
+  background-color: #d33b2c;
+  transform: scale(1.1);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.ruler-close-btn:active {
+  transform: scale(0.95);
+}
+
+.ruler-horizontal {
+  top: 0;
+  left: 30px;
+  width: 800px;
+  height: 30px;
+  border-bottom: 1px solid #bdbdbd;
+}
+
+.ruler-vertical {
+  top: 30px;
+  left: 0;
+  width: 30px;
+  height: 600px;
+  border-right: 1px solid #bdbdbd;
+}
+
+.ruler-mark {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ruler-horizontal .ruler-mark {
+  width: 1px;
+  height: 100%;
+  border-left: 1px solid #9e9e9e;
+}
+
+.ruler-vertical .ruler-mark {
+  width: 100%;
+  height: 1px;
+  border-top: 1px solid #9e9e9e;
+}
+
+.ruler-label {
+  position: absolute;
+  font-size: 9px;
+  color: #5f6368;
+  font-weight: 500;
+}
+
+.ruler-horizontal .ruler-label {
+  top: 2px;
+  left: 2px;
+}
+
+.ruler-vertical .ruler-label {
+  top: 2px;
+  left: 2px;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* Responsive rulers */
+@media (max-width: 1200px) {
+  .ruler-horizontal {
+    width: 640px;
+  }
+
+  .ruler-vertical {
+    height: 480px;
+  }
+}
+
+@media (max-width: 768px) {
+  .ruler-horizontal {
+    width: 480px;
+    height: 25px;
+    left: 25px;
+  }
+
+  .ruler-vertical {
+    height: 360px;
+    width: 25px;
+    top: 25px;
+  }
+
+  .ruler-corner {
+    width: 25px;
+    height: 25px;
+  }
+
+  .ruler-close-btn {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+  }
+
+  .ruler-label {
+    font-size: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ruler {
+    display: none; /* Hide rulers on very small screens */
+  }
+
+  .ruler-corner {
+    display: none;
+  }
+}

@@ -1,0 +1,9 @@
+@echo off
+echo Starting React Slide Studio...
+echo.
+echo Installing dependencies...
+npm install
+echo.
+echo Starting development server...
+npm start
+pause

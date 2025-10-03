@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A Google Slides replica built with React",
   "main": "index.js",
-  "homepage": "https://SamyukthaAligate.github.io/react-slide-studio",
+  "homepage": ".",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",

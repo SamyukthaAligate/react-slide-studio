@@ -22,15 +22,16 @@
 }
 
 .help-modal {
-  background: white;
+  background: #1a1a1a;
   border-radius: 12px;
   width: 90%;
   max-width: 800px;
   max-height: 85vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 32px rgba(255, 255, 255, 0.2);
   animation: slideUp 0.3s ease-out;
+  color: #ffffff;
 }
 
 @keyframes slideUp {

@@ -1,13 +1,13 @@
 .toolbar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-bottom: 1px solid #e0e0e0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  border-bottom: 1px solid #333333;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.15);
   color: white;
 }
 
 .toolbar-tabs {
   display: flex;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid #333333;
 }
 
 .tab {

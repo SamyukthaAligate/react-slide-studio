@@ -2,7 +2,8 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #f8f9fa;
+  background-color: #000000;
+  color: #ffffff;
 }
 
 .main-content {
@@ -33,14 +34,14 @@
 
 /* Settings Modal */
 .settings-modal {
-  background: white;
+  background: #1a1a1a;
   border-radius: 12px;
   width: 90%;
   max-width: 500px;
   max-height: 80vh;
   overflow-y: auto;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  animation: slideUp 0.3s ease;
+  box-shadow: 0 8px 32px rgba(255, 255, 255, 0.2);
+  color: #ffffff;
 }
 
 @keyframes slideUp {
@@ -59,13 +60,14 @@
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid #333333;
+  background: #1a1a1a;
 }
 
 .modal-header h2 {
   margin: 0;
   font-size: 24px;
-  color: #202124;
+  color: #ffffff;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -79,8 +81,8 @@
   width: 36px;
   height: 36px;
   border: none;
-  background: none;
-  color: #5f6368;
+  background: #333333;
+  color: #ffffff;
   font-size: 20px;
   cursor: pointer;
   border-radius: 50%;
@@ -91,11 +93,12 @@
 }
 
 .close-btn:hover {
-  background-color: #f1f3f4;
+  background-color: #444444;
 }
 
 .modal-content {
   padding: 24px;
+  background: #1a1a1a;
 }
 
 .settings-section {
@@ -104,13 +107,13 @@
 
 .settings-section h3 {
   font-size: 16px;
-  color: #202124;
+  color: #ffffff;
   margin-bottom: 12px;
   font-weight: 600;
 }
 
 .settings-section p {
-  color: #5f6368;
+  color: #cccccc;
   margin: 8px 0;
 }
 
@@ -122,10 +125,11 @@
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.2s;
+  background: #2a2a2a;
 }
 
 .settings-option:hover {
-  background-color: #f1f3f4;
+  background-color: #333333;
 }
 
 .settings-option input[type="checkbox"] {
@@ -136,7 +140,7 @@
 
 .settings-option span {
   font-size: 14px;
-  color: #202124;
+  color: #ffffff;
 }
 
 .zoom-controls {
@@ -147,8 +151,9 @@
 
 .settings-btn {
   padding: 8px 16px;
-  border: 1px solid #e0e0e0;
-  background: white;
+  border: 1px solid #444444;
+  background: #2a2a2a;
+  color: #ffffff;
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
@@ -157,7 +162,7 @@
 }
 
 .settings-btn:hover {
-  background-color: #f1f3f4;
+  background-color: #333333;
   border-color: #1a73e8;
 }
 

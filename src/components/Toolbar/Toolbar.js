@@ -10,9 +10,15 @@ const Toolbar = ({
   currentSlideIndex, 
   onUpdateSlide 
 }) => {
+  // expose grid toggle via prop callbacks if parent passes them
+  // We'll call onToggleGrid(true/false) when user toggles grid
+  // Expect parent (App/Canvas) to wire it up
+  // ...existing code...
+  
   const [activeTab, setActiveTab] = useState('insert');
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showBackgroundPicker, setShowBackgroundPicker] = useState(false);
+  const [gridOn, setGridOn] = useState(false);
 
   const fontFamilies = [
     'Roboto', 'Arial', 'Times New Roman', 'Helvetica', 'Georgia', 
@@ -321,7 +327,7 @@ const Toolbar = ({
           <div className="insert-tools">
             <div className="tool-group">
               <button className="tool-btn" onClick={addTextBox} title="Add text box">
-                <i className="fas fa-font"></i>
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 4h12v2H6V4zM8 8h8v10H8V8z" fill="currentColor"/></svg>
                 <span>Text box</span>
               </button>
               
@@ -365,7 +371,7 @@ const Toolbar = ({
 
               <div className={`tool-dropdown ${activeDropdown === 'shape' ? 'open' : ''}`}>
                 <button className="tool-btn dropdown-toggle" title="Insert shape" onClick={() => toggleDropdown('shape')}>
-                  <i className="fas fa-shapes"></i>
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 3h8v8H3V3zm10 10h8v8h-8v-8z" fill="currentColor"/></svg>
                   <span>Shape</span>
                 </button>
                 <div className="dropdown-content">
@@ -386,7 +392,7 @@ const Toolbar = ({
 
               <div className={`tool-dropdown ${activeDropdown === 'chart' ? 'open' : ''}`}>
                 <button className="tool-btn dropdown-toggle" title="Insert chart" onClick={() => toggleDropdown('chart')}>
-                  <i className="fas fa-chart-bar"></i>
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 20h16v-2H4v2zm3-6h2v6H7v-6zm4-4h2v10h-2V10zm4 2h2v8h-2v-8z" fill="currentColor"/></svg>
                   <span>Chart</span>
                 </button>
                 <div className="dropdown-content">
@@ -404,6 +410,22 @@ const Toolbar = ({
                   </button>
                 </div>
               </div>
+            </div>
+            <div className="tool-group">
+              <button
+                className={`tool-btn ${gridOn ? 'active' : ''}`}
+                title="Toggle grid"
+                onClick={() => {
+                  const next = !gridOn;
+                  setGridOn(next);
+                  // dispatch a custom event so parent Canvas can pick it up if no prop provided
+                  const evt = new CustomEvent('toggleCanvasGrid', { detail: { show: next } });
+                  window.dispatchEvent(evt);
+                }}
+              >
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 3h18v18H3V3zm2 2v14h14V5H5z" fill="currentColor"/></svg>
+                <span>Grid</span>
+              </button>
             </div>
           </div>
         )}

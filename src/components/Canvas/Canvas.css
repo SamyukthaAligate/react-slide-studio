@@ -10,11 +10,11 @@
 
 .canvas-wrapper {
   position: relative;
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
-  border-radius: 8px;
+  box-shadow: 0 14px 40px rgba(2,6,23,0.6), 0 6px 20px rgba(0,0,0,0.4);
+  border-radius: 12px;
   overflow: hidden;
-  transition: transform 0.2s ease;
-  margin: 20px auto;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  margin: 28px auto;
 }
 
 .canvas {
@@ -27,6 +27,41 @@
   cursor: default;
   transition: all 0.3s ease;
   touch-action: manipulation; /* better touch handling */
+}
+
+/* Soft vignette and inner shadow for slide surface */
+.canvas::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 -10px 60px rgba(0,0,0,0.06), inset 0 8px 20px rgba(0,0,0,0.04);
+}
+
+/* Grid overlay for alignment (toggle via .show-grid on .canvas-wrapper) */
+.canvas-grid {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+  background-size: 24px 24px, 24px 24px;
+  opacity: 0.8;
+  pointer-events: none;
+  z-index: 50;
+  display: none;
+}
+
+.canvas-wrapper.show-grid .canvas-grid {
+  display: block;
+}
+
+/* Snap hint lines (shown briefly while dragging when snap-to-grid enabled) */
+.snap-line {
+  position: absolute;
+  background: rgba(26,115,232,0.85);
+  width: 2px;
+  height: 100%;
+  z-index: 1200;
+  pointer-events: none;
 }
 
 .canvas.drag-over {

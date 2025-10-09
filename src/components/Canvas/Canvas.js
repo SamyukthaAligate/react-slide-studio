@@ -149,8 +149,15 @@ const Canvas = ({
       const canvasWidth = 800; // Fixed canvas width
       const canvasHeight = 600; // Fixed canvas height
       
-      const newX = Math.max(0, Math.min(canvasWidth - selectedElement.width, selectedElement.x + deltaX));
-      const newY = Math.max(0, Math.min(canvasHeight - selectedElement.height, selectedElement.y + deltaY));
+      let newX = Math.max(0, Math.min(canvasWidth - selectedElement.width, selectedElement.x + deltaX));
+      let newY = Math.max(0, Math.min(canvasHeight - selectedElement.height, selectedElement.y + deltaY));
+
+      // Snap to grid if enabled
+      const snap = (v) => Math.round(v / 24) * 24;
+      if (snapToGrid) {
+        newX = Math.max(0, Math.min(canvasWidth - selectedElement.width, snap(newX)));
+        newY = Math.max(0, Math.min(canvasHeight - selectedElement.height, snap(newY)));
+      }
       
       onUpdateElement(selectedElement.id, {
         x: newX,
@@ -174,6 +181,10 @@ const Canvas = ({
             width: Math.max(50, Math.min(canvasWidth - selectedElement.x, selectedElement.width + deltaX)),
             height: Math.max(30, Math.min(canvasHeight - selectedElement.y, selectedElement.height + deltaY))
           };
+          if (snapToGrid) {
+            updates.width = Math.max(50, Math.round(updates.width / 24) * 24);
+            updates.height = Math.max(30, Math.round(updates.height / 24) * 24);
+          }
           break;
         case 'sw':
           const newWidth = Math.max(50, selectedElement.width - deltaX);
@@ -183,6 +194,10 @@ const Canvas = ({
             width: newWidth,
             height: Math.max(30, Math.min(canvasHeight - selectedElement.y, selectedElement.height + deltaY))
           };
+          if (snapToGrid) {
+            updates.width = Math.max(50, Math.round(updates.width / 24) * 24);
+            updates.x = Math.max(0, Math.round(updates.x / 24) * 24);
+          }
           break;
         case 'ne':
           const newHeight = Math.max(30, selectedElement.height - deltaY);
@@ -192,6 +207,10 @@ const Canvas = ({
             width: Math.max(50, Math.min(canvasWidth - selectedElement.x, selectedElement.width + deltaX)),
             height: newHeight
           };
+          if (snapToGrid) {
+            updates.height = Math.max(30, Math.round(updates.height / 24) * 24);
+            updates.y = Math.max(0, Math.round(updates.y / 24) * 24);
+          }
           break;
         case 'nw':
           const newWidthNW = Math.max(50, selectedElement.width - deltaX);
@@ -204,6 +223,12 @@ const Canvas = ({
             width: newWidthNW,
             height: newHeightNW
           };
+          if (snapToGrid) {
+            updates.x = Math.max(0, Math.round(updates.x / 24) * 24);
+            updates.y = Math.max(0, Math.round(updates.y / 24) * 24);
+            updates.width = Math.max(50, Math.round(updates.width / 24) * 24);
+            updates.height = Math.max(30, Math.round(updates.height / 24) * 24);
+          }
           break;
         default:
           break;
@@ -253,7 +278,9 @@ const Canvas = ({
   React.useEffect(() => {
     const handleToggle = (e) => {
       if (e && e.detail && typeof e.detail.show === 'boolean') {
+        // when grid is shown we also enable snap-to-grid by default
         setShowGrid(e.detail.show);
+        setSnapToGrid(e.detail.show);
       }
     };
     window.addEventListener('toggleCanvasGrid', handleToggle);

@@ -1,12 +1,16 @@
 .header {
+  --glass-bg: rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.06);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 8px 16px;
-  background-color: #1a1a1a;
-  border-bottom: 1px solid #333333;
-  height: 60px;
-  box-shadow: 0 1px 3px rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--glass-border);
+  height: 64px;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.6);
 }
 
 .header-left {
@@ -26,6 +30,10 @@
 
 .logo i {
   font-size: 24px;
+}
+
+.header {
+  border-radius: 6px;
 }
 
 .title-section {

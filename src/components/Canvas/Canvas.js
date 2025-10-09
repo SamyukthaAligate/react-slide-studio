@@ -13,6 +13,8 @@ const Canvas = ({
   showRulers = false,
   onToggleRulers
 }) => {
+  const [showGrid, setShowGrid] = useState(false);
+  const [snapToGrid, setSnapToGrid] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -249,8 +251,17 @@ const Canvas = ({
   };
 
   React.useEffect(() => {
+    const handleToggle = (e) => {
+      if (e && e.detail && typeof e.detail.show === 'boolean') {
+        setShowGrid(e.detail.show);
+      }
+    };
+    window.addEventListener('toggleCanvasGrid', handleToggle);
     document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('toggleCanvasGrid', handleToggle);
+    };
   }, [selectedElement]);
 
   const renderChart = (element) => {

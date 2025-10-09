@@ -4,6 +4,7 @@ import Header from './components/Header/Header';
 import Toolbar from './components/Toolbar/Toolbar';
 import SlidePanel from './components/SlidePanel/SlidePanel';
 import Canvas from './components/Canvas/Canvas';
+import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 import PresentationMode from './components/PresentationMode/PresentationMode';
 import HelpModal from './components/HelpModal/HelpModal';
 import ShareModal from './components/ShareModal/ShareModal';
@@ -517,6 +518,22 @@ function App() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [undo, redo, savePresentation, createNewPresentation, startPresentation, zoomIn, zoomOut, fitToScreen]);
 
+  // Global error handlers so uncaught exceptions surface visibly
+  React.useEffect(() => {
+    const onError = (event) => {
+      console.error('Global window error:', event.error || event.message, event);
+    };
+    const onRejection = (event) => {
+      console.error('Unhandled promise rejection:', event.reason || event);
+    };
+    window.addEventListener('error', onError);
+    window.addEventListener('unhandledrejection', onRejection);
+    return () => {
+      window.removeEventListener('error', onError);
+      window.removeEventListener('unhandledrejection', onRejection);
+    };
+  }, []);
+
   if (isPresentationMode) {
     return (
       <PresentationMode
@@ -529,6 +546,7 @@ function App() {
   }
 
   return (
+    <ErrorBoundary>
     <div className="app">
       <Header 
         onStartPresentation={startPresentation}
@@ -629,6 +647,7 @@ function App() {
         </div>
       )}
     </div>
+    </ErrorBoundary>
   );
 }
 

@@ -21,6 +21,9 @@ const Canvas = ({
   const [resizeHandle, setResizeHandle] = useState(null);
   const [isEditingText, setIsEditingText] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [gridSize, setGridSize] = useState(24);
+  // track Shift key to temporarily disable snapping
+  const [isShiftDown, setIsShiftDown] = useState(false);
   const canvasRef = useRef(null);
 
   const handleCanvasClick = (e) => {
@@ -152,9 +155,9 @@ const Canvas = ({
       let newX = Math.max(0, Math.min(canvasWidth - selectedElement.width, selectedElement.x + deltaX));
       let newY = Math.max(0, Math.min(canvasHeight - selectedElement.height, selectedElement.y + deltaY));
 
-      // Snap to grid if enabled
-      const snap = (v) => Math.round(v / 24) * 24;
-      if (snapToGrid) {
+      // Snap to grid if enabled and Shift not held
+      const snap = (v) => Math.round(v / gridSize) * gridSize;
+      if (snapToGrid && !isShiftDown) {
         newX = Math.max(0, Math.min(canvasWidth - selectedElement.width, snap(newX)));
         newY = Math.max(0, Math.min(canvasHeight - selectedElement.height, snap(newY)));
       }
@@ -181,9 +184,9 @@ const Canvas = ({
             width: Math.max(50, Math.min(canvasWidth - selectedElement.x, selectedElement.width + deltaX)),
             height: Math.max(30, Math.min(canvasHeight - selectedElement.y, selectedElement.height + deltaY))
           };
-          if (snapToGrid) {
-            updates.width = Math.max(50, Math.round(updates.width / 24) * 24);
-            updates.height = Math.max(30, Math.round(updates.height / 24) * 24);
+          if (snapToGrid && !isShiftDown) {
+            updates.width = Math.max(50, Math.round(updates.width / gridSize) * gridSize);
+            updates.height = Math.max(30, Math.round(updates.height / gridSize) * gridSize);
           }
           break;
         case 'sw':
@@ -194,9 +197,9 @@ const Canvas = ({
             width: newWidth,
             height: Math.max(30, Math.min(canvasHeight - selectedElement.y, selectedElement.height + deltaY))
           };
-          if (snapToGrid) {
-            updates.width = Math.max(50, Math.round(updates.width / 24) * 24);
-            updates.x = Math.max(0, Math.round(updates.x / 24) * 24);
+          if (snapToGrid && !isShiftDown) {
+            updates.width = Math.max(50, Math.round(updates.width / gridSize) * gridSize);
+            updates.x = Math.max(0, Math.round(updates.x / gridSize) * gridSize);
           }
           break;
         case 'ne':
@@ -207,9 +210,9 @@ const Canvas = ({
             width: Math.max(50, Math.min(canvasWidth - selectedElement.x, selectedElement.width + deltaX)),
             height: newHeight
           };
-          if (snapToGrid) {
-            updates.height = Math.max(30, Math.round(updates.height / 24) * 24);
-            updates.y = Math.max(0, Math.round(updates.y / 24) * 24);
+          if (snapToGrid && !isShiftDown) {
+            updates.height = Math.max(30, Math.round(updates.height / gridSize) * gridSize);
+            updates.y = Math.max(0, Math.round(updates.y / gridSize) * gridSize);
           }
           break;
         case 'nw':
@@ -223,11 +226,11 @@ const Canvas = ({
             width: newWidthNW,
             height: newHeightNW
           };
-          if (snapToGrid) {
-            updates.x = Math.max(0, Math.round(updates.x / 24) * 24);
-            updates.y = Math.max(0, Math.round(updates.y / 24) * 24);
-            updates.width = Math.max(50, Math.round(updates.width / 24) * 24);
-            updates.height = Math.max(30, Math.round(updates.height / 24) * 24);
+          if (snapToGrid && !isShiftDown) {
+            updates.x = Math.max(0, Math.round(updates.x / gridSize) * gridSize);
+            updates.y = Math.max(0, Math.round(updates.y / gridSize) * gridSize);
+            updates.width = Math.max(50, Math.round(updates.width / gridSize) * gridSize);
+            updates.height = Math.max(30, Math.round(updates.height / gridSize) * gridSize);
           }
           break;
         default:
@@ -281,15 +284,33 @@ const Canvas = ({
         // when grid is shown we also enable snap-to-grid by default
         setShowGrid(e.detail.show);
         setSnapToGrid(e.detail.show);
+        if (e.detail.size && typeof e.detail.size === 'number') {
+          setGridSize(e.detail.size);
+        }
+      }
+    };
+    const handleSizeChange = (e) => {
+      if (e && e.detail && typeof e.detail.size === 'number') {
+        setGridSize(e.detail.size);
       }
     };
     window.addEventListener('toggleCanvasGrid', handleToggle);
+    window.addEventListener('updateCanvasGridSize', handleSizeChange);
     document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('toggleCanvasGrid', handleToggle);
+      window.removeEventListener('updateCanvasGridSize', handleSizeChange);
     };
   }, [selectedElement]);
+
+  React.useEffect(() => {
+    const onKeyDown = (e) => { if (e.key === 'Shift') setIsShiftDown(true); };
+    const onKeyUp = (e) => { if (e.key === 'Shift') setIsShiftDown(false); };
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+    return () => { window.removeEventListener('keydown', onKeyDown); window.removeEventListener('keyup', onKeyUp); };
+  }, []);
 
   const renderChart = (element) => {
     const { chartType, data, color } = element;

@@ -1,0 +1,51 @@
+.error-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999;
+}
+
+.error-box {
+  background: #1b1b1b;
+  color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 900px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+
+.error-box h2 {
+  margin: 0 0 10px 0;
+}
+
+.error-message, .error-stack {
+  max-height: 200px;
+  overflow: auto;
+  background: rgba(255,255,255,0.03);
+  padding: 8px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+
+.error-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.error-actions button {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background: #2a2a2a;
+  color: #fff;
+}
+
+.error-actions button:hover { background: #3a3a3a; }

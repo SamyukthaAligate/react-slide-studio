@@ -4,7 +4,6 @@ import Header from './components/Header/Header';
 import Toolbar from './components/Toolbar/Toolbar';
 import SlidePanel from './components/SlidePanel/SlidePanel';
 import Canvas from './components/Canvas/Canvas';
-import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 import PresentationMode from './components/PresentationMode/PresentationMode';
 import HelpModal from './components/HelpModal/HelpModal';
 import ShareModal from './components/ShareModal/ShareModal';
@@ -546,7 +545,6 @@ function App() {
   }
 
   return (
-    <ErrorBoundary>
     <div className="app">
       <Header 
         onStartPresentation={startPresentation}
@@ -647,7 +645,6 @@ function App() {
         </div>
       )}
     </div>
-    </ErrorBoundary>
   );
 }
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './Toolbar.css';
 
 const Toolbar = ({ 
@@ -45,11 +45,12 @@ const Toolbar = ({
   ];
 
   const addTextBox = () => {
+    const { x, y } = findNonOverlappingPosition(200, 50);
     onAddElement({
       type: 'text',
       content: 'Click to edit text',
-      x: 100,
-      y: 100,
+      x,
+      y,
       width: 200,
       height: 50,
       fontSize: 16,
@@ -99,7 +100,9 @@ const Toolbar = ({
       }
     };
     
-    onAddElement(shapes[shapeType]);
+    const dims = shapes[shapeType];
+    const { x, y } = findNonOverlappingPosition(dims.width, dims.height);
+    onAddElement({ ...dims, x, y });
   };
 
   const addChart = (chartType) => {
@@ -150,7 +153,9 @@ const Toolbar = ({
       }
     };
     
-    onAddElement(charts[chartType]);
+    const dims = charts[chartType];
+    const { x, y } = findNonOverlappingPosition(dims.width, dims.height);
+    onAddElement({ ...dims, x, y });
   };
 
   const handleImageUpload = (e) => {
@@ -158,11 +163,12 @@ const Toolbar = ({
     if (file) {
       const reader = new FileReader();
       reader.onload = (event) => {
+        const { x, y } = findNonOverlappingPosition(200, 150);
         onAddElement({
           type: 'image',
           src: event.target.result,
-          x: 100,
-          y: 100,
+          x,
+          y,
           width: 200,
           height: 150
         });
@@ -176,17 +182,75 @@ const Toolbar = ({
     if (file) {
       const reader = new FileReader();
       reader.onload = (event) => {
+        const { x, y } = findNonOverlappingPosition(400, 300);
         onAddElement({
           type: 'video',
           src: event.target.result,
-          x: 100,
-          y: 100,
+          x,
+          y,
           width: 400,
           height: 300
         });
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  // Helper: find a non-overlapping position for new element on current slide
+  const findNonOverlappingPosition = (width, height) => {
+    const slide = slides && slides[currentSlideIndex] ? slides[currentSlideIndex] : null;
+    const padding = 20;
+    const canvasW = 800;
+    const canvasH = 600;
+    let x = padding;
+    let y = padding;
+
+    const overlaps = (r1, r2) => !(r1.x + r1.width <= r2.x || r2.x + r2.width <= r1.x || r1.y + r1.height <= r2.y || r2.y + r2.height <= r1.y);
+
+    const existing = slide ? (slide.elements || []) : [];
+
+    let attempts = 0;
+    while (attempts < 1000) {
+      const rect = { x, y, width, height };
+      const collision = existing.some(e => overlaps(rect, { x: e.x, y: e.y, width: e.width, height: e.height }));
+      if (!collision && x + width <= canvasW && y + height <= canvasH) {
+        return { x, y };
+      }
+      x += Math.max(30, Math.round(width / 3));
+      if (x + width > canvasW) {
+        x = padding;
+        y += Math.max(30, Math.round(height / 3));
+      }
+      if (y + height > canvasH) {
+        // fallback: place at random safe spot within canvas
+        x = Math.max(padding, Math.min(canvasW - width - padding, Math.floor(Math.random() * (canvasW - width - padding))));
+        y = Math.max(padding, Math.min(canvasH - height - padding, Math.floor(Math.random() * (canvasH - height - padding))));
+        return { x, y };
+      }
+      attempts++;
+    }
+
+    return { x: padding, y: padding };
+  };
+
+  // Dropdown control: open/close on click (no hover), close on outside click
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const toolbarRef = useRef(null);
+
+  useEffect(() => {
+    const handleOutside = (e) => {
+      if (toolbarRef.current && !toolbarRef.current.contains(e.target)) {
+        setActiveDropdown(null);
+        setShowColorPicker(false);
+        setShowBackgroundPicker(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, []);
+
+  const toggleDropdown = (name) => {
+    setActiveDropdown((prev) => (prev === name ? null : name));
   };
 
   const updateSelectedElement = (property, value) => {
@@ -252,7 +316,7 @@ const Toolbar = ({
         </button>
       </div>
 
-      <div className="toolbar-content">
+  <div ref={toolbarRef} className="toolbar-content">
         {activeTab === 'insert' && (
           <div className="insert-tools">
             <div className="tool-group">
@@ -261,8 +325,8 @@ const Toolbar = ({
                 <span>Text box</span>
               </button>
               
-              <div className="tool-dropdown">
-                <button className="tool-btn dropdown-toggle" title="Insert image">
+              <div className={`tool-dropdown ${activeDropdown === 'image' ? 'open' : ''}`}>
+                <button className="tool-btn dropdown-toggle" title="Insert image" onClick={() => toggleDropdown('image')}>
                   <i className="fas fa-image"></i>
                   <span>Image</span>
                 </button>
@@ -273,15 +337,15 @@ const Toolbar = ({
                     <input 
                       type="file" 
                       accept="image/*" 
-                      onChange={handleImageUpload}
+                      onChange={(e) => { handleImageUpload(e); setActiveDropdown(null); }}
                       style={{ display: 'none' }}
                     />
                   </label>
                 </div>
               </div>
 
-              <div className="tool-dropdown">
-                <button className="tool-btn dropdown-toggle" title="Insert video">
+              <div className={`tool-dropdown ${activeDropdown === 'video' ? 'open' : ''}`}>
+                <button className="tool-btn dropdown-toggle" title="Insert video" onClick={() => toggleDropdown('video')}>
                   <i className="fas fa-video"></i>
                   <span>Video</span>
                 </button>
@@ -292,49 +356,49 @@ const Toolbar = ({
                     <input 
                       type="file" 
                       accept="video/*" 
-                      onChange={handleVideoUpload}
+                      onChange={(e) => { handleVideoUpload(e); setActiveDropdown(null); }}
                       style={{ display: 'none' }}
                     />
                   </label>
                 </div>
               </div>
 
-              <div className="tool-dropdown">
-                <button className="tool-btn dropdown-toggle" title="Insert shape">
+              <div className={`tool-dropdown ${activeDropdown === 'shape' ? 'open' : ''}`}>
+                <button className="tool-btn dropdown-toggle" title="Insert shape" onClick={() => toggleDropdown('shape')}>
                   <i className="fas fa-shapes"></i>
                   <span>Shape</span>
                 </button>
                 <div className="dropdown-content">
-                  <button className="dropdown-item" onClick={() => addShape('rectangle')}>
+                  <button className="dropdown-item" onClick={() => { addShape('rectangle'); setActiveDropdown(null); }}>
                     <i className="fas fa-square"></i>
                     Rectangle
                   </button>
-                  <button className="dropdown-item" onClick={() => addShape('circle')}>
+                  <button className="dropdown-item" onClick={() => { addShape('circle'); setActiveDropdown(null); }}>
                     <i className="fas fa-circle"></i>
                     Circle
                   </button>
-                  <button className="dropdown-item" onClick={() => addShape('triangle')}>
+                  <button className="dropdown-item" onClick={() => { addShape('triangle'); setActiveDropdown(null); }}>
                     <i className="fas fa-play"></i>
                     Triangle
                   </button>
                 </div>
               </div>
 
-              <div className="tool-dropdown">
-                <button className="tool-btn dropdown-toggle" title="Insert chart">
+              <div className={`tool-dropdown ${activeDropdown === 'chart' ? 'open' : ''}`}>
+                <button className="tool-btn dropdown-toggle" title="Insert chart" onClick={() => toggleDropdown('chart')}>
                   <i className="fas fa-chart-bar"></i>
                   <span>Chart</span>
                 </button>
                 <div className="dropdown-content">
-                  <button className="dropdown-item" onClick={() => addChart('bar')}>
+                  <button className="dropdown-item" onClick={() => { addChart('bar'); setActiveDropdown(null); }}>
                     <i className="fas fa-chart-bar"></i>
                     Bar Chart
                   </button>
-                  <button className="dropdown-item" onClick={() => addChart('pie')}>
+                  <button className="dropdown-item" onClick={() => { addChart('pie'); setActiveDropdown(null); }}>
                     <i className="fas fa-chart-pie"></i>
                     Pie Chart
                   </button>
-                  <button className="dropdown-item" onClick={() => addChart('line')}>
+                  <button className="dropdown-item" onClick={() => { addChart('line'); setActiveDropdown(null); }}>
                     <i className="fas fa-chart-line"></i>
                     Line Chart
                   </button>
@@ -430,9 +494,9 @@ const Toolbar = ({
                         <button 
                           className="color-preview-btn"
                           style={{ backgroundColor: selectedElement.color || '#000000' }}
-                          onClick={() => setShowColorPicker(!showColorPicker)}
+                          onClick={() => { toggleDropdown('color'); setShowColorPicker(!showColorPicker); }}
                         />
-                        {showColorPicker && (
+                        {(showColorPicker || activeDropdown === 'color') && (
                           <div className="color-palette">
                             {textColors.map(color => (
                               <button
@@ -463,9 +527,9 @@ const Toolbar = ({
                         <button 
                           className="color-preview-btn"
                           style={{ backgroundColor: selectedElement.backgroundColor || 'transparent' }}
-                          onClick={() => setShowBackgroundPicker(!showBackgroundPicker)}
+                          onClick={() => { toggleDropdown('bg'); setShowBackgroundPicker(!showBackgroundPicker); }}
                         />
-                        {showBackgroundPicker && (
+                        {(showBackgroundPicker || activeDropdown === 'bg') && (
                           <div className="color-palette">
                             <button
                               className="color-option transparent"

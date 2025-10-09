@@ -58,19 +58,19 @@
   align-items: center;
   gap: 4px;
   padding: 8px 12px;
-  background: none;
-  border: 1px solid #e0e0e0;
+  background: #6b6b6b; /* default grey background */
+  border: 1px solid #5a5a5a;
   border-radius: 4px;
-  color: #5f6368;
+  color: #ffffff; /* white text */
   font-size: 12px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s;
   min-width: 60px;
 }
 
 .tool-btn:hover {
-  background-color: #f1f3f4;
-  border-color: #d0d0d0;
+  background-color: #5f5f5f;
+  border-color: #4e4e4e;
 }
 
 .tool-btn i {
@@ -95,14 +95,16 @@
   top: 100%;
   left: 0;
   background-color: #fff;
-  min-width: 120px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  min-width: 140px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
   border: 1px solid #e0e0e0;
-  border-radius: 4px;
+  border-radius: 6px;
   z-index: 1000;
+  padding: 6px 8px;
 }
 
-.tool-dropdown:hover .dropdown-content {
+/* Show dropdown when parent has .open (we toggle via JS on click) */
+.tool-dropdown.open .dropdown-content {
   display: block;
 }
 
@@ -110,7 +112,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
+  padding: 8px 10px;
   background: none;
   border: none;
   width: 100%;
@@ -118,11 +120,12 @@
   color: #202124;
   font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.12s;
+  border-radius: 4px;
 }
 
 .dropdown-item:hover {
-  background-color: #f1f3f4;
+  background-color: #f7f7f7;
 }
 
 .format-controls {

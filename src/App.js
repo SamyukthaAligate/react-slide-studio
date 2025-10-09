@@ -408,7 +408,16 @@ function App() {
   }, []);
 
   const fitToScreen = useCallback(() => {
-    setZoomLevel(100); // Reset to 100%
+    // Compute zoom that fits the canvas (base 800px width) into the available viewport/container width
+    try {
+      const container = document.querySelector('.canvas-container');
+      const availableWidth = container ? (container.clientWidth - 40) : window.innerWidth - 40; // some padding
+      const scale = Math.floor((availableWidth / 800) * 100);
+      const clamped = Math.max(50, Math.min(scale, 200));
+      setZoomLevel(clamped);
+    } catch (e) {
+      setZoomLevel(100);
+    }
   }, []);
 
   // Tools functionality

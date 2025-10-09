@@ -19,7 +19,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #1a73e8;
+  color: #ffffff; /* Slide Studio text white */
   font-weight: 500;
   font-size: 18px;
 }
@@ -98,10 +98,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: none;
-  border: 1px solid #444444;
+  background-color: #6b6b6b; /* neutral grey background */
+  border: 1px solid #5a5a5a;
   border-radius: 4px;
-  color: #ffffff;
+  color: #ffffff; /* white icon color */
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -283,6 +283,29 @@
   z-index: 1001;
   max-height: 420px;
   overflow-y: auto;
+}
+
+/* Align Open Recent submenu items to the left like Save menu item */
+.submenu-content .dropdown-item {
+  justify-content: flex-start;
+  padding: 10px 16px;
+  color: #ffffff;
+}
+
+/* Design button styling (moved from toolbar) */
+.menu-item.design {
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  color: #cccccc;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+.menu-item.design:hover {
+  background-color: #333333;
+  color: #ffffff;
 }
 
 /* Ensure submenu items also have white text and consistent spacing */
@@ -808,7 +831,7 @@
     position: static;
     box-shadow: none;
     border: none;
-    border-left: 3px solid #fbbc04;
+    border-left: 3px solid #ffffff;
     margin: 0;
     padding: 0;
     background: #fff3e0;

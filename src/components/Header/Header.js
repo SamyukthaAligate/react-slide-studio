@@ -211,7 +211,7 @@ const Header = ({
 
           <div className="menu-dropdown">
             <button
-              className={`menu-item ${activeMenu === 'design' ? 'active' : ''}`}
+              className={`menu-item design ${activeMenu === 'design' ? 'active' : ''}`}
               onClick={() => toggleMenu('design')}
             >
               Design
@@ -226,6 +226,15 @@ const Header = ({
                   <i className="fas fa-ruler"></i>
                   Toggle Rulers
                 </button>
+                <div className="dropdown-divider"></div>
+                <div className="dropdown-item" onClick={() => handleMenuAction(() => onShowChartModal && onShowChartModal()) }>
+                  <i className="fas fa-chart-bar"></i>
+                  Insert Chart
+                </div>
+                <div className="dropdown-item" onClick={() => handleMenuAction(() => onAddElement && onAddElement('shape')) }>
+                  <i className="fas fa-shapes"></i>
+                  Insert Shape
+                </div>
               </div>
             )}
           </div>
@@ -300,10 +309,6 @@ const Header = ({
         <button className="present-btn" onClick={onStartPresentation}>
           <i className="fas fa-play"></i>
           Present
-        </button>
-        <button className="delete-btn" onClick={() => onDelete && onDelete()} title="Delete presentation">
-          <i className="fas fa-trash"></i>
-          Delete
         </button>
         <div className="user-avatar">
           <i className="fas fa-user-circle"></i>

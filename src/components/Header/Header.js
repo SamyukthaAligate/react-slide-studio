@@ -158,6 +158,78 @@ const Header = ({
             )}
           </div>
 
+          {/* Insert, Format, Design Menus (same style as toolbar tabs) */}
+          <div className="menu-dropdown">
+            <button
+              className={`menu-item ${activeMenu === 'insert' ? 'active' : ''}`}
+              onClick={() => toggleMenu('insert')}
+            >
+              Insert
+            </button>
+            {activeMenu === 'insert' && (
+              <div className="dropdown-menu">
+                <button className="dropdown-item" onClick={() => handleMenuAction(() => onAddElement && onAddElement('text'))}>
+                  <i className="fas fa-font"></i>
+                  Text Box
+                </button>
+                <button className="dropdown-item" onClick={() => handleMenuAction(() => onAddElement && onAddElement('image'))}>
+                  <i className="fas fa-image"></i>
+                  Image
+                </button>
+                <button className="dropdown-item" onClick={() => handleMenuAction(() => onAddElement && onAddElement('video'))}>
+                  <i className="fas fa-video"></i>
+                  Video
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="menu-dropdown">
+            <button
+              className={`menu-item ${activeMenu === 'format' ? 'active' : ''}`}
+              onClick={() => toggleMenu('format')}
+            >
+              Format
+            </button>
+            {activeMenu === 'format' && (
+              <div className="dropdown-menu">
+                <button className="dropdown-item" onClick={() => handleMenuAction(() => onSpellCheck && onSpellCheck())}>
+                  <i className="fas fa-spell-check"></i>
+                  Spell Check
+                </button>
+                <button className="dropdown-item" onClick={() => handleMenuAction(() => onArrangeObjects && onArrangeObjects())}>
+                  <i className="fas fa-th-large"></i>
+                  Arrange Objects
+                </button>
+                <button className="dropdown-item" onClick={() => handleMenuAction(() => onGroupElements && onGroupElements())}>
+                  <i className="fas fa-object-group"></i>
+                  Group Elements
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="menu-dropdown">
+            <button
+              className={`menu-item ${activeMenu === 'design' ? 'active' : ''}`}
+              onClick={() => toggleMenu('design')}
+            >
+              Design
+            </button>
+            {activeMenu === 'design' && (
+              <div className="dropdown-menu">
+                <button className="dropdown-item" onClick={() => handleMenuAction(() => onShowSettings && onShowSettings())}>
+                  <i className="fas fa-palette"></i>
+                  Theme & Background
+                </button>
+                <button className="dropdown-item" onClick={() => handleMenuAction(() => onToggleRulers && onToggleRulers())}>
+                  <i className="fas fa-ruler"></i>
+                  Toggle Rulers
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* View Menu */}
           <div className="menu-dropdown">
             <button
@@ -197,49 +269,7 @@ const Header = ({
             )}
           </div>
 
-          {/* Insert Menu */}
-          <div className="menu-dropdown">
-            <button
-              className={`menu-item ${activeMenu === 'insert' ? 'active' : ''}`}
-              onClick={() => toggleMenu('insert')}
-            >
-              Insert
-            </button>
-            {activeMenu === 'insert' && (
-              <div className="dropdown-menu">
-                <button className="dropdown-item" onClick={() => handleMenuAction(() => onAddElement && onAddElement('text'))}>
-                  <i className="fas fa-font"></i>
-                  Text Box
-                </button>
-                <button className="dropdown-item" onClick={() => handleMenuAction(() => onAddElement && onAddElement('image'))}>
-                  <i className="fas fa-image"></i>
-                  Image
-                </button>
-                <button className="dropdown-item" onClick={() => handleMenuAction(() => onAddElement && onAddElement('video'))}>
-                  <i className="fas fa-video"></i>
-                  Video
-                </button>
-                <div className="dropdown-divider"></div>
-                <button className="dropdown-item" onClick={() => handleMenuAction(() => onAddElement && onAddElement('shape'))}>
-                  <i className="fas fa-shapes"></i>
-                  Shape
-                </button>
-                <button className="dropdown-item" onClick={() => handleMenuAction(onShowChartModal)}>
-                  <i className="fas fa-chart-bar"></i>
-                  Custom Chart
-                </button>
-                <div className="dropdown-divider"></div>
-                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Insert Table'))}>
-                  <i className="fas fa-table"></i>
-                  Table
-                </button>
-                <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Insert Link'))}>
-                  <i className="fas fa-link"></i>
-                  Link
-                </button>
-              </div>
-            )}
-          </div>
+          {/* duplicate Insert menu removed (handled earlier above) */}
         </div>
 
         <div className="undo-redo-controls">
@@ -270,6 +300,10 @@ const Header = ({
         <button className="present-btn" onClick={onStartPresentation}>
           <i className="fas fa-play"></i>
           Present
+        </button>
+        <button className="delete-btn" onClick={() => onDelete && onDelete()} title="Delete presentation">
+          <i className="fas fa-trash"></i>
+          Delete
         </button>
         <div className="user-avatar">
           <i className="fas fa-user-circle"></i>

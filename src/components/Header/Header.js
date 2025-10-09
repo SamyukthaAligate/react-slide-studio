@@ -34,6 +34,8 @@ const Header = ({
   const [activeMenu, setActiveMenu] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const menuRef = useRef(null);
+  // refs for each dropdown container so we only measure alignment when menu opens
+  const menuRefs = useRef({ file: null, insert: null, format: null, design: null, view: null });
 
   const handleTitleClick = () => setIsEditing(true);
   const handleTitleInputChange = (e) => onTitleChange && onTitleChange(e.target.value);
@@ -42,6 +44,35 @@ const Header = ({
 
   const toggleMenu = (menuName) => setActiveMenu(activeMenu === menuName ? null : menuName);
   const toggleMobileMenu = () => { setIsMobileMenuOpen(!isMobileMenuOpen); setActiveMenu(null); };
+  const [alignments, setAlignments] = useState({}); // { menuName: 'left'|'right' }
+
+  // compute dropdown alignment to avoid overflow
+  const measureAndSetAlignment = (menuName, menuButton) => {
+    if (!menuButton) return;
+    const rect = menuButton.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const dropdownWidth = 320; // safe estimate
+    const spaceRight = viewportWidth - rect.left;
+    const alignRight = spaceRight < dropdownWidth;
+    const newAlign = alignRight ? 'right' : 'left';
+    // avoid updating state if alignment did not change (prevents re-renders)
+    setAlignments(prev => {
+      if (prev[menuName] === newAlign) return prev;
+      return { ...prev, [menuName]: newAlign };
+    });
+  };
+
+  // When a menu is opened, measure its alignment once. Also re-measure on window resize.
+  useEffect(() => {
+    if (!activeMenu) return;
+    const menuContainer = menuRefs.current[activeMenu];
+    const menuButton = menuContainer ? menuContainer.querySelector('.menu-item') : null;
+    measureAndSetAlignment(activeMenu, menuButton);
+
+    const onResize = () => measureAndSetAlignment(activeMenu, menuButton);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [activeMenu]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -92,9 +123,9 @@ const Header = ({
           <i className={`fas ${isMobileMenuOpen ? 'fa-times' : 'fa-bars'}`}></i>
         </button>
 
-        <div className={`menu-items ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
+          <div className={`menu-items ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
           {/* File Menu */}
-          <div className="menu-dropdown">
+          <div className="menu-dropdown" ref={el => { menuRefs.current.file = el; }}>
             <button
               className={`menu-item ${activeMenu === 'file' ? 'active' : ''}`}
               onClick={() => toggleMenu('file')}
@@ -102,7 +133,7 @@ const Header = ({
               File
             </button>
             {activeMenu === 'file' && (
-              <div className="dropdown-menu">
+              <div className={`dropdown-menu ${alignments.file === 'right' ? 'align-right' : ''}`}>
                 <button className="dropdown-item" onClick={() => handleMenuAction(onNew)}>
                   <i className="fas fa-file"></i>
                   New Presentation
@@ -158,89 +189,10 @@ const Header = ({
             )}
           </div>
 
-          {/* Insert, Format, Design Menus (same style as toolbar tabs) */}
-          <div className="menu-dropdown">
-            <button
-              className={`menu-item ${activeMenu === 'insert' ? 'active' : ''}`}
-              onClick={() => toggleMenu('insert')}
-            >
-              Insert
-            </button>
-            {activeMenu === 'insert' && (
-              <div className="dropdown-menu">
-                <button className="dropdown-item" onClick={() => handleMenuAction(() => onAddElement && onAddElement('text'))}>
-                  <i className="fas fa-font"></i>
-                  Text Box
-                </button>
-                <button className="dropdown-item" onClick={() => handleMenuAction(() => onAddElement && onAddElement('image'))}>
-                  <i className="fas fa-image"></i>
-                  Image
-                </button>
-                <button className="dropdown-item" onClick={() => handleMenuAction(() => onAddElement && onAddElement('video'))}>
-                  <i className="fas fa-video"></i>
-                  Video
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="menu-dropdown">
-            <button
-              className={`menu-item ${activeMenu === 'format' ? 'active' : ''}`}
-              onClick={() => toggleMenu('format')}
-            >
-              Format
-            </button>
-            {activeMenu === 'format' && (
-              <div className="dropdown-menu">
-                <button className="dropdown-item" onClick={() => handleMenuAction(() => onSpellCheck && onSpellCheck())}>
-                  <i className="fas fa-spell-check"></i>
-                  Spell Check
-                </button>
-                <button className="dropdown-item" onClick={() => handleMenuAction(() => onArrangeObjects && onArrangeObjects())}>
-                  <i className="fas fa-th-large"></i>
-                  Arrange Objects
-                </button>
-                <button className="dropdown-item" onClick={() => handleMenuAction(() => onGroupElements && onGroupElements())}>
-                  <i className="fas fa-object-group"></i>
-                  Group Elements
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="menu-dropdown">
-            <button
-              className={`menu-item design ${activeMenu === 'design' ? 'active' : ''}`}
-              onClick={() => toggleMenu('design')}
-            >
-              Design
-            </button>
-            {activeMenu === 'design' && (
-              <div className="dropdown-menu">
-                <button className="dropdown-item" onClick={() => handleMenuAction(() => onShowSettings && onShowSettings())}>
-                  <i className="fas fa-palette"></i>
-                  Theme & Background
-                </button>
-                <button className="dropdown-item" onClick={() => handleMenuAction(() => onToggleRulers && onToggleRulers())}>
-                  <i className="fas fa-ruler"></i>
-                  Toggle Rulers
-                </button>
-                <div className="dropdown-divider"></div>
-                <div className="dropdown-item" onClick={() => handleMenuAction(() => onShowChartModal && onShowChartModal()) }>
-                  <i className="fas fa-chart-bar"></i>
-                  Insert Chart
-                </div>
-                <div className="dropdown-item" onClick={() => handleMenuAction(() => onAddElement && onAddElement('shape')) }>
-                  <i className="fas fa-shapes"></i>
-                  Insert Shape
-                </div>
-              </div>
-            )}
-          </div>
+          {/* Insert/Format/Design menus removed per request */}
 
           {/* View Menu */}
-          <div className="menu-dropdown">
+          <div className="menu-dropdown" ref={el => { menuRefs.current.view = el; }}>
             <button
               className={`menu-item ${activeMenu === 'view' ? 'active' : ''}`}
               onClick={() => toggleMenu('view')}
@@ -248,7 +200,7 @@ const Header = ({
               View
             </button>
             {activeMenu === 'view' && (
-              <div className="dropdown-menu">
+              <div className={`dropdown-menu ${alignments.view === 'right' ? 'align-right' : ''}`}>
                 <button className="dropdown-item" onClick={() => handleMenuAction(onStartPresentation)}>
                   <i className="fas fa-play"></i>
                   Start Presentation

@@ -15,10 +15,11 @@ const Toolbar = ({
   // Expect parent (App/Canvas) to wire it up
   // ...existing code...
   
-  const [activeTab, setActiveTab] = useState('insert');
+  const [activeTab, setActiveTab] = useState(null);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showBackgroundPicker, setShowBackgroundPicker] = useState(false);
   const [gridOn, setGridOn] = useState(false);
+  const [gridSize, setGridSize] = useState(24);
 
   const fontFamilies = [
     'Roboto', 'Arial', 'Times New Roman', 'Helvetica', 'Georgia', 
@@ -412,20 +413,7 @@ const Toolbar = ({
               </div>
             </div>
             <div className="tool-group">
-              <button
-                className={`tool-btn ${gridOn ? 'active' : ''}`}
-                title="Toggle grid"
-                onClick={() => {
-                  const next = !gridOn;
-                  setGridOn(next);
-                  // dispatch a custom event so parent Canvas can pick it up if no prop provided
-                  const evt = new CustomEvent('toggleCanvasGrid', { detail: { show: next } });
-                  window.dispatchEvent(evt);
-                }}
-              >
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 3h18v18H3V3zm2 2v14h14V5H5z" fill="currentColor"/></svg>
-                <span>Grid</span>
-              </button>
+              {/* Grid controls removed per request */}
             </div>
           </div>
         )}

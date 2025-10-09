@@ -226,7 +226,7 @@ const Header = ({
                 </button>
                 <button className="dropdown-item" onClick={() => handleMenuAction(onShowChartModal)}>
                   <i className="fas fa-chart-bar"></i>
-                  Custom Chart
+                    Custom Chart
                 </button>
                 <div className="dropdown-divider"></div>
                 <button className="dropdown-item" onClick={() => handleMenuAction(() => console.log('Insert Table'))}>

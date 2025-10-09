@@ -68,7 +68,7 @@
 
 .menu-items {
   display: flex;
-  gap: 12px; /* professional spacing between top-level menu buttons */
+  gap: 20px; /* professional spacing between top-level menu buttons */
 }
 
 .menu-item {
@@ -209,7 +209,7 @@
 
 .dropdown-item {
   width: 100%;
-  padding: 10px 16px;
+  padding: 12px 18px; /* slightly larger padding for better spacing */
   background: none;
   border: none;
   text-align: left;
@@ -285,6 +285,21 @@
   overflow-y: auto;
 }
 
+/* Ensure submenu items also have white text and consistent spacing */
+.submenu-content .dropdown-item {
+  color: #ffffff;
+  padding: 10px 16px;
+}
+
+/* Ensure top-level dropdowns inside header use consistent spacing */
+.menu-dropdown .dropdown-menu {
+  min-width: 260px;
+}
+.menu-dropdown .dropdown-item {
+  padding: 12px 18px;
+  color: #ffffff;
+}
+
 .dropdown-submenu:hover .submenu-content {
   display: block;
 }
@@ -308,7 +323,7 @@
   background: grey;
   border: none;
   border-radius: 4px;
-  color: #ea4335;
+  color: grey;
   cursor: pointer;
   display: flex;
   align-items: center;

@@ -24,16 +24,81 @@ const Canvas = ({
   const [gridSize, setGridSize] = useState(24);
   // track Shift key to temporarily disable snapping
   const [isShiftDown, setIsShiftDown] = useState(false);
+  const [contextMenu, setContextMenu] = useState({ show: false, x: 0, y: 0 });
+  const [clipboardElement, setClipboardElement] = useState(null);
   const canvasRef = useRef(null);
 
   const handleCanvasClick = (e) => {
     if (e.target === canvasRef.current) {
       onSelectElement(null);
       setIsEditingText(false);
+      setContextMenu({ show: false, x: 0, y: 0 });
     }
   };
 
-  // Drag and drop for images
+  // Context menu handlers
+  const handleContextMenu = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    // Check if clicking on an element
+    const elementAtPoint = slide.elements.find(el => {
+      return x >= el.x && x <= el.x + el.width && y >= el.y && y <= el.y + el.height;
+    });
+
+    if (elementAtPoint) {
+      onSelectElement(elementAtPoint);
+    } else {
+      onSelectElement(null);
+    }
+
+    setContextMenu({ show: true, x: e.clientX, y: e.clientY });
+  };
+
+  const hideContextMenu = () => {
+    setContextMenu({ show: false, x: 0, y: 0 });
+  };
+
+  const handleCopy = () => {
+    if (selectedElement) {
+      setClipboardElement(JSON.parse(JSON.stringify(selectedElement)));
+    }
+    hideContextMenu();
+  };
+
+  const handleCut = () => {
+    if (selectedElement) {
+      setClipboardElement(JSON.parse(JSON.stringify(selectedElement)));
+      onDeleteElement(selectedElement.id);
+    }
+    hideContextMenu();
+  };
+
+  const handlePaste = () => {
+    if (clipboardElement) {
+      const newElement = {
+        ...clipboardElement,
+        id: Date.now().toString(), // Simple unique ID
+        x: clipboardElement.x + 20, // Offset slightly
+        y: clipboardElement.y + 20
+      };
+      onAddElement(newElement);
+    }
+    hideContextMenu();
+  };
+
+  const handleDelete = () => {
+    if (selectedElement) {
+      onDeleteElement(selectedElement.id);
+    }
+    hideContextMenu();
+  };
+
+  // Drag and drop for images and other files
   const handleDragOver = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -43,7 +108,10 @@ const Canvas = ({
   const handleDragLeave = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsDragOver(false);
+    // Only hide drag overlay if leaving the canvas entirely
+    if (e.target === canvasRef.current) {
+      setIsDragOver(false);
+    }
   };
 
   const handleDrop = (e) => {
@@ -54,7 +122,7 @@ const Canvas = ({
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
       const file = files[0];
-      
+
       // Check if it's an image or video
       if (file.type.startsWith('image/')) {
         const reader = new FileReader();
@@ -94,6 +162,33 @@ const Canvas = ({
           }
         };
         reader.readAsDataURL(file);
+      } else if (file.type === 'text/plain') {
+        // Handle text files
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const rect = canvasRef.current.getBoundingClientRect();
+          const x = e.clientX - rect.left - 100;
+          const y = e.clientY - rect.top - 50;
+
+          if (onAddElement) {
+            onAddElement({
+              type: 'text',
+              content: event.target.result.substring(0, 200), // Limit text length
+              x: Math.max(0, x),
+              y: Math.max(0, y),
+              width: 200,
+              height: 100,
+              fontSize: 16,
+              fontFamily: 'Roboto',
+              color: '#000000',
+              backgroundColor: 'transparent',
+              textAlign: 'left',
+              fontWeight: 'normal',
+              fontStyle: 'normal'
+            });
+          }
+        };
+        reader.readAsText(file);
       }
     }
   };
@@ -305,12 +400,15 @@ const Canvas = ({
   }, [selectedElement]);
 
   React.useEffect(() => {
-    const onKeyDown = (e) => { if (e.key === 'Shift') setIsShiftDown(true); };
-    const onKeyUp = (e) => { if (e.key === 'Shift') setIsShiftDown(false); };
-    window.addEventListener('keydown', onKeyDown);
-    window.addEventListener('keyup', onKeyUp);
-    return () => { window.removeEventListener('keydown', onKeyDown); window.removeEventListener('keyup', onKeyUp); };
-  }, []);
+    const handleClickOutside = (e) => {
+      if (contextMenu.show && !e.target.closest('.context-menu')) {
+        hideContextMenu();
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [contextMenu.show]);
 
   const renderChart = (element) => {
     const { chartType, data, color } = element;
@@ -787,6 +885,7 @@ const Canvas = ({
             backgroundRepeat: 'no-repeat'
           }}
           onClick={handleCanvasClick}
+          onContextMenu={handleContextMenu}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
@@ -796,12 +895,110 @@ const Canvas = ({
             <div className="drag-overlay">
               <div className="drag-message">
                 <i className="fas fa-cloud-upload-alt"></i>
-                <p>Drop image or video here</p>
+                <p>Drop images, videos, or text files here</p>
               </div>
             </div>
           )}
         </div>
       </div>
+
+      {/* Context Menu */}
+      {contextMenu.show && (
+        <div
+          className="context-menu"
+          style={{
+            position: 'fixed',
+            left: contextMenu.x,
+            top: contextMenu.y,
+            zIndex: 1000,
+            backgroundColor: '#fff',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+            minWidth: '150px',
+            padding: '4px 0'
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {selectedElement ? (
+            <>
+              <button
+                className="context-menu-item"
+                onClick={handleCopy}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: 'none',
+                  background: 'none',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                <i className="fas fa-copy" style={{ marginRight: '8px' }}></i>
+                Copy
+              </button>
+              <button
+                className="context-menu-item"
+                onClick={handleCut}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: 'none',
+                  background: 'none',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                <i className="fas fa-cut" style={{ marginRight: '8px' }}></i>
+                Cut
+              </button>
+              <hr style={{ margin: '4px 0', border: 'none', borderTop: '1px solid #eee' }} />
+              <button
+                className="context-menu-item"
+                onClick={handleDelete}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: 'none',
+                  background: 'none',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  color: '#d32f2f'
+                }}
+              >
+                <i className="fas fa-trash" style={{ marginRight: '8px' }}></i>
+                Delete
+              </button>
+            </>
+          ) : (
+            clipboardElement && (
+              <button
+                className="context-menu-item"
+                onClick={handlePaste}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: 'none',
+                  background: 'none',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                <i className="fas fa-paste" style={{ marginRight: '8px' }}></i>
+                Paste
+              </button>
+            )
+          )}
+        </div>
+      )}
     </div>
   );
 };

@@ -166,6 +166,13 @@ function App() {
     fileInput.onchange = (e) => {
       const file = e.target.files[0];
       if (!file) return;
+
+      // Validate file size (limit to 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('File size too large. Please select a file smaller than 10MB.');
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (ev) => {
         try {
@@ -182,12 +189,15 @@ function App() {
               alert('Presentation imported successfully');
             }
           } else {
-            alert('Invalid presentation file');
+            alert('Invalid presentation file format');
           }
         } catch (err) {
           console.error('Import error', err);
-          alert('Failed to import presentation');
+          alert('Failed to import presentation. Please check the file format.');
         }
+      };
+      reader.onerror = () => {
+        alert('Error reading file. Please try again.');
       };
       reader.readAsText(file);
     };

@@ -1,229 +1,276 @@
+/* Header specific styles that override Bootstrap */
 .header {
-  --glass-bg: rgba(255,255,255,0.04);
-  --glass-border: rgba(255,255,255,0.06);
+  position: sticky;
+  top: 0;
+  z-index: 4000;
+  width: 100%;
+  padding: 18px clamp(24px, 6vw, 72px);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 16px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  border-bottom: 1px solid var(--glass-border);
-  height: 64px;
-  box-shadow: 0 6px 30px rgba(0,0,0,0.6);
-  position: relative;
-  z-index: 4000; /* ensure header dropdowns show above content */
+  gap: 32px;
+  background: rgba(18, 18, 18, 0.78);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.45);
+}
+
+.header-left,
+.header-center,
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
 }
 
 .header-left {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+  min-width: 220px;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: #ffffff; /* Slide Studio text white */
-  font-weight: 500;
-  font-size: 18px;
+  gap: 12px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #f4f4f4;
 }
 
 .logo i {
-  font-size: 24px;
-}
-
-.header {
-  border-radius: 6px;
+  font-size: 18px;
 }
 
 .title-section {
-  display: flex;
-  align-items: center;
+  position: relative;
 }
 
 .presentation-title {
+  margin: 0;
   font-size: 18px;
-  font-weight: 400;
-  color: #ffffff;
+  font-weight: 500;
+  color: #fafafa;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 4px;
-  transition: background-color 0.2s;
+  transition: color 0.3s ease;
 }
 
 .presentation-title:hover {
-  background-color: #333333;
+  color: #dcdcdc;
 }
 
 .title-input {
-  font-size: 18px;
-  font-weight: 400;
-  color: #ffffff;
-  border: 2px solid #ffffff;
-  border-radius: 4px;
-  padding: 4px 8px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(24, 24, 24, 0.9);
+  color: #f4f4f4;
+  font-size: 16px;
+  min-width: 220px;
+}
+
+.title-input:focus {
   outline: none;
-  background-color: #1a1a1a;
+  border-color: rgba(255, 255, 255, 0.32);
 }
 
 .header-center {
   flex: 1;
-  display: flex;
   justify-content: center;
-  align-items: center;
-  gap: 8px; /* keep header compact but controlled */
+  gap: 32px;
+}
+
+.header-tabs {
+  display: flex;
+  gap: 18px;
+  background: rgba(27, 27, 27, 0.8);
+  border-radius: 14px;
+  padding: 8px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.header-tabs .menu-item {
+  position: relative;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: rgba(242, 242, 242, 0.72);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.3s ease, background 0.3s ease, transform 0.3s ease;
+}
+
+.header-tabs .menu-item.active,
+.header-tabs .menu-item:hover {
+  color: #fafafa;
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
 }
 
 .menu-items {
   display: flex;
-  gap: 12px; /* spacing between top-level menu buttons */
-  overflow: visible; /* allow dropdowns to overflow without clipping */
-  align-items: center;
+  gap: 18px;
 }
 
-.menu-item {
-  padding: 8px 12px;
-  background: none;
-  border: none;
-  color: #cccccc;
-  font-size: 14px;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.menu-item:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(255,255,255,0.04);
-}
-
-.menu-item:hover {
-  background-color: #333333;
-  color: #ffffff;
-}
-
-.undo-redo-controls {
-  display: flex;
-  gap: 4px;
-}
-
-.undo-btn, .redo-btn {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #6b6b6b; /* neutral grey background */
-  border: 1px solid #5a5a5a;
-  border-radius: 4px;
-  color: #ffffff; /* white icon color */
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.undo-btn:hover:not(.disabled), 
-.redo-btn:hover:not(.disabled) {
-  background-color: #333333;
-  border-color: #666666;
-}
-
-.undo-btn.disabled, 
-.redo-btn.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.share-btn, .present-btn, .delete-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.12s, transform 0.08s;
-  background-color: #6b6b6b; /* neutral grey */
-  color: #ffffff; /* white text */
-}
-
-.share-btn:hover, .present-btn:hover, .delete-btn:hover {
-  background-color: #5f5f5f;
-  transform: translateY(-1px);
-}
-
-.delete-btn {
-  /* keep icon red-only to indicate destructive action, but background neutral */
-  color: #ffffff;
-}
-
-.user-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f1f3f4;
-  color: #5f6368;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.user-avatar:hover {
-  background-color: #e8eaed;
-}
-
-.user-avatar i {
-  font-size: 20px;
-}
-
-/* Dropdown Menu Styles */
 .menu-dropdown {
   position: relative;
 }
 
-.menu-item.active {
-  background-color: #2f2f2f;
+.menu-dropdown > .menu-item {
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: rgba(30, 30, 30, 0.8);
+  color: rgba(245, 245, 245, 0.7);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+}
+
+.menu-dropdown > .menu-item.active,
+.menu-dropdown > .menu-item:hover {
+  border-color: rgba(255, 255, 255, 0.18);
   color: #ffffff;
-  box-shadow: inset 0 -2px 0 rgba(255,255,255,0.02);
+  transform: translateY(-2px);
 }
 
 .dropdown-menu {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 12px);
   left: 0;
-  margin-top: 8px; /* space between button and dropdown */
-  background: #1a1a1a;
-  border: 1px solid #333333;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
-  min-width: 240px;
-  padding: 8px 0;
-  z-index: 10050; /* ensure dropdown overlays neighbors */
-  animation: dropdownFadeIn 0.15s ease-out;
-  pointer-events: auto;
+  min-width: 260px;
+  background: rgba(15, 15, 15, 0.96);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 32px 60px rgba(0, 0, 0, 0.5);
+  padding: 12px;
+  display: grid;
+  gap: 6px;
+  animation: dropdown-fade 0.2s ease;
+  backdrop-filter: blur(18px);
+  z-index: 9999;
 }
 
-/* flip dropdown to the right side when there's not enough room */
 .dropdown-menu.align-right {
   left: auto;
   right: 0;
 }
 
-@keyframes dropdownFadeIn {
+.dropdown-item,
+.dropdown-item.disabled {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: transparent;
+  border: none;
+  color: rgba(240, 240, 240, 0.78);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.dropdown-item.disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+.dropdown-item:hover:not(.disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(4px);
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 4px 0;
+}
+
+.submenu-content {
+  display: grid;
+  gap: 6px;
+  padding-left: 8px;
+}
+
+.delete-file-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  border-radius: 10px;
+  padding: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.delete-file-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.mobile-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: #f4f4f4;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.header-right {
+  min-width: 220px;
+  justify-content: flex-end;
+  gap: 14px;
+}
+
+.share-btn,
+.present-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(28, 28, 28, 0.75);
+  color: #f9f9f9;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.share-btn:hover,
+.present-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(28, 28, 28, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+@keyframes dropdown-fade {
   from {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translateY(-6px);
   }
   to {
     opacity: 1;
@@ -231,659 +278,70 @@
   }
 }
 
-.dropdown-item {
-  width: 100%;
-  padding: 12px 18px; /* slightly larger padding for better spacing */
-  background: none;
-  border: none;
-  text-align: left;
-  color: #ffffff; /* ensure dropdown text is white */
-  font-size: 14px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  transition: background-color 0.15s;
-  position: relative;
-  pointer-events: auto;
-  user-select: none;
-}
-
-.dropdown-item:hover:not(.disabled) {
-  background-color: #333333;
-}
-
-.dropdown-item:disabled,
-.dropdown-item.disabled {
-  color: #666666;
-  cursor: not-allowed;
-}
-
-.dropdown-item i {
-  width: 20px;
-  text-align: center;
-  color: #cccccc;
-}
-
-.dropdown-item .shortcut {
-  margin-left: auto;
-  font-size: 12px;
-  color: #888888;
-}
-
-.dropdown-item .file-date {
-  margin-left: auto;
-  font-size: 11px;
-  color: #888888;
-}
-
-.dropdown-divider {
-  height: 1px;
-  background-color: #333333;
-  margin: 8px 0;
-}
-
-/* Submenu Styles */
-.dropdown-submenu {
-  position: relative;
-}
-
-.dropdown-submenu .dropdown-item {
-  justify-content: space-between;
-}
-
-.submenu-content {
-  position: absolute;
-  left: 100%;
-  top: 0;
-  margin-left: 12px; /* slightly more space between submenu and parent */
-  background: #1a1a1a; /* dark submenu to match header */
-  border: 1px solid #333333;
-  border-radius: 8px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
-  min-width: 260px;
-  padding: 8px 0;
-  display: none;
-  z-index: 1001;
-  max-height: 420px;
-  overflow-y: auto;
-}
-
-/* When parent dropdown is aligned right, flip submenu to left */
-.dropdown-menu.align-right .submenu-content {
-  left: auto;
-  right: 100%;
-  margin-left: 0;
-  margin-right: 12px;
-}
-
-/* Align Open Recent submenu items to the left like Save menu item */
-.submenu-content .dropdown-item {
-  justify-content: flex-start;
-  padding: 10px 16px;
-  color: #ffffff;
-}
-
-/* Design button styling (moved from toolbar) */
-.menu-item.design {
-  padding: 8px 12px;
-  background: none;
-  border: none;
-  color: #cccccc;
-  font-size: 14px;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-.menu-item.design:hover {
-  background-color: #333333;
-  color: #ffffff;
-}
-
-/* Ensure submenu items also have white text and consistent spacing */
-.submenu-content .dropdown-item {
-  color: #ffffff;
-  padding: 10px 16px;
-}
-
-/* Ensure top-level dropdowns inside header use consistent spacing */
-.menu-dropdown .dropdown-menu {
-  min-width: 260px;
-}
-.menu-dropdown .dropdown-item {
-  padding: 12px 18px;
-  color: #ffffff;
-}
-
-.dropdown-submenu:hover .submenu-content {
-  display: block;
-}
-
-.submenu-item-wrapper {
-  display: flex;
-  align-items: center;
-  position: relative;
-}
-
-.submenu-item-wrapper .dropdown-item {
-  flex: 1;
-  padding-right: 40px;
-}
-
-.delete-file-btn {
-  position: absolute;
-  right: 8px;
-  width: 32px;
-  height: 32px;
-  background: grey;
-  border: none;
-  border-radius: 4px;
-  color: grey;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: all 0.2s;
-}
-
-.submenu-item-wrapper:hover .delete-file-btn {
-  opacity: 1;
-}
-
-.delete-file-btn:hover {
-  background-color: #fce8e6;
-}
-
-/* Mobile Menu Toggle */
-.mobile-menu-toggle {
-  display: none;
-  width: 40px;
-  height: 40px;
-  background: none;
-  border: none;
-  color: #5f6368;
-  font-size: 20px;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.mobile-menu-toggle:hover {
-  background-color: #f1f3f4;
-}
-
-/* Responsive Design */
 @media (max-width: 1024px) {
-  .mobile-menu-toggle {
-    display: flex;
-    align-items: center;
+  .header {
+    padding: 16px 32px;
+    gap: 24px;
+  }
+
+  .header-center {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .menu-items {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 820px) {
+  .header {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 18px;
+  }
+
+  .header-center {
+    width: 100%;
+    order: 3;
+  }
+
+  .header-tabs {
+    width: 100%;
     justify-content: center;
   }
 
   .menu-items {
-    position: fixed;
-    top: 60px;
-    left: -100%;
-    width: 280px;
-    height: calc(100vh - 60px);
-    background: white;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
-    flex-direction: column;
-    padding: 16px 0;
-    transition: left 0.3s ease;
-    z-index: 9999;
-    overflow-y: auto;
+    display: none;
+  }
+
+  .mobile-menu-toggle {
+    display: inline-flex;
   }
 
   .menu-items.mobile-open {
-    left: 0;
-  }
-
-  .menu-dropdown {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     width: 100%;
-  }
-
-  .menu-item {
-    width: 100%;
-    text-align: left;
-    padding: 12px 20px;
-    border-radius: 0;
-  }
-
-  .dropdown-menu {
-    position: static;
-    box-shadow: none;
-    border: none;
-    border-left: 3px solid #1a73e8;
-    margin: 0;
-    padding: 0;
-    background: #f8f9fa;
-  }
-
-  .dropdown-item {
-    padding: 12px 20px 12px 32px;
-  }
-
-  .submenu-content {
-    position: static;
-    box-shadow: none;
-    border: none;
-    border-left: 3px solid #34a853;
-    margin: 0;
-    padding: 0;
-    background: #e8f0fe;
-    display: block;
-    max-height: none;
-  }
-
-  .dropdown-submenu:hover .submenu-content {
-    display: block;
-  }
-
-  .submenu-item-wrapper .dropdown-item {
-    padding: 10px 20px 10px 40px;
-  }
-
-  .undo-redo-controls {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: white;
-    padding: 8px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    z-index: 10000;
-  }
-}
-
-@media (max-width: 768px) {
-  .header {
-    padding: 8px 12px;
-  }
-  
-  .logo span {
-    display: none;
-  }
-  
-  .presentation-title {
-    font-size: 16px;
-    max-width: 150px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  
-  .share-btn span, .present-btn span {
-    display: none;
-  }
-
-  /* Ensure header action buttons are compact on small screens */
-  .share-btn, .present-btn, .delete-btn {
-    border: none;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    background-color: #6b6b6b; /* grey background */
-    color: #ffffff; /* white text */
-    padding: 8px 12px;
-  }
-
-  .share-btn:hover, .present-btn:hover, .delete-btn:hover {
-    background-color: #5f5f5f;
-  }
-
-  .menu-items {
-    width: 200px;
-  }
-
-  .presentation-title {
-    max-width: 100px;
-  }
-
-  .user-avatar {
-    width: 28px;
-    height: 28px;
-  }
-
-  .user-avatar i {
-    font-size: 16px;
-  }
-
-  /* Enhanced touch targets for mobile */
-  .dropdown-item {
-    min-height: 36px;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: rgba(26, 115, 232, 0.1);
-  }
-
-  .dropdown-item:active {
-    background-color: #e8f0fe;
-    transform: scale(0.98);
-  }
-
-  /* Format menu text wrapping on small screens */
-  .dropdown-item {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-
-/* Overlay for mobile menu */
-@media (max-width: 1024px) {
-  .menu-items.mobile-open::before {
-    content: '';
-    position: fixed;
-    top: 60px;
-    left: 280px;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.3);
-    z-index: -1;
-  }
-
-  /* Format menu specific responsive styles */
-  .dropdown-menu .dropdown-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 44px;
-    padding: 12px 20px 12px 32px;
-  }
-
-  .dropdown-menu .dropdown-item i {
-    font-size: 16px;
-    min-width: 24px;
-  }
-
-  .dropdown-menu .shortcut {
-    font-size: 11px;
-    padding: 2px 6px;
-    background: rgba(26, 115, 232, 0.1);
-    border-radius: 4px;
-  }
-
-  .dropdown-divider {
-    margin: 4px 20px;
-  }
-}
-
-@media (max-width: 768px) {
-  /* Compact format menu for tablets */
-  .dropdown-menu .dropdown-item {
-    padding: 10px 16px 10px 28px;
-    min-height: 40px;
-    font-size: 13px;
-  }
-
-  .dropdown-menu .dropdown-item i {
-    font-size: 14px;
-    min-width: 20px;
-  }
-
-  .dropdown-menu .shortcut {
-    font-size: 10px;
-  }
-}
-
-@media (max-width: 480px) {
-  /* Mobile-optimized format menu */
-  .dropdown-menu .dropdown-item {
-    padding: 8px 12px 8px 24px;
-    min-height: 36px;
-    font-size: 12px;
-  }
-
-  .dropdown-menu .dropdown-item i {
-    font-size: 13px;
-    min-width: 18px;
-  }
-
-  .dropdown-menu .shortcut {
-    display: none; /* Hide shortcuts on very small screens */
-  }
-
-  .dropdown-divider {
-    margin: 2px 12px;
-  }
-
-  /* Optimize Format menu icon and text layout */
-  .dropdown-item i {
-    flex-shrink: 0;
-  }
-
-  .dropdown-item .shortcut {
-    flex-shrink: 0;
-  }
-}
-
-/* Additional responsive enhancements for all screen sizes */
-@media (hover: none) and (pointer: coarse) {
-  /* Touch device optimizations */
-  .dropdown-item {
-    min-height: 44px; /* Larger touch targets */
-    padding: 12px 16px;
-  }
-
-  .dropdown-item:hover {
-    background-color: transparent; /* Disable hover on touch devices */
-  }
-
-  .dropdown-item:active {
-    background-color: #e8f0fe;
-  }
-}
-
-/* Landscape mobile optimization */
-@media (max-width: 768px) and (orientation: landscape) {
-  .menu-items {
-    height: calc(100vh - 60px);
-    overflow-y: auto;
-  }
-
-  .dropdown-menu {
-    max-height: none;
-  }
-
-  .dropdown-item {
-    padding: 8px 16px 8px 28px;
-    min-height: 36px;
-  }
-}
-
-/* Enhanced dropdown responsiveness for all menus */
-@media (max-width: 1024px) {
-  /* File, Edit, View, Insert, Tools, Help menus */
-  .menu-dropdown .dropdown-menu {
-    width: 100%;
-    min-width: auto;
-  }
-
-  .menu-dropdown .dropdown-item {
-    width: 100%;
-    display: flex;
-    align-items: center;
     gap: 12px;
-  }
-
-  /* Ensure icons don't shrink */
-  .menu-dropdown .dropdown-item i {
-    flex-shrink: 0;
-  }
-
-  /* Ensure shortcuts stay on the right */
-  .menu-dropdown .dropdown-item .shortcut {
-    margin-left: auto;
-  }
-
-  /* File date in Open Recent submenu */
-  .menu-dropdown .dropdown-item .file-date {
-    margin-left: auto;
+    background: rgba(18, 18, 18, 0.9);
+    padding: 12px;
+    border-radius: 14px;
   }
 }
 
-@media (max-width: 768px) {
-  /* Compact all dropdown menus */
-  .menu-dropdown .dropdown-menu {
-    font-size: 13px;
+@media (max-width: 520px) {
+  .header {
+    padding: 14px 20px;
   }
 
-  .menu-dropdown .dropdown-item {
-    padding: 10px 16px 10px 28px;
-    gap: 10px;
+  .presentation-title {
+    font-size: 16px;
   }
 
-  .menu-dropdown .dropdown-item i {
-    font-size: 14px;
-  }
-
-  .menu-dropdown .shortcut {
-    font-size: 10px;
-    padding: 2px 4px;
-  }
-
-  /* Submenu adjustments */
-  .submenu-content {
-    font-size: 12px;
-  }
-
-  .submenu-item-wrapper .dropdown-item {
-    padding: 8px 16px 8px 36px;
-  }
-
-  .delete-file-btn {
-    width: 28px;
-    height: 28px;
-    right: 6px;
-  }
-}
-
-@media (max-width: 480px) {
-  /* Ultra-compact for small screens */
-  .menu-dropdown .dropdown-menu {
-    font-size: 12px;
-  }
-
-  .menu-dropdown .dropdown-item {
-    padding: 8px 12px 8px 24px;
-    gap: 8px;
-  }
-
-  .menu-dropdown .dropdown-item i {
-    font-size: 13px;
-    min-width: 16px;
-  }
-
-  /* Hide all shortcuts on very small screens */
-  .menu-dropdown .shortcut {
-    display: none;
-  }
-
-  /* Compact submenu */
-  .submenu-content {
+  .share-btn,
+  .present-btn {
+    padding: 8px 14px;
     font-size: 11px;
-  }
-
-  .submenu-item-wrapper .dropdown-item {
-    padding: 6px 12px 6px 32px;
-  }
-
-  .delete-file-btn {
-    width: 24px;
-    height: 24px;
-    font-size: 11px;
-  }
-
-  /* Compact dividers */
-  .dropdown-divider {
-    margin: 2px 12px;
-  }
-}
-
-/* Accessibility improvements */
-@media (prefers-reduced-motion: reduce) {
-  .dropdown-menu {
-    animation: none;
-  }
-
-  .dropdown-item:active {
-    transform: none;
-  }
-}
-
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-  .dropdown-item {
-    border-bottom: 1px solid #e0e0e0;
-  }
-
-  .dropdown-item:hover:not(.disabled) {
-    border-color: #1a73e8;
-  }
-}
-
-/* Zoom level display */
-.zoom-level-display {
-  background-color: #e8f0fe;
-  color: #1a73e8;
-  font-weight: 600;
-  cursor: default;
-  pointer-events: none;
-  justify-content: center;
-}
-
-.zoom-level-display i {
-  color: #1a73e8;
-}
-
-.zoom-level-display:hover {
-  background-color: #e8f0fe;
-}
-
-/* Arrange Objects Submenu */
-.arrange-submenu {
-  min-width: 200px;
-}
-
-.arrange-submenu .dropdown-item {
-  padding: 10px 16px;
-}
-
-.arrange-submenu .dropdown-item i {
-  width: 20px;
-  text-align: center;
-}
-
-/* Responsive arrange submenu */
-@media (max-width: 1024px) {
-  .arrange-submenu {
-    position: static;
-    box-shadow: none;
-    border: none;
-    border-left: 3px solid #ffffff;
-    margin: 0;
-    padding: 0;
-    background: #fff3e0;
-  }
-
-  .arrange-submenu .dropdown-item {
-    padding: 10px 20px 10px 40px;
-  }
-}
-
-@media (max-width: 768px) {
-  .arrange-submenu .dropdown-item {
-    padding: 8px 16px 8px 36px;
-    font-size: 13px;
-  }
-}
-
-@media (max-width: 480px) {
-  .arrange-submenu .dropdown-item {
-    padding: 6px 12px 6px 32px;
-    font-size: 12px;
   }
 }

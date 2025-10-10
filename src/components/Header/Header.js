@@ -14,7 +14,6 @@ const Header = ({
   onOpen,
   onDelete,
   onDownloadPDF,
-  savedPresentations,
   onExportPPTX,
   onImport,
   onMakeCopy,
@@ -33,7 +32,8 @@ const Header = ({
   onShowSettings,
   showRulers,
   toolbarActiveTab,
-  setToolbarActiveTab
+  setToolbarActiveTab,
+  savedPresentations
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
@@ -47,7 +47,10 @@ const Header = ({
   const handleTitleBlur = () => setIsEditing(false);
   const handleTitleKeyPress = (e) => { if (e.key === 'Enter') setIsEditing(false); };
 
-  const toggleMenu = (menuName) => setActiveMenu(activeMenu === menuName ? null : menuName);
+  const toggleMenu = (menuName) => {
+    console.log('Toggling menu:', menuName, 'Current active:', activeMenu);
+    setActiveMenu(activeMenu === menuName ? null : menuName);
+  };
   const toggleMobileMenu = () => { setIsMobileMenuOpen(!isMobileMenuOpen); setActiveMenu(null); };
   const [alignments, setAlignments] = useState({}); // { menuName: 'left'|'right' }
 
@@ -73,15 +76,15 @@ const Header = ({
     const menuContainer = menuRefs.current[activeMenu];
     const menuButton = menuContainer ? menuContainer.querySelector('.menu-item') : null;
     measureAndSetAlignment(activeMenu, menuButton);
-
     const onResize = () => measureAndSetAlignment(activeMenu, menuButton);
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, [activeMenu]);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+  React.useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (activeMenu && menuRef.current && !menuRef.current.contains(e.target)) {
+        console.log('Clicking outside, closing menu');
         setActiveMenu(null);
         setIsMobileMenuOpen(false);
       }
@@ -89,9 +92,10 @@ const Header = ({
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [activeMenu]);
 
   const handleMenuAction = (action) => {
+    console.log('Menu action triggered:', action);
     setActiveMenu(null);
     setIsMobileMenuOpen(false);
     if (typeof action === 'function') action();
@@ -133,7 +137,7 @@ const Header = ({
           <i className={`fas ${isMobileMenuOpen ? 'fa-times' : 'fa-bars'}`}></i>
         </button>
 
-          <div className={`menu-items ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
+        <div className={`menu-items ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
           {/* File Menu */}
           <div className="menu-dropdown" ref={el => { menuRefs.current.file = el; }}>
             <button
@@ -211,8 +215,6 @@ const Header = ({
             )}
           </div>
 
-          {/* Insert/Format/Design menus removed per request */}
-
           {/* View Menu */}
           <div className="menu-dropdown" ref={el => { menuRefs.current.view = el; }}>
             <button
@@ -251,8 +253,6 @@ const Header = ({
               </div>
             )}
           </div>
-
-          {/* duplicate Insert menu removed (handled earlier above) */}
         </div>
 
         <div className="undo-redo-controls">

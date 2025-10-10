@@ -10,7 +10,8 @@ const Toolbar = ({
   currentSlideIndex, 
   onUpdateSlide,
   toolbarActiveTab,
-  setToolbarActiveTab
+  setToolbarActiveTab,
+  onShowChartModal
 }) => {
   // expose grid toggle via prop callbacks if parent passes them
   // We'll call onToggleGrid(true/false) when user toggles grid
@@ -395,6 +396,10 @@ const Toolbar = ({
                   <button className="dropdown-item" onClick={() => { addChart('line'); setActiveDropdown(null); }}>
                     <i className="fas fa-chart-line"></i>
                     Line Chart
+                  </button>
+                  <button className="dropdown-item" onClick={() => { onShowChartModal(); setActiveDropdown(null); }}>
+                    <i className="fas fa-chart-network"></i>
+                    Custom Chart
                   </button>
                 </div>
               </div>

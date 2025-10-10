@@ -18,9 +18,9 @@
 }
 
 .canvas {
-  width: 800px;
+  width: 960px; /* PowerPoint-like 16:9 aspect ratio */
   max-width: 100%;
-  height: 600px;
+  height: 540px; /* PowerPoint-like 16:9 aspect ratio */
   background-color: #ffffff;
   position: relative;
   overflow: hidden;
@@ -171,8 +171,8 @@
 /* Responsive Design */
 @media (max-width: 1200px) {
   .canvas {
-    width: 640px;
-    height: 480px;
+    width: 768px; /* Maintain 16:9 aspect ratio for tablets */
+    height: 432px; /* Maintain 16:9 aspect ratio for tablets */
   }
   
   .canvas-container {
@@ -186,8 +186,8 @@
 
 @media (max-width: 768px) {
   .canvas {
-    width: 480px;
-    height: 360px;
+    width: 640px; /* Maintain 16:9 aspect ratio for smaller screens */
+    height: 360px; /* Maintain 16:9 aspect ratio for smaller screens */
   }
   
   .canvas-container {
@@ -207,8 +207,8 @@
 
 @media (max-width: 480px) {
   .canvas {
-    width: 320px;
-    height: 240px;
+    width: 480px; /* Maintain 16:9 aspect ratio for mobile */
+    height: 270px; /* Maintain 16:9 aspect ratio for mobile */
   }
   
   .canvas-container {
@@ -298,7 +298,7 @@
 .ruler-horizontal {
   top: 0;
   left: 30px;
-  width: 800px;
+  width: 960px; /* Match canvas width */
   height: 30px;
   border-bottom: 1px solid #bdbdbd;
 }
@@ -307,7 +307,7 @@
   top: 30px;
   left: 0;
   width: 30px;
-  height: 600px;
+  height: 540px; /* Match canvas height */
   border-right: 1px solid #bdbdbd;
 }
 
@@ -352,23 +352,23 @@
 /* Responsive rulers */
 @media (max-width: 1200px) {
   .ruler-horizontal {
-    width: 640px;
+    width: 768px; /* Match responsive canvas width */
   }
 
   .ruler-vertical {
-    height: 480px;
+    height: 432px; /* Match responsive canvas height */
   }
 }
 
 @media (max-width: 768px) {
   .ruler-horizontal {
-    width: 480px;
+    width: 640px; /* Match responsive canvas width */
     height: 25px;
     left: 25px;
   }
 
   .ruler-vertical {
-    height: 360px;
+    height: 360px; /* Match responsive canvas height */
     width: 25px;
     top: 25px;
   }

@@ -9,9 +9,8 @@ import HelpModal from './components/HelpModal/HelpModal';
 import ShareModal from './components/ShareModal/ShareModal';
 import ChartModal from './components/ChartModal/ChartModal';
 import { exportToPDF } from './utils/pdfExport';
-import './App.css';
-import { exportToPDFBlobUrl } from './utils/pdfExport';
 import { exportToPPTX } from './utils/pptxExport';
+import './App.css';
 
 function App() {
   const [slides, setSlides] = useState([
@@ -33,9 +32,9 @@ function App() {
   const [showHelp, setShowHelp] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showChartModal, setShowChartModal] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(100); // Zoom level in percentage
   const [showRulers, setShowRulers] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const [toolbarActiveTab, setToolbarActiveTab] = useState(null);
   
   // Undo/Redo functionality
@@ -616,7 +615,13 @@ function App() {
   // expose PDF blob helper for ShareModal to call
   React.useEffect(() => {
     window.exportToPDFForShare = async (slides, title) => {
-      return await exportToPDFBlobUrl(slides, title);
+      try {
+        const result = await exportToPDF(slides, title);
+        return result;
+      } catch (error) {
+        console.error('Export PDF error:', error);
+        return { success: false, error: error.message };
+      }
     };
     return () => { delete window.exportToPDFForShare; };
   }, []);
@@ -647,9 +652,9 @@ function App() {
         onOpen={openPresentation}
         onDelete={deletePresentation}
         onDownloadPDF={downloadAsPDF}
-  onExportPPTX={exportAsPPTX}
-  onImport={importPresentation}
-  onMakeCopy={makeCopy}
+        onExportPPTX={exportAsPPTX}
+        onImport={importPresentation}
+        onMakeCopy={makeCopy}
         savedPresentations={savedPresentations}
         onAddElement={handleHeaderAddElement}
         onShowHelp={() => setShowHelp(true)}
@@ -657,7 +662,6 @@ function App() {
         onShowChartModal={() => setShowChartModal(true)}
         onZoomIn={zoomIn}
         onZoomOut={zoomOut}
-        onFitToScreen={fitToScreen}
         zoomLevel={zoomLevel}
         onSpellCheck={spellCheck}
         onToggleRulers={toggleRulers}
@@ -678,6 +682,7 @@ function App() {
         onUpdateSlide={updateSlide}
         toolbarActiveTab={toolbarActiveTab}
         setToolbarActiveTab={setToolbarActiveTab}
+        onShowChartModal={() => setShowChartModal(true)}
       />
       <div className="main-content">
         <SlidePanel
@@ -689,7 +694,12 @@ function App() {
           onDuplicateSlide={duplicateSlide}
         />
         <Canvas
-          slide={slides[currentSlideIndex]}
+          slide={slides[currentSlideIndex] || slides[0] || {
+            id: 'placeholder',
+            elements: [],
+            background: '#ffffff',
+            theme: 'default'
+          }}
           onUpdateSlide={(updatedSlide) => updateSlide(currentSlideIndex, updatedSlide)}
           selectedElement={selectedElement}
           onSelectElement={setSelectedElement}
@@ -702,13 +712,12 @@ function App() {
         />
       </div>
       {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
-  {showShare && <ShareModal onClose={() => setShowShare(false)} presentationTitle={presentationTitle} savedPresentations={savedPresentations} />}
+      {showShare && <ShareModal onClose={() => setShowShare(false)} presentationTitle={presentationTitle} savedPresentations={savedPresentations} />}
       {showChartModal && <ChartModal onClose={() => setShowChartModal(false)} onCreateChart={addElement} />}
       {showSettings && (
         <div className="modal-overlay" onClick={() => setShowSettings(false)}>
           <div className="settings-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2><i className="fas fa-cog"></i> Settings</h2>
               <button className="close-btn" onClick={() => setShowSettings(false)}>
                 <i className="fas fa-times"></i>
               </button>

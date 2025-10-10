@@ -244,8 +244,9 @@ const Canvas = ({
       const deltaX = currentX - dragStart.x;
       const deltaY = currentY - dragStart.y;
       
-      const canvasWidth = 800; // Fixed canvas width
-      const canvasHeight = 600; // Fixed canvas height
+      // PowerPoint-like canvas dimensions (16:9 aspect ratio)
+      const canvasWidth = 960; // 16:9 aspect ratio
+      const canvasHeight = 540; // 16:9 aspect ratio
       
       let newX = Math.max(0, Math.min(canvasWidth - selectedElement.width, selectedElement.x + deltaX));
       let newY = Math.max(0, Math.min(canvasHeight - selectedElement.height, selectedElement.y + deltaY));
@@ -270,8 +271,9 @@ const Canvas = ({
       const deltaY = currentY - dragStart.y;
       
       let updates = {};
-      const canvasWidth = 800;
-      const canvasHeight = 600;
+      // PowerPoint-like canvas dimensions (16:9 aspect ratio)
+      const canvasWidth = 960;
+      const canvasHeight = 540;
       
       switch (resizeHandle) {
         case 'se':
@@ -857,17 +859,17 @@ const Canvas = ({
               <i className="fas fa-times"></i>
             </button>
           </div>
-          <div className="ruler ruler-horizontal">
-            {Array.from({ length: 17 }, (_, i) => (
-              <div key={i} className="ruler-mark" style={{ left: `${i * 50}px` }}>
-                <span className="ruler-label">{i * 50}</span>
+          <div className="ruler-horizontal">
+            {Array.from({ length: 20 }, (_, i) => (
+              <div key={i} className="ruler-mark" style={{ left: `${i * 48}px` }}>
+                <span className="ruler-label">{i * 48}px</span>
               </div>
             ))}
           </div>
-          <div className="ruler ruler-vertical">
-            {Array.from({ length: 13 }, (_, i) => (
-              <div key={i} className="ruler-mark" style={{ top: `${i * 50}px` }}>
-                <span className="ruler-label">{i * 50}</span>
+          <div className="ruler-vertical">
+            {Array.from({ length: 12 }, (_, i) => (
+              <div key={i} className="ruler-mark" style={{ top: `${i * 45}px` }}>
+                <span className="ruler-label">{i * 45}px</span>
               </div>
             ))}
           </div>

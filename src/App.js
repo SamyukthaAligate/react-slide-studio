@@ -10,6 +10,7 @@ import ShareModal from './components/ShareModal/ShareModal';
 import ChartModal from './components/ChartModal/ChartModal';
 import { exportToPDF } from './utils/pdfExport';
 import './App.css';
+import { exportToPDFBlobUrl } from './utils/pdfExport';
 
 function App() {
   const [slides, setSlides] = useState([
@@ -534,6 +535,14 @@ function App() {
       window.removeEventListener('error', onError);
       window.removeEventListener('unhandledrejection', onRejection);
     };
+  }, []);
+
+  // expose PDF blob helper for ShareModal to call
+  React.useEffect(() => {
+    window.exportToPDFForShare = async (slides, title) => {
+      return await exportToPDFBlobUrl(slides, title);
+    };
+    return () => { delete window.exportToPDFForShare; };
   }, []);
 
   if (isPresentationMode) {

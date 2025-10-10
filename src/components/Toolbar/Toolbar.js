@@ -22,6 +22,8 @@ const Toolbar = ({
   const setActiveTab = setToolbarActiveTab;
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showBackgroundPicker, setShowBackgroundPicker] = useState(false);
+  const [showTextColorPicker, setShowTextColorPicker] = useState(false);
+  const [showTextBgPicker, setShowTextBgPicker] = useState(false);
   const [gridOn, setGridOn] = useState(false);
   const [gridSize, setGridSize] = useState(24);
 
@@ -459,9 +461,9 @@ const Toolbar = ({
                         <button 
                           className="color-preview-btn"
                           style={{ backgroundColor: selectedElement.color || '#000000' }}
-                          onClick={() => { toggleDropdown('color'); setShowColorPicker(!showColorPicker); }}
+                          onClick={() => { setShowTextColorPicker(!showTextColorPicker); setShowTextBgPicker(false); setActiveDropdown(null); }}
                         />
-                        {(showColorPicker || activeDropdown === 'color') && (
+                        {showTextColorPicker && (
                           <div className="color-palette">
                             {textColors.map(color => (
                               <button
@@ -470,7 +472,7 @@ const Toolbar = ({
                                 style={{ backgroundColor: color }}
                                 onClick={() => {
                                   updateSelectedElement('color', color);
-                                  setShowColorPicker(false);
+                                  setShowTextColorPicker(false);
                                 }}
                               />
                             ))}
@@ -554,16 +556,16 @@ const Toolbar = ({
                       <div className="color-picker-container">
                         <button 
                           className="color-preview-btn"
-                          style={{ backgroundColor: selectedElement.backgroundColor || 'transparent' }}
-                          onClick={() => { toggleDropdown('bg'); setShowBackgroundPicker(!showBackgroundPicker); }}
+                          style={{ backgroundColor: selectedElement.backgroundColor === 'transparent' ? '#ffffff' : (selectedElement.backgroundColor || 'transparent') }}
+                          onClick={() => { setShowTextBgPicker(!showTextBgPicker); setShowTextColorPicker(false); setActiveDropdown(null); }}
                         />
-                        {(showBackgroundPicker || activeDropdown === 'bg') && (
+                        {showTextBgPicker && (
                           <div className="color-palette">
                             <button
                               className="color-option transparent"
                               onClick={() => {
                                 updateSelectedElement('backgroundColor', 'transparent');
-                                setShowBackgroundPicker(false);
+                                setShowTextBgPicker(false);
                               }}
                               title="Transparent"
                             >
@@ -576,13 +578,13 @@ const Toolbar = ({
                                 style={{ backgroundColor: color }}
                                 onClick={() => {
                                   updateSelectedElement('backgroundColor', color);
-                                  setShowBackgroundPicker(false);
+                                  setShowTextBgPicker(false);
                                 }}
                               />
                             ))}
                             <input
                               type="color"
-                              value={selectedElement.backgroundColor === 'transparent' ? '#ffffff' : selectedElement.backgroundColor || '#ffffff'}
+                              value={selectedElement.backgroundColor === 'transparent' ? '#ffffff' : (selectedElement.backgroundColor || '#ffffff')}
                               onChange={(e) => updateSelectedElement('backgroundColor', e.target.value)}
                               className="custom-color-input"
                               title="Custom color"

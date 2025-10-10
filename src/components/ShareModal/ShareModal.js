@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import './ShareModal.css';
 
-const ShareModal = ({ onClose, presentationTitle }) => {
+const ShareModal = ({ onClose, presentationTitle, savedPresentations }) => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [copied, setCopied] = useState(false);
+  const [selectedPdfIndex, setSelectedPdfIndex] = useState(0);
 
   const shareUrl = window.location.href;
 
@@ -27,6 +28,55 @@ const ShareModal = ({ onClose, presentationTitle }) => {
     
     window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
     onClose();
+  };
+
+  const handleSharePDF = async (platform) => {
+    // If there are saved presentations, get the selected one
+    const selected = savedPresentations && savedPresentations[selectedPdfIndex];
+    if (!selected) {
+      alert('No saved PDF available. Please save a presentation first.');
+      return;
+    }
+
+    // Generate a temporary link for the PDF using exportToPDF
+    try {
+      // create a fake single-slide PDF for sharing using existing utility
+      const slides = selected.slides || [];
+      const result = await window.exportToPDFForShare(slides, selected.title || presentationTitle);
+      if (!result || !result.url) {
+        alert('Failed to prepare PDF for sharing.');
+        return;
+      }
+
+      const url = encodeURIComponent(result.url);
+      const text = encodeURIComponent(`Check out this presentation: ${selected.title || presentationTitle}`);
+
+      let shareLink = '';
+      switch (platform) {
+        case 'twitter':
+          shareLink = `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
+          break;
+        case 'facebook':
+          shareLink = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+          break;
+        case 'linkedin':
+          shareLink = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+          break;
+        case 'whatsapp':
+          shareLink = `https://wa.me/?text=${text}%20${url}`;
+          break;
+        case 'email':
+          window.location.href = `mailto:?subject=${encodeURIComponent(selected.title || presentationTitle)}&body=${text}%0A${result.url}`;
+          return;
+        default:
+          return;
+      }
+
+      window.open(shareLink, '_blank', 'width=600,height=400');
+    } catch (err) {
+      console.error('Share PDF error:', err);
+      alert('Unable to share PDF.');
+    }
   };
 
   const handleSocialShare = (platform) => {

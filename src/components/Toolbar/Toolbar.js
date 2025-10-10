@@ -518,38 +518,7 @@ const Toolbar = ({
                       </div>
                     </div>
 
-                    <div className="control-group">
-                      <label>Text Color:</label>
-                      <div className="color-picker-container">
-                        <button 
-                          className="color-preview-btn"
-                          style={{ backgroundColor: selectedElement.color || '#000000' }}
-                          onClick={() => { toggleDropdown('color'); setShowColorPicker(!showColorPicker); }}
-                        />
-                        {(showColorPicker || activeDropdown === 'color') && (
-                          <div className="color-palette">
-                            {textColors.map(color => (
-                              <button
-                                key={color}
-                                className="color-option"
-                                style={{ backgroundColor: color }}
-                                onClick={() => {
-                                  updateSelectedElement('color', color);
-                                  setShowColorPicker(false);
-                                }}
-                              />
-                            ))}
-                            <input
-                              type="color"
-                              value={selectedElement.color || '#000000'}
-                              onChange={(e) => updateSelectedElement('color', e.target.value)}
-                              className="custom-color-input"
-                              title="Custom color"
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    {/* duplicate Text Color removed; single color picker exists above */}
 
                     <div className="control-group">
                       <label>Text Background:</label>

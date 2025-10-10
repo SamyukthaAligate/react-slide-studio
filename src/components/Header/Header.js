@@ -15,6 +15,9 @@ const Header = ({
   onDelete,
   onDownloadPDF,
   savedPresentations,
+  onExportPPTX,
+  onImport,
+  onMakeCopy,
   onAddElement,
   onShowHelp,
   onShowShare,
@@ -151,6 +154,10 @@ const Header = ({
                   Save
                   <span className="shortcut">Ctrl+S</span>
                 </button>
+                <button className="dropdown-item" onClick={() => handleMenuAction(onMakeCopy)}>
+                  <i className="fas fa-copy"></i>
+                  Make a copy
+                </button>
                 <div className="dropdown-divider"></div>
                 <div className="dropdown-submenu">
                   <button className="dropdown-item">
@@ -191,6 +198,14 @@ const Header = ({
                 <button className="dropdown-item" onClick={() => handleMenuAction(onDownloadPDF)}>
                   <i className="fas fa-download"></i>
                   Download as PDF
+                </button>
+                <button className="dropdown-item" onClick={() => handleMenuAction(onExportPPTX)}>
+                  <i className="fas fa-file-archive"></i>
+                  Export as PPTX
+                </button>
+                <button className="dropdown-item" onClick={() => handleMenuAction(onImport)}>
+                  <i className="fas fa-file-import"></i>
+                  Import presentation
                 </button>
               </div>
             )}

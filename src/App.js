@@ -11,6 +11,7 @@ import ChartModal from './components/ChartModal/ChartModal';
 import { exportToPDF } from './utils/pdfExport';
 import './App.css';
 import { exportToPDFBlobUrl } from './utils/pdfExport';
+import { exportToPPTX } from './utils/pptxExport';
 
 function App() {
   const [slides, setSlides] = useState([
@@ -141,6 +142,71 @@ function App() {
       console.error('PDF export error:', error);
     }
   }, [slides, presentationTitle]);
+
+  // Export as PPTX using pptxgenjs
+  const exportAsPPTX = useCallback(async () => {
+    try {
+      const result = await exportToPPTX(slides, presentationTitle);
+      if (result && result.success) {
+        // exportToPPTX triggers file download via library
+      } else {
+        alert('Failed to export PPTX' + (result && result.error ? `: ${result.error}` : ''));
+      }
+    } catch (err) {
+      console.error('Export PPTX error', err);
+      alert('Failed to export PPTX');
+    }
+  }, [slides, presentationTitle]);
+
+  // Import presentation from a JSON file (simple import)
+  const importPresentation = useCallback(() => {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.json,application/json';
+    fileInput.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          if (data && Array.isArray(data.slides)) {
+            if (window.confirm('Importing will replace your current presentation. Continue?')) {
+              setSlides(data.slides);
+              setPresentationTitle(data.title || 'Imported Presentation');
+              setCurrentPresentationId(null);
+              setCurrentSlideIndex(0);
+              setSelectedElement(null);
+              setHistory([]);
+              setHistoryIndex(-1);
+              alert('Presentation imported successfully');
+            }
+          } else {
+            alert('Invalid presentation file');
+          }
+        } catch (err) {
+          console.error('Import error', err);
+          alert('Failed to import presentation');
+        }
+      };
+      reader.readAsText(file);
+    };
+    fileInput.click();
+  }, []);
+
+  // Make a copy of current presentation (save as new)
+  const makeCopy = useCallback(() => {
+    const copy = {
+      id: uuidv4(),
+      title: `${presentationTitle} (Copy)`,
+      slides: JSON.parse(JSON.stringify(slides)),
+      lastModified: new Date().toISOString()
+    };
+    const updated = [...savedPresentations, copy];
+    setSavedPresentations(updated);
+    localStorage.setItem('savedPresentations', JSON.stringify(updated));
+    alert('A copy of the presentation was saved.');
+  }, [slides, presentationTitle, savedPresentations]);
 
   // Save state to history for undo/redo
   const saveToHistory = useCallback((newSlides) => {
@@ -571,6 +637,9 @@ function App() {
         onOpen={openPresentation}
         onDelete={deletePresentation}
         onDownloadPDF={downloadAsPDF}
+  onExportPPTX={exportAsPPTX}
+  onImport={importPresentation}
+  onMakeCopy={makeCopy}
         savedPresentations={savedPresentations}
         onAddElement={handleHeaderAddElement}
         onShowHelp={() => setShowHelp(true)}
@@ -623,7 +692,7 @@ function App() {
         />
       </div>
       {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
-      {showShare && <ShareModal onClose={() => setShowShare(false)} presentationTitle={presentationTitle} />}
+  {showShare && <ShareModal onClose={() => setShowShare(false)} presentationTitle={presentationTitle} savedPresentations={savedPresentations} />}
       {showChartModal && <ChartModal onClose={() => setShowChartModal(false)} onCreateChart={addElement} />}
       {showSettings && (
         <div className="modal-overlay" onClick={() => setShowSettings(false)}>

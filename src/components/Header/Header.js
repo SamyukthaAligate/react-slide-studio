@@ -29,6 +29,8 @@ const Header = ({
   onGroupElements,
   onShowSettings,
   showRulers,
+  toolbarActiveTab,
+  setToolbarActiveTab
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
@@ -119,6 +121,11 @@ const Header = ({
       </div>
 
       <div className="header-center" ref={menuRef}>
+        <div className="header-tabs">
+          <button className={`menu-item ${toolbarActiveTab === 'insert' ? 'active' : ''}`} onClick={() => setToolbarActiveTab('insert')}>Insert</button>
+          <button className={`menu-item ${toolbarActiveTab === 'format' ? 'active' : ''}`} onClick={() => setToolbarActiveTab('format')}>Format</button>
+          <button className={`menu-item ${toolbarActiveTab === 'design' ? 'active' : ''}`} onClick={() => setToolbarActiveTab('design')}>Design</button>
+        </div>
         <button className="mobile-menu-toggle" onClick={toggleMobileMenu}>
           <i className={`fas ${isMobileMenuOpen ? 'fa-times' : 'fa-bars'}`}></i>
         </button>

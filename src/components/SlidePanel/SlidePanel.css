@@ -27,7 +27,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #1a73e8;
+  background-color: #6b7280; /* grey */
   color: white;
   border: none;
   border-radius: 50%;
@@ -36,7 +36,7 @@
 }
 
 .add-slide-btn:hover {
-  background-color: #1557b0;
+  background-color: #4b5563;
 }
 
 .slides-container {

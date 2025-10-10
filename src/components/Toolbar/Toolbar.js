@@ -8,14 +8,18 @@ const Toolbar = ({
   onDeleteElement, 
   slides, 
   currentSlideIndex, 
-  onUpdateSlide 
+  onUpdateSlide,
+  toolbarActiveTab,
+  setToolbarActiveTab
 }) => {
   // expose grid toggle via prop callbacks if parent passes them
   // We'll call onToggleGrid(true/false) when user toggles grid
   // Expect parent (App/Canvas) to wire it up
   // ...existing code...
   
-  const [activeTab, setActiveTab] = useState(null);
+  // activeTab is controlled by App via props
+  const activeTab = toolbarActiveTab;
+  const setActiveTab = setToolbarActiveTab;
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showBackgroundPicker, setShowBackgroundPicker] = useState(false);
   const [gridOn, setGridOn] = useState(false);
@@ -302,26 +306,7 @@ const Toolbar = ({
 
   return (
     <div className="toolbar">
-      <div className="toolbar-tabs">
-        <button 
-          className={`tab ${activeTab === 'insert' ? 'active' : ''}`}
-          onClick={() => setActiveTab('insert')}
-        >
-          Insert
-        </button>
-        <button 
-          className={`tab ${activeTab === 'format' ? 'active' : ''}`}
-          onClick={() => setActiveTab('format')}
-        >
-          Format
-        </button>
-        <button 
-          className={`tab ${activeTab === 'design' ? 'active' : ''}`}
-          onClick={() => setActiveTab('design')}
-        >
-          Design
-        </button>
-      </div>
+      {/* Header controls toolbar tab state now */}
 
   <div ref={toolbarRef} className="toolbar-content">
         {activeTab === 'insert' && (
@@ -465,6 +450,39 @@ const Toolbar = ({
                         >
                           <i className="fas fa-plus"></i>
                         </button>
+                      </div>
+                    </div>
+
+                    <div className="control-group">
+                      <label>Text Color:</label>
+                      <div className="color-picker-container">
+                        <button 
+                          className="color-preview-btn"
+                          style={{ backgroundColor: selectedElement.color || '#000000' }}
+                          onClick={() => { toggleDropdown('color'); setShowColorPicker(!showColorPicker); }}
+                        />
+                        {(showColorPicker || activeDropdown === 'color') && (
+                          <div className="color-palette">
+                            {textColors.map(color => (
+                              <button
+                                key={color}
+                                className="color-option"
+                                style={{ backgroundColor: color }}
+                                onClick={() => {
+                                  updateSelectedElement('color', color);
+                                  setShowColorPicker(false);
+                                }}
+                              />
+                            ))}
+                            <input
+                              type="color"
+                              value={selectedElement.color || '#000000'}
+                              onChange={(e) => updateSelectedElement('color', e.target.value)}
+                              className="custom-color-input"
+                              title="Custom color"
+                            />
+                          </div>
+                        )}
                       </div>
                     </div>
 

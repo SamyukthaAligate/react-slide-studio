@@ -34,6 +34,7 @@ function App() {
   const [zoomLevel, setZoomLevel] = useState(100); // Zoom level in percentage
   const [showRulers, setShowRulers] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [toolbarActiveTab, setToolbarActiveTab] = useState(null);
   
   // Undo/Redo functionality
   const [history, setHistory] = useState([]);
@@ -373,6 +374,8 @@ function App() {
     );
     setSlides(newSlides);
     saveToHistory(newSlides);
+    // If the updated element is currently selected, update selectedElement too
+    setSelectedElement(prev => prev && prev.id === elementId ? { ...prev, ...updates } : prev);
   }, [currentSlideIndex, slides, saveToHistory]);
 
   const deleteElement = useCallback((elementId) => {
@@ -574,6 +577,8 @@ function App() {
         onGroupElements={groupElements}
         onShowSettings={() => setShowSettings(true)}
         showRulers={showRulers}
+        toolbarActiveTab={toolbarActiveTab}
+        setToolbarActiveTab={setToolbarActiveTab}
       />
       <Toolbar 
         onAddElement={addElement}
@@ -583,6 +588,8 @@ function App() {
         slides={slides}
         currentSlideIndex={currentSlideIndex}
         onUpdateSlide={updateSlide}
+        toolbarActiveTab={toolbarActiveTab}
+        setToolbarActiveTab={setToolbarActiveTab}
       />
       <div className="main-content">
         <SlidePanel

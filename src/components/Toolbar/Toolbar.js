@@ -1,6 +1,34 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './Toolbar.css';
 
+const NEUTRAL_PALETTE = [
+  '#0f0f0f',
+  '#1f1f1f',
+  '#2f2f2f',
+  '#3f3f3f',
+  '#4f4f4f',
+  '#6f6f6f',
+  '#8f8f8f',
+  '#bfbfbf',
+  '#dfdfdf',
+  '#ffffff'
+];
+
+const CHART_PALETTE = [
+  '#4F46E5',
+  '#6366F1',
+  '#0891B2',
+  '#10B981',
+  '#F59E0B',
+  '#F97316',
+  '#EF4444',
+  '#EC4899',
+  '#8B5CF6',
+  '#F3F4F6'
+];
+
+const SHAPE_PALETTE = Array.from(new Set([...CHART_PALETTE, ...NEUTRAL_PALETTE]));
+
 const Toolbar = ({ 
   onAddElement, 
   selectedElement, 
@@ -162,39 +190,48 @@ const Toolbar = ({
   };
 
   const addShape = (shapeType) => {
+    const primaryFill = '#2f2f2f';
+    const primaryStroke = '#f4f4f4';
     const shapes = {
       rectangle: {
         type: 'shape',
         shapeType: 'rectangle',
         x: 150,
         y: 150,
-        width: 100,
-        height: 80,
-        fill: '#4285f4',
-        stroke: '#1a73e8',
-        strokeWidth: 2
+        width: 160,
+        height: 108,
+        fill: primaryFill,
+        stroke: primaryStroke,
+        strokeWidth: 3,
+        opacity: 0.95,
+        cornerRadius: 18,
+        shadow: true
       },
       circle: {
         type: 'shape',
         shapeType: 'circle',
         x: 150,
         y: 150,
-        width: 100,
-        height: 100,
-        fill: '#34a853',
-        stroke: '#137333',
-        strokeWidth: 2
+        width: 140,
+        height: 140,
+        fill: primaryFill,
+        stroke: primaryStroke,
+        strokeWidth: 3,
+        opacity: 0.95,
+        shadow: true
       },
       triangle: {
         type: 'shape',
         shapeType: 'triangle',
         x: 150,
         y: 150,
-        width: 100,
-        height: 100,
-        fill: '#fbbc04',
-        stroke: '#f29900',
-        strokeWidth: 2
+        width: 160,
+        height: 140,
+        fill: primaryFill,
+        stroke: primaryStroke,
+        strokeWidth: 3,
+        opacity: 0.95,
+        shadow: true
       }
     };
     
@@ -210,50 +247,47 @@ const Toolbar = ({
         chartType: 'bar',
         x: 100,
         y: 100,
-        width: 300,
-        height: 200,
+        width: 440,
+        height: 300,
         data: [
-          { label: 'Jan', value: 65 },
-          { label: 'Feb', value: 59 },
-          { label: 'Mar', value: 80 },
-          { label: 'Apr', value: 81 },
-          { label: 'May', value: 56 }
+          { label: 'Alpha', value: 65, color: CHART_PALETTE[0] },
+          { label: 'Beta', value: 52, color: CHART_PALETTE[1] },
+          { label: 'Gamma', value: 78, color: CHART_PALETTE[2] }
         ],
-        color: '#4285f4'
+        color: CHART_PALETTE[0]
       },
       pie: {
         type: 'chart',
         chartType: 'pie',
-        x: 100,
-        y: 100,
-        width: 250,
-        height: 250,
+        x: 120,
+        y: 120,
+        width: 380,
+        height: 280,
         data: [
-          { label: 'Desktop', value: 45, color: '#4285f4' },
-          { label: 'Mobile', value: 35, color: '#34a853' },
-          { label: 'Tablet', value: 20, color: '#fbbc04' }
+          { label: 'Alpha', value: 35, color: CHART_PALETTE[4] },
+          { label: 'Beta', value: 28, color: CHART_PALETTE[5] },
+          { label: 'Gamma', value: 22, color: CHART_PALETTE[6] },
+          { label: 'Delta', value: 15, color: CHART_PALETTE[7] }
         ]
       },
       line: {
         type: 'chart',
         chartType: 'line',
-        x: 100,
-        y: 100,
-        width: 300,
-        height: 200,
+        x: 120,
+        y: 120,
+        width: 440,
+        height: 300,
         data: [
-          { label: 'Q1', value: 20 },
-          { label: 'Q2', value: 45 },
-          { label: 'Q3', value: 30 },
-          { label: 'Q4', value: 70 }
+          { label: 'Q1', value: 22, color: CHART_PALETTE[0] },
+          { label: 'Q2', value: 35, color: CHART_PALETTE[1] },
+          { label: 'Q3', value: 44, color: CHART_PALETTE[2] },
+          { label: 'Q4', value: 29, color: CHART_PALETTE[3] }
         ],
-        color: '#ea4335'
+        color: CHART_PALETTE[2]
       }
     };
     
-    const dims = charts[chartType];
-    const { x, y } = findNonOverlappingPosition(dims.width, dims.height);
-    onAddElement({ ...dims, x, y });
+    onAddElement(charts[chartType]);
   };
 
   const handleImageUpload = (e) => {
@@ -377,6 +411,62 @@ const Toolbar = ({
       const newSize = Math.max(currentSize - 2, 8);
       updateSelectedElement('fontSize', newSize);
     }
+  };
+
+  const updateShapeProperties = (updates) => {
+    if (selectedElement && selectedElement.type === 'shape') {
+      onUpdateElement(selectedElement.id, updates);
+    }
+  };
+
+  const updateChartProperties = (updates) => {
+    if (!selectedElement || selectedElement.type !== 'chart') return;
+
+    let mergedUpdates = { ...updates };
+
+    if (updates.color && selectedElement.chartType !== 'pie') {
+      const currentData = Array.isArray(selectedElement.data) ? selectedElement.data : [];
+      mergedUpdates = {
+        ...mergedUpdates,
+        data: currentData.map(item => ({
+          ...item,
+          color: updates.color
+        }))
+      };
+    }
+
+    onUpdateElement(selectedElement.id, mergedUpdates);
+  };
+
+  const updateChartDataPoint = (index, field, value) => {
+    if (!selectedElement || selectedElement.type !== 'chart') return;
+    const currentData = Array.isArray(selectedElement.data) ? [...selectedElement.data] : [];
+    if (!currentData[index]) return;
+    const updatedPoint = { ...currentData[index], [field]: value };
+    currentData[index] = updatedPoint;
+    updateChartProperties({ data: currentData });
+  };
+
+  const removeChartDataPoint = (index) => {
+    if (!selectedElement || selectedElement.type !== 'chart') return;
+    const currentData = Array.isArray(selectedElement.data) ? [...selectedElement.data] : [];
+    if (currentData.length <= 1) return;
+    const nextData = currentData.filter((_, i) => i !== index);
+    updateChartProperties({ data: nextData });
+  };
+
+  const addChartDataPoint = () => {
+    if (!selectedElement || selectedElement.type !== 'chart') return;
+    const currentData = Array.isArray(selectedElement.data) ? [...selectedElement.data] : [];
+    const nextIndex = currentData.length + 1;
+    const paletteIndex = currentData.length % CHART_PALETTE.length;
+    const baseColor = CHART_PALETTE[paletteIndex];
+    const newPoint = {
+      label: `Series ${nextIndex}`,
+      value: 50,
+      color: baseColor
+    };
+    updateChartProperties({ data: [...currentData, newPoint] });
   };
 
   const applyBackgroundTheme = (theme) => {
@@ -720,59 +810,119 @@ const Toolbar = ({
 
                 {selectedElement.type === 'shape' && (
                   <>
-                    <div className="control-group">
-                      <label>Fill Color:</label>
-                      <input 
-                        type="color" 
-                        value={selectedElement.fill || '#4285f4'}
-                        onChange={(e) => updateSelectedElement('fill', e.target.value)}
+                    <div className="control-group column">
+                      <label>Fill</label>
+                      <div className="swatch-grid">
+                        {SHAPE_PALETTE.map((color) => (
+                          <button
+                            key={`fill-${color}`}
+                            className={`swatch ${selectedElement.fill === color ? 'selected' : ''}`}
+                            style={{ backgroundColor: color }}
+                            onClick={() => updateShapeProperties({ fill: color })}
+                            aria-label={`Set fill ${color}`}
+                          />
+                        ))}
+                      </div>
+                      <input
+                        type="color"
+                        value={selectedElement.fill || '#2f2f2f'}
+                        onChange={(e) => updateShapeProperties({ fill: e.target.value })}
                         className="color-input"
                       />
                     </div>
 
-                    <div className="control-group">
-                      <label>Border Color:</label>
-                      <input 
-                        type="color" 
-                        value={selectedElement.stroke || '#1a73e8'}
-                        onChange={(e) => updateSelectedElement('stroke', e.target.value)}
+                    <div className="control-group column">
+                      <label>Border</label>
+                      <div className="swatch-grid">
+                        {SHAPE_PALETTE.map((color) => (
+                          <button
+                            key={`stroke-${color}`}
+                            className={`swatch ${selectedElement.stroke === color ? 'selected' : ''}`}
+                            style={{ backgroundColor: color }}
+                            onClick={() => updateShapeProperties({ stroke: color })}
+                            aria-label={`Set border ${color}`}
+                          />
+                        ))}
+                      </div>
+                      <input
+                        type="color"
+                        value={selectedElement.stroke || '#f5f5f5'}
+                        onChange={(e) => updateShapeProperties({ stroke: e.target.value })}
                         className="color-input"
                       />
+                      <div className="slider-row">
+                        <input
+                          type="range"
+                          min="0"
+                          max="16"
+                          step="1"
+                          value={selectedElement.strokeWidth ?? 0}
+                          onChange={(e) => updateShapeProperties({ strokeWidth: parseInt(e.target.value, 10) || 0 })}
+                          className="slider-input"
+                        />
+                        <span className="slider-value">{selectedElement.strokeWidth ?? 0}px</span>
+                      </div>
                     </div>
 
-                    <div className="control-group">
-                      <label>Border Width:</label>
-                      <input 
-                        type="range" 
-                        min="0"
-                        max="10"
-                        value={selectedElement.strokeWidth || 2}
-                        onChange={(e) => updateSelectedElement('strokeWidth', parseInt(e.target.value))}
-                        className="range-input"
+                    {selectedElement.shapeType === 'rectangle' && (
+                      <div className="control-group column">
+                        <label>Corner radius</label>
+                        <input
+                          type="range"
+                          min="0"
+                          max="60"
+                          value={selectedElement.cornerRadius ?? 0}
+                          onChange={(e) => updateShapeProperties({ cornerRadius: parseInt(e.target.value, 10) || 0 })}
+                          className="slider-input"
+                        />
+                        <span className="slider-value">{selectedElement.cornerRadius ?? 0}px</span>
+                      </div>
+                    )}
+
+                    <div className="control-group column">
+                      <label>Opacity</label>
+                      <input
+                        type="range"
+                        min="0.2"
+                        max="1"
+                        step="0.05"
+                        value={selectedElement.opacity ?? 1}
+                        onChange={(e) => updateShapeProperties({ opacity: parseFloat(e.target.value) })}
+                        className="slider-input"
                       />
-                      <span className="range-value">{selectedElement.strokeWidth || 2}px</span>
+                      <span className="slider-value">{Math.round((selectedElement.opacity ?? 1) * 100)}%</span>
                     </div>
 
                     <div className="control-group">
-                      <label>Size:</label>
+                      <button
+                        className={`toggle-chip ${selectedElement.shadow ? 'active' : ''}`}
+                        onClick={() => updateShapeProperties({ shadow: !selectedElement.shadow })}
+                      >
+                        <i className="fas fa-adjust"></i>
+                        Shadow
+                      </button>
+                    </div>
+
+                    <div className="control-group">
+                      <label>Size</label>
                       <div className="size-controls">
-                        <button 
+                        <button
                           className="format-btn"
                           onClick={() => {
-                            const newWidth = (selectedElement.width || 100) * 1.1;
-                            const newHeight = (selectedElement.height || 100) * 1.1;
-                            onUpdateElement(selectedElement.id, { width: newWidth, height: newHeight });
+                            const newWidth = (selectedElement.width || 120) * 1.1;
+                            const newHeight = (selectedElement.height || 120) * 1.1;
+                            updateShapeProperties({ width: newWidth, height: newHeight });
                           }}
                           title="Increase size"
                         >
                           <i className="fas fa-search-plus"></i>
                         </button>
-                        <button 
+                        <button
                           className="format-btn"
                           onClick={() => {
-                            const newWidth = (selectedElement.width || 100) * 0.9;
-                            const newHeight = (selectedElement.height || 100) * 0.9;
-                            onUpdateElement(selectedElement.id, { width: newWidth, height: newHeight });
+                            const newWidth = (selectedElement.width || 120) * 0.9;
+                            const newHeight = (selectedElement.height || 120) * 0.9;
+                            updateShapeProperties({ width: newWidth, height: newHeight });
                           }}
                           title="Decrease size"
                         >
@@ -780,16 +930,170 @@ const Toolbar = ({
                         </button>
                       </div>
                     </div>
+
+                    <div className="control-group">
+                      <label>Dimensions</label>
+                      <div className="dimension-controls">
+                        <div className="dimension-input-group">
+                          <label>W</label>
+                          <input
+                            type="number"
+                            value={Math.round(selectedElement.width || 160)}
+                            onChange={(e) => updateShapeProperties({ width: parseInt(e.target.value, 10) || 60 })}
+                            className="dimension-input"
+                            min="40"
+                            max="800"
+                          />
+                        </div>
+                        <div className="dimension-input-group">
+                          <label>H</label>
+                          <input
+                            type="number"
+                            value={Math.round(selectedElement.height || 160)}
+                            onChange={(e) => updateShapeProperties({ height: parseInt(e.target.value, 10) || 40 })}
+                            className="dimension-input"
+                            min="40"
+                            max="600"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </>
                 )}
 
-                {(selectedElement.type === 'image' || selectedElement.type === 'video' || selectedElement.type === 'chart') && (
+                {selectedElement.type === 'chart' && (
                   <>
                     <div className="control-group">
-                      <label>Size:</label>
+                      <label>Chart type</label>
+                      <select
+                        value={selectedElement.chartType || 'bar'}
+                        onChange={(e) => updateChartProperties({ chartType: e.target.value })}
+                        className="font-family-select"
+                      >
+                        <option value="bar">Bar</option>
+                        <option value="line">Line</option>
+                        <option value="pie">Pie</option>
+                      </select>
+                    </div>
+
+                    <div className="control-group column">
+                      <label>Palette</label>
+                      <div className="swatch-grid">
+                        {CHART_PALETTE.map((color) => (
+                          <button
+                            key={`chart-palette-${color}`}
+                            className={`swatch ${selectedElement.color === color ? 'selected' : ''}`}
+                            style={{ backgroundColor: color }}
+                            onClick={() => updateChartProperties({ color })}
+                            aria-label={`Set chart color ${color}`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="chart-data-editor">
+                      {(selectedElement.data || []).map((row, index) => (
+                        <div key={`chart-row-${index}`} className="chart-data-row">
+                          <span className="row-index">{index + 1}</span>
+                          <input
+                            className="minimal-input"
+                            value={row.label || ''}
+                            onChange={(e) => updateChartDataPoint(index, 'label', e.target.value)}
+                            placeholder="Label"
+                          />
+                          <input
+                            className="minimal-input value"
+                            type="number"
+                            value={row.value ?? 0}
+                            onChange={(e) => updateChartDataPoint(index, 'value', Number(e.target.value))}
+                          />
+                          <input
+                            type="color"
+                            className="color-input"
+                            value={row.color || selectedElement.color || '#4F46E5'}
+                            onChange={(e) => updateChartDataPoint(index, 'color', e.target.value)}
+                          />
+                          <button
+                            className="icon-button"
+                            onClick={() => removeChartDataPoint(index)}
+                            disabled={(selectedElement.data || []).length <= 1}
+                            title="Remove row"
+                          >
+                            <i className="fas fa-minus-circle"></i>
+                          </button>
+                        </div>
+                      ))}
+                      <button className="ghost-button" onClick={addChartDataPoint}>
+                        <i className="fas fa-plus"></i>
+                        Add data row
+                      </button>
+                    </div>
+
+                    <div className="control-group">
+                      <label>Size</label>
+                      <div className="size-controls">
+                        <button
+                          className="format-btn"
+                          onClick={() => {
+                            const newWidth = (selectedElement.width || 360) * 1.1;
+                            const newHeight = (selectedElement.height || 260) * 1.1;
+                            updateChartProperties({ width: newWidth, height: newHeight });
+                          }}
+                          title="Increase size"
+                        >
+                          <i className="fas fa-search-plus"></i>
+                        </button>
+                        <button
+                          className="format-btn"
+                          onClick={() => {
+                            const newWidth = (selectedElement.width || 360) * 0.9;
+                            const newHeight = (selectedElement.height || 260) * 0.9;
+                            updateChartProperties({ width: newWidth, height: newHeight });
+                          }}
+                          title="Decrease size"
+                        >
+                          <i className="fas fa-search-minus"></i>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="control-group">
+                      <label>Dimensions</label>
+                      <div className="dimension-controls">
+                        <div className="dimension-input-group">
+                          <label>W</label>
+                          <input
+                            type="number"
+                            value={Math.round(selectedElement.width || 420)}
+                            onChange={(e) => updateChartProperties({ width: parseInt(e.target.value, 10) || 120 })}
+                            className="dimension-input"
+                            min="120"
+                            max="900"
+                          />
+                        </div>
+                        <div className="dimension-input-group">
+                          <label>H</label>
+                          <input
+                            type="number"
+                            value={Math.round(selectedElement.height || 280)}
+                            onChange={(e) => updateChartProperties({ height: parseInt(e.target.value, 10) || 120 })}
+                            className="dimension-input"
+                            min="120"
+                            max="700"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {(selectedElement.type === 'image' || selectedElement.type === 'video') && (
+                  <>
+                    <div className="control-group">
+                      <label>Size</label>
                       <div className="size-controls">
                         <button 
-                          className="format-btn"
+                          className="format-btn" 
                           onClick={() => {
                             const newWidth = (selectedElement.width || 200) * 1.1;
                             const newHeight = (selectedElement.height || 150) * 1.1;
@@ -800,7 +1104,7 @@ const Toolbar = ({
                           <i className="fas fa-search-plus"></i>
                         </button>
                         <button 
-                          className="format-btn"
+                          className="format-btn" 
                           onClick={() => {
                             const newWidth = (selectedElement.width || 200) * 0.9;
                             const newHeight = (selectedElement.height || 150) * 0.9;
@@ -814,25 +1118,25 @@ const Toolbar = ({
                     </div>
 
                     <div className="control-group">
-                      <label>Dimensions:</label>
+                      <label>Dimensions</label>
                       <div className="dimension-controls">
                         <div className="dimension-input-group">
-                          <label>W:</label>
+                          <label>W</label>
                           <input 
                             type="number" 
                             value={Math.round(selectedElement.width || 200)}
-                            onChange={(e) => updateSelectedElement('width', parseInt(e.target.value) || 50)}
+                            onChange={(e) => updateSelectedElement('width', parseInt(e.target.value, 10) || 50)}
                             className="dimension-input"
                             min="50"
                             max="800"
                           />
                         </div>
                         <div className="dimension-input-group">
-                          <label>H:</label>
+                          <label>H</label>
                           <input 
                             type="number" 
                             value={Math.round(selectedElement.height || 150)}
-                            onChange={(e) => updateSelectedElement('height', parseInt(e.target.value) || 30)}
+                            onChange={(e) => updateSelectedElement('height', parseInt(e.target.value, 10) || 30)}
                             className="dimension-input"
                             min="30"
                             max="600"

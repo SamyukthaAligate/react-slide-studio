@@ -4,17 +4,19 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: #000;
+  background-color: #020617;
   z-index: 10000;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .presentation-controls {
   position: absolute;
-  top: 20px;
-  left: 20px;
-  right: 20px;
+  top: 24px;
+  left: 32px;
+  right: 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -28,57 +30,67 @@
 }
 
 .control-btn {
-  background-color: rgba(255, 255, 255, 0.2);
-  color: white;
+  background: radial-gradient(circle at top, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.78));
+  color: #f8fafc;
   border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  border-radius: 16px;
+  width: 46px;
+  height: 46px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
-  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.45);
 }
 
 .control-btn:hover:not(:disabled) {
-  background-color: rgba(255, 255, 255, 0.3);
-  transform: scale(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.55);
 }
 
 .control-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
 .slide-counter {
-  background-color: rgba(255, 255, 255, 0.2);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.8);
+  color: #f8fafc;
+  padding: 10px 20px;
+  border-radius: 22px;
   font-size: 14px;
-  font-weight: 500;
-  backdrop-filter: blur(10px);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.4);
 }
 
 .navigation-controls {
   display: flex;
-  gap: 8px;
+  gap: 12px;
+}
+
+.presentation-stage {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(48px, 6vh, 72px);
+  box-sizing: border-box;
 }
 
 .presentation-slide {
-  flex: 1;
   position: relative;
-  width: 100%;
-  height: 100%;
   cursor: pointer;
   overflow: hidden;
+  border-radius: 18px;
+  box-shadow: 0 40px 100px rgba(15, 23, 42, 0.8);
 }
 
 .presentation-help {
   position: absolute;
-  bottom: 20px;
+  bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10001;
@@ -91,44 +103,89 @@
 }
 
 .help-text {
-  background-color: rgba(255, 255, 255, 0.2);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.78);
+  color: #e2e8f0;
+  padding: 10px 20px;
+  border-radius: 999px;
   font-size: 12px;
-  backdrop-filter: blur(10px);
   text-align: center;
+  letter-spacing: 0.08em;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.45);
+}
+
+.presentation-chart-area {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+.presentation-chart-title {
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  color: #0f172a;
+}
+
+.presentation-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  font-size: 11px;
+  color: #1e293b;
+}
+
+.presentation-chart-legend .legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.presentation-chart-empty {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  font-size: 13px;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .presentation-controls {
-    top: 10px;
-    left: 10px;
-    right: 10px;
+    top: 12px;
+    left: 12px;
+    right: 12px;
   }
   
   .control-btn {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
   }
   
   .slide-counter {
     font-size: 12px;
-    padding: 6px 12px;
+    padding: 8px 16px;
   }
   
   .navigation-controls {
-    gap: 4px;
+    gap: 8px;
   }
   
   .presentation-help {
-    bottom: 10px;
+    bottom: 14px;
   }
   
   .help-text {
     font-size: 10px;
-    padding: 6px 12px;
+    padding: 8px 14px;
   }
 }
 

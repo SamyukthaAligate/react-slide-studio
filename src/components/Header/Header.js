@@ -290,7 +290,9 @@ const Header = ({
             )}
           </div>
         </div>
+      </div>
 
+      <div className="header-right">
         <div className="undo-redo-controls">
           <button
             className={`undo-btn ${!canUndo ? 'disabled' : ''}`}
@@ -309,9 +311,6 @@ const Header = ({
             <i className="fas fa-redo"></i>
           </button>
         </div>
-      </div>
-
-      <div className="header-right">
         <button className="share-btn" onClick={onShowShare}>
           <i className="fas fa-share-alt"></i>
           Share

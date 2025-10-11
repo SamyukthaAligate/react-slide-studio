@@ -12,8 +12,8 @@
 }
 
 .studio-panel {
-  width: min(1080px, 92vw);
-  max-height: 88vh;
+  width: min(1120px, 94vw);
+  max-height: 92vh;
   display: flex;
   flex-direction: column;
   background: radial-gradient(circle at top, rgba(32, 32, 32, 0.95), rgba(12, 12, 12, 0.98));
@@ -78,9 +78,9 @@
 
 .studio-body {
   display: grid;
-  grid-template-columns: minmax(340px, 420px) 1fr;
-  gap: 32px;
-  padding: 28px 32px 32px;
+  grid-template-columns: minmax(360px, 460px) 1fr;
+  gap: 36px;
+  padding: 32px 36px;
   overflow: hidden;
 }
 
@@ -90,6 +90,7 @@
   gap: 22px;
   overflow-y: auto;
   padding-right: 8px;
+  max-height: calc(92vh - 220px);
 }
 
 .studio-controls::-webkit-scrollbar {
@@ -204,12 +205,24 @@
 .inline-palette {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding: 4px 2px;
 }
 
 .inline-palette.expanded {
-  flex-wrap: wrap;
-  gap: 8px;
+  justify-content: flex-start;
+  padding-bottom: 6px;
+}
+
+.inline-palette::-webkit-scrollbar {
+  height: 6px;
+}
+
+.inline-palette::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
 }
 
 .swatch {
@@ -297,7 +310,8 @@
 .studio-preview {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
+  min-height: 0;
 }
 
 .preview-surface {

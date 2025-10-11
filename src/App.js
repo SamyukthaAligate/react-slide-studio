@@ -47,36 +47,44 @@ function App() {
   const [historyIndex, setHistoryIndex] = useState(-1);
   const isUndoRedoAction = useRef(false);
 
-  // Load saved presentations from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem('savedPresentations');
-    if (saved) {
-      try {
-        setSavedPresentations(JSON.parse(saved));
-      } catch (e) {
-        console.error('Error loading presentations:', e);
-      }
-    }
-    const storedRecent = localStorage.getItem('recentPdfs');
-    if (storedRecent) {
-      try {
-        setRecentPdfs(JSON.parse(storedRecent));
-      } catch (e) {
-        console.error('Error loading recent PDFs:', e);
-      }
-    }
+  // Save presentation to localStorage
+  const pruneStorage = useCallback((presentations) => {
+    if (!Array.isArray(presentations)) return [];
+    // keep the latest 10 entries to control quota usage
+    return presentations
+      .slice()
+      .sort((a, b) => {
+        const timeA = a?.lastModified ? new Date(a.lastModified).getTime() : 0;
+        const timeB = b?.lastModified ? new Date(b.lastModified).getTime() : 0;
+        return timeB - timeA;
+      })
+      .slice(0, 10);
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('recentPdfs', JSON.stringify(recentPdfs));
-  }, [recentPdfs]);
+  const persistPresentations = useCallback((presentations) => {
+    const trimmed = pruneStorage(presentations);
+    setSavedPresentations(trimmed);
+    try {
+      localStorage.setItem('savedPresentations', JSON.stringify(trimmed));
+    } catch (error) {
+      console.warn('Failed to write saved presentations, attempting cleanup', error);
+      const smallerList = trimmed.slice(0, Math.max(trimmed.length - 1, 0));
+      setSavedPresentations(smallerList);
+      try {
+        localStorage.setItem('savedPresentations', JSON.stringify(smallerList));
+        alert('Storage is nearly full. Oldest presentation removed to complete save.');
+      } catch (err) {
+        console.error('Unable to persist presentations even after cleanup.', err);
+        alert('Unable to save presentation because browser storage quota is full. Please delete unused presentations.');
+      }
+    }
+  }, [pruneStorage]);
 
-  // Save presentation to localStorage
-  const savePresentation = useCallback(() => {
+  const handleSave = useCallback(() => {
     const presentation = {
-      id: currentPresentationId || uuidv4(),
-      title: presentationTitle,
-      slides: slides,
+      id: currentPresentationId || Date.now().toString(),
+      title: presentationTitle.trim() || 'Untitled Presentation',
+      slides: JSON.parse(JSON.stringify(slides)),
       lastModified: new Date().toISOString()
     };
 
@@ -90,12 +98,11 @@ function App() {
       updatedPresentations = [...savedPresentations, presentation];
     }
 
-    setSavedPresentations(updatedPresentations);
-    localStorage.setItem('savedPresentations', JSON.stringify(updatedPresentations));
+    persistPresentations(updatedPresentations);
     setCurrentPresentationId(presentation.id);
     
     alert('Presentation saved successfully!');
-  }, [slides, presentationTitle, currentPresentationId, savedPresentations]);
+  }, [slides, presentationTitle, currentPresentationId, savedPresentations, persistPresentations]);
 
   // Create new presentation
   const createNewPresentation = useCallback(() => {
@@ -137,15 +144,14 @@ function App() {
   const deletePresentation = useCallback((presentationId) => {
     if (window.confirm('Are you sure you want to delete this presentation?')) {
       const updatedPresentations = savedPresentations.filter(p => p.id !== presentationId);
-      setSavedPresentations(updatedPresentations);
-      localStorage.setItem('savedPresentations', JSON.stringify(updatedPresentations));
+      persistPresentations(updatedPresentations);
       
       // If deleting current presentation, create new one
       if (currentPresentationId === presentationId) {
         createNewPresentation();
       }
     }
-  }, [savedPresentations, currentPresentationId]);
+  }, [savedPresentations, currentPresentationId, persistPresentations, createNewPresentation]);
 
   // Download as PDF
   const addRecentPdf = useCallback((slidesSnapshot, title) => {
@@ -193,6 +199,34 @@ function App() {
       console.error('PDF export error:', error);
     }
   }, [slides, presentationTitle, addRecentPdf]);
+
+  // Load saved presentations from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('savedPresentations');
+    if (saved) {
+      try {
+        setSavedPresentations(JSON.parse(saved));
+      } catch (e) {
+        console.error('Error loading presentations:', e);
+      }
+    }
+    const storedRecent = localStorage.getItem('recentPdfs');
+    if (storedRecent) {
+      try {
+        setRecentPdfs(JSON.parse(storedRecent));
+      } catch (e) {
+        console.error('Error loading recent PDFs:', e);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('recentPdfs', JSON.stringify(recentPdfs));
+    } catch (error) {
+      console.warn('Unable to persist recent PDFs due to storage limits.', error);
+    }
+  }, [recentPdfs]);
 
   // Export as PPTX using pptxgenjs
   const exportAsPPTX = useCallback(async () => {
@@ -264,10 +298,9 @@ function App() {
       lastModified: new Date().toISOString()
     };
     const updated = [...savedPresentations, copy];
-    setSavedPresentations(updated);
-    localStorage.setItem('savedPresentations', JSON.stringify(updated));
+    persistPresentations(updated);
     alert('A copy of the presentation was saved.');
-  }, [slides, presentationTitle, savedPresentations]);
+  }, [slides, presentationTitle, savedPresentations, persistPresentations]);
 
   // Save state to history for undo/redo
   const saveToHistory = useCallback((newSlides) => {
@@ -646,7 +679,7 @@ function App() {
           redo();
         } else if (e.key === 's') {
           e.preventDefault();
-          savePresentation();
+          handleSave();
         } else if (e.key === 'n') {
           e.preventDefault();
           createNewPresentation();
@@ -668,7 +701,7 @@ function App() {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo, savePresentation, createNewPresentation, startPresentation, zoomIn, zoomOut, fitToScreen]);
+  }, [undo, redo, handleSave, createNewPresentation, startPresentation, zoomIn, zoomOut, fitToScreen]);
 
   // Global error handlers so uncaught exceptions surface visibly
   React.useEffect(() => {
@@ -721,7 +754,7 @@ function App() {
         canRedo={historyIndex < history.length - 1}
         presentationTitle={presentationTitle}
         onTitleChange={setPresentationTitle}
-        onSave={savePresentation}
+        onSave={handleSave}
         onNew={createNewPresentation}
         onOpen={openPresentation}
         onDelete={deletePresentation}

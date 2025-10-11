@@ -413,55 +413,127 @@ const Canvas = ({
   }, [contextMenu.show]);
 
   const renderChart = (element) => {
-    const { chartType, data, color } = element;
-    const chartWidth = element.width - 32; // Account for padding
-    const chartHeight = element.height - 32;
+    const { chartType, data = [], color } = element;
+    const fallbackColor = color || '#4F46E5';
+    const chartWidth = Math.max(element.width || 320, 140);
+    const chartHeight = Math.max(element.height || 240, 160);
+
+    if (!Array.isArray(data) || data.length === 0) {
+      return (
+        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4a4a4a', fontSize: '12px' }}>
+          No data for chart
+        </div>
+      );
+    }
 
     if (chartType === 'bar') {
-      const maxValue = Math.max(...data.map(d => d.value));
-      const barWidth = chartWidth / data.length - 10;
-      
+      const maxValue = Math.max(...data.map(item => (typeof item.value === 'number' ? item.value : 0)), 0) || 1;
+      const horizontalPadding = Math.min(chartWidth * 0.12, 64);
+      const verticalPadding = Math.min(chartHeight * 0.18, 84);
+      const headerSpace = 32;
+      const labelSpace = Math.min(chartHeight * 0.18, 48);
+      const innerHeight = Math.max(chartHeight - verticalPadding - headerSpace - labelSpace, 80);
+      const columnGap = Math.max(Math.min(chartWidth * 0.05, 32), 12);
+      const minColumnWidth = Math.max(
+        Math.min((chartWidth - horizontalPadding) / Math.max(data.length, 1), 140),
+        36
+      );
+
       return (
-        <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-          <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '10px', textAlign: 'center' }}>
-            Bar Chart
-          </div>
-          <div style={{ display: 'flex', alignItems: 'end', height: chartHeight - 30, gap: '5px' }}>
-            {data.map((item, index) => (
-              <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div
+          style={{
+            width: '100%',
+            height: '100%',
+            padding: `${verticalPadding / 2}px ${horizontalPadding / 2}px`,
+            boxSizing: 'border-box',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden'
+          }}
+        >
+          <div style={{ fontSize: '14px', fontWeight: 600, color: '#111', textAlign: 'center', marginBottom: '8px' }}>Bar chart</div>
+          <div
+            style={{
+              flex: 1,
+              minHeight: innerHeight,
+              width: '100%',
+              display: 'flex',
+              alignItems: 'flex-end',
+              justifyContent: 'center',
+              gap: columnGap,
+              padding: '0 6px',
+              boxSizing: 'border-box'
+            }}
+          >
+            {data.map((item, index) => {
+              const value = typeof item.value === 'number' ? item.value : 0;
+              const label = item.label || `Series ${index + 1}`;
+              const barColor = item.color || fallbackColor;
+              const heightRatio = Math.max(value / maxValue, 0);
+              const barHeight = Math.min(
+                Math.max(heightRatio * innerHeight, Math.max(innerHeight * 0.06, 14)),
+                innerHeight
+              );
+
+              return (
                 <div
+                  key={index}
                   style={{
-                    width: barWidth,
-                    height: (item.value / maxValue) * (chartHeight - 50),
-                    backgroundColor: color,
-                    borderRadius: '2px 2px 0 0'
+                    flex: `1 1 ${minColumnWidth}px`,
+                    maxWidth: Math.max(minColumnWidth, (chartWidth - horizontalPadding) / Math.max(data.length, 1)),
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '8px',
+                    overflow: 'hidden'
                   }}
-                />
-                <div style={{ fontSize: '10px', marginTop: '5px', textAlign: 'center' }}>
-                  {item.label}
+                >
+                  <div
+                    style={{
+                      width: '100%',
+                      height: barHeight,
+                      maxHeight: innerHeight,
+                      borderRadius: '8px 8px 4px 4px',
+                      background: barColor,
+                      boxShadow: '0 6px 14px rgba(0,0,0,0.12)',
+                      transition: 'height 0.2s ease, width 0.2s ease'
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      color: '#333',
+                      width: '100%',
+                      textAlign: 'center',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}
+                  >
+                    {label}
+                  </span>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       );
     }
 
     if (chartType === 'pie') {
-      const total = data.reduce((sum, item) => sum + item.value, 0);
+      const total = data.reduce((sum, item) => sum + (typeof item.value === 'number' ? item.value : 0), 0) || 1;
       let currentAngle = 0;
       const radius = Math.min(chartWidth, chartHeight) / 2 - 20;
       const centerX = chartWidth / 2;
       const centerY = chartHeight / 2;
 
       return (
-        <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-          <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '10px', textAlign: 'center' }}>
-            Pie Chart
-          </div>
-          <svg width={chartWidth} height={chartHeight - 30} style={{ display: 'block' }}>
+        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center', padding: '16px', boxSizing: 'border-box' }}>
+          <div style={{ fontSize: '14px', fontWeight: 600, color: '#111' }}>Pie chart</div>
+          <svg width={chartWidth} height={chartHeight - 60} viewBox={`0 0 ${chartWidth} ${chartHeight}`} preserveAspectRatio="xMidYMid meet" style={{ display: 'block' }}>
             {data.map((item, index) => {
-              const angle = (item.value / total) * 360;
+              const value = typeof item.value === 'number' ? item.value : 0;
+              const angle = (value / total) * 360;
               const startAngle = currentAngle;
               const endAngle = currentAngle + angle;
               currentAngle += angle;
@@ -470,53 +542,71 @@ const Canvas = ({
               const y1 = centerY + radius * Math.sin((startAngle * Math.PI) / 180);
               const x2 = centerX + radius * Math.cos((endAngle * Math.PI) / 180);
               const y2 = centerY + radius * Math.sin((endAngle * Math.PI) / 180);
-
               const largeArcFlag = angle > 180 ? 1 : 0;
 
               return (
                 <path
                   key={index}
                   d={`M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`}
-                  fill={item.color}
-                  stroke="#fff"
-                  strokeWidth="2"
+                  fill={item.color || fallbackColor}
+                  stroke="#0f0f0f"
+                  strokeWidth="1"
+                  opacity="0.95"
                 />
               );
             })}
           </svg>
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px', fontSize: '11px', color: '#333', maxWidth: '100%' }}>
+            {data.map((item, index) => (
+              <span key={index} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: item.color || fallbackColor }}></span>
+                {item.label || `Slice ${index + 1}`}
+              </span>
+            ))}
+          </div>
         </div>
       );
     }
 
     if (chartType === 'line') {
-      const maxValue = Math.max(...data.map(d => d.value));
-      const minValue = Math.min(...data.map(d => d.value));
+      const values = data.map(item => (typeof item.value === 'number' ? item.value : 0));
+      const maxValue = Math.max(...values);
+      const minValue = Math.min(...values);
       const range = maxValue - minValue || 1;
-      
+
+      const points = data.map((item, index) => {
+        const value = typeof item.value === 'number' ? item.value : 0;
+        const x = (index / Math.max(data.length - 1, 1)) * (chartWidth - 40) + 20;
+        const normalized = Math.max(Math.min((value - minValue) / range, 1), 0);
+        const rawY = (chartHeight - 72) - normalized * (chartHeight - 96);
+        const y = Math.max(Math.min(rawY, chartHeight - 40), 12);
+        return `${x},${y}`;
+      }).join(' ');
+
       return (
-        <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-          <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '10px', textAlign: 'center' }}>
-            Line Chart
-          </div>
-          <svg width={chartWidth} height={chartHeight - 30} style={{ display: 'block' }}>
+        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', gap: '8px', padding: '16px', boxSizing: 'border-box' }}>
+          <div style={{ fontSize: '14px', fontWeight: 600, color: '#111', textAlign: 'center' }}>Line chart</div>
+          <svg width={chartWidth} height={chartHeight - 40} style={{ display: 'block' }}>
             <polyline
               fill="none"
-              stroke={color}
+              stroke={fallbackColor}
               strokeWidth="3"
-              points={data.map((item, index) => {
-                const x = (index / (data.length - 1)) * (chartWidth - 40) + 20;
-                const y = chartHeight - 50 - ((item.value - minValue) / range) * (chartHeight - 80);
-                return `${x},${y}`;
-              }).join(' ')}
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              points={points}
             />
             {data.map((item, index) => {
-              const x = (index / (data.length - 1)) * (chartWidth - 40) + 20;
-              const y = chartHeight - 50 - ((item.value - minValue) / range) * (chartHeight - 80);
+              const value = typeof item.value === 'number' ? item.value : 0;
+              const x = (index / Math.max(data.length - 1, 1)) * (chartWidth - 40) + 20;
+              const normalized = Math.max(Math.min((value - minValue) / range, 1), 0);
+              const rawY = (chartHeight - 72) - normalized * (chartHeight - 96);
+              const y = Math.max(Math.min(rawY, chartHeight - 40), 12);
+
               return (
                 <g key={index}>
-                  <circle cx={x} cy={y} r="4" fill={color} />
-                  <text x={x} y={chartHeight - 25} textAnchor="middle" fontSize="10">
-                    {item.label}
+                  <circle cx={x} cy={y} r="5" fill="#ffffff" stroke={item.color || fallbackColor} strokeWidth="2" />
+                  <text x={x} y={chartHeight - 40 + 18} textAnchor="middle" fontSize="11" fill="#333">
+                    {item.label || `Point ${index + 1}`}
                   </text>
                 </g>
               );
@@ -526,7 +616,11 @@ const Canvas = ({
       );
     }
 
-    return <div>Chart</div>;
+    return (
+      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4a4a4a', fontSize: '12px' }}>
+        Chart preview unavailable
+      </div>
+    );
   };
 
   const renderElement = (element) => {
@@ -633,43 +727,67 @@ const Canvas = ({
     }
 
     if (element.type === 'shape') {
-      let shapeElement;
-      
+      const fill = element.fill || '#2f2f2f';
+      const stroke = element.stroke || 'transparent';
+      const strokeWidth = Number.isFinite(element.strokeWidth) ? Math.max(element.strokeWidth, 0) : 0;
+      const opacity = typeof element.opacity === 'number' ? element.opacity : 1;
+      const cornerRadius = typeof element.cornerRadius === 'number' ? Math.max(element.cornerRadius, 0) : 0;
+      const shadowStyle = element.shadow ? '0 18px 32px rgba(0,0,0,0.35)' : 'none';
+      const viewWidth = Math.max(element.width, 1);
+      const viewHeight = Math.max(element.height, 1);
+      const inset = strokeWidth / 2;
+
+      let shapeSvg = null;
+
       if (element.shapeType === 'rectangle') {
-        shapeElement = (
-          <div
-            style={{
-              ...elementStyle,
-              backgroundColor: element.fill,
-              border: `${element.strokeWidth}px solid ${element.stroke}`,
-              boxSizing: 'border-box'
-            }}
-          />
+        shapeSvg = (
+          <svg width={viewWidth} height={viewHeight} viewBox={`0 0 ${viewWidth} ${viewHeight}`}>
+            <rect
+              x={inset}
+              y={inset}
+              width={Math.max(viewWidth - strokeWidth, 0)}
+              height={Math.max(viewHeight - strokeWidth, 0)}
+              rx={cornerRadius}
+              ry={cornerRadius}
+              fill={fill}
+              stroke={stroke}
+              strokeWidth={strokeWidth}
+              opacity={opacity}
+            />
+          </svg>
         );
       } else if (element.shapeType === 'circle') {
-        shapeElement = (
-          <div
-            style={{
-              ...elementStyle,
-              backgroundColor: element.fill,
-              border: `${element.strokeWidth}px solid ${element.stroke}`,
-              borderRadius: '50%',
-              boxSizing: 'border-box'
-            }}
-          />
+        const radiusX = Math.max((viewWidth - strokeWidth) / 2, 0);
+        const radiusY = Math.max((viewHeight - strokeWidth) / 2, 0);
+        shapeSvg = (
+          <svg width={viewWidth} height={viewHeight} viewBox={`0 0 ${viewWidth} ${viewHeight}`}>
+            <ellipse
+              cx={viewWidth / 2}
+              cy={viewHeight / 2}
+              rx={radiusX}
+              ry={radiusY}
+              fill={fill}
+              stroke={stroke}
+              strokeWidth={strokeWidth}
+              opacity={opacity}
+            />
+          </svg>
         );
       } else if (element.shapeType === 'triangle') {
-        shapeElement = (
-          <div
-            style={{
-              ...elementStyle,
-              width: 0,
-              height: 0,
-              borderLeft: `${element.width / 2}px solid transparent`,
-              borderRight: `${element.width / 2}px solid transparent`,
-              borderBottom: `${element.height}px solid ${element.fill}`,
-            }}
-          />
+        const topPoint = `${viewWidth / 2},${inset}`;
+        const leftPoint = `${inset},${viewHeight - inset}`;
+        const rightPoint = `${viewWidth - inset},${viewHeight - inset}`;
+        shapeSvg = (
+          <svg width={viewWidth} height={viewHeight} viewBox={`0 0 ${viewWidth} ${viewHeight}`}>
+            <polygon
+              points={`${topPoint} ${rightPoint} ${leftPoint}`}
+              fill={fill}
+              stroke={stroke}
+              strokeWidth={strokeWidth}
+              opacity={opacity}
+              strokeLinejoin="round"
+            />
+          </svg>
         );
       }
 
@@ -684,12 +802,17 @@ const Canvas = ({
               height: element.height,
               border: isSelected ? '2px solid #1a73e8' : '2px solid transparent',
               cursor: isDragging ? 'grabbing' : (isSelected ? 'move' : 'pointer'),
-              borderRadius: '4px'
+              borderRadius: element.shapeType === 'rectangle' ? cornerRadius : 0,
+              boxShadow: shadowStyle,
+              transition: 'box-shadow 0.2s ease',
+              background: 'transparent'
             }}
             onClick={(e) => handleElementClick(e, element)}
             onMouseDown={(e) => handleMouseDown(e, element)}
           >
-            {shapeElement}
+            <div style={{ width: '100%', height: '100%', pointerEvents: 'none' }}>
+              {shapeSvg}
+            </div>
           </div>
           {isSelected && (
             <div className="resize-handles">

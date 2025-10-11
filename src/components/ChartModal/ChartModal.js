@@ -16,8 +16,9 @@ const grayscalePalette = [
 
 const defaultChartData = [
   { label: 'Alpha', value: 60, color: '#bfbfbf' },
-  { label: 'Beta', value: 40, color: '#6f6f6f' },
-  { label: 'Gamma', value: 25, color: '#2f2f2f' }
+  { label: 'Beta', value: 48, color: '#8f8f8f' },
+  { label: 'Gamma', value: 36, color: '#4f4f4f' },
+  { label: 'Delta', value: 28, color: '#2f2f2f' }
 ];
 
 const ChartModal = ({ onClose, onCreateChart }) => {
@@ -50,8 +51,10 @@ const ChartModal = ({ onClose, onCreateChart }) => {
     const step = chartData.length === 1 ? 100 : 100 / (chartData.length - 1);
     return chartData
       .map((item, index) => {
+        const safeValue = typeof item.value === 'number' ? item.value : 0;
+        const normalized = Math.max(Math.min(safeValue / maxValue, 1), 0);
         const x = index * step;
-        const y = 100 - ((item.value || 0) / maxValue) * 100;
+        const y = 100 - normalized * 100;
         return `${x},${y}`;
       })
       .join(' ');
@@ -95,14 +98,26 @@ const ChartModal = ({ onClose, onCreateChart }) => {
   };
 
   const handleCreate = () => {
+    const sizeByType = {
+      bar: { width: 440, height: 300 },
+      line: { width: 460, height: 300 },
+      pie: { width: 380, height: 280 }
+    };
+
+    const { width, height } = sizeByType[chartType] || sizeByType.bar;
+
     onCreateChart({
       type: 'chart',
       chartType,
       x: 140,
       y: 120,
-      width: 360,
-      height: 240,
-      data: chartData,
+      width,
+      height,
+      data: chartData.map((item, index) => ({
+        label: item.label || `Series ${index + 1}`,
+        value: typeof item.value === 'number' ? item.value : 0,
+        color: chartType === 'pie' ? (item.color || grayscalePalette[index % grayscalePalette.length]) : chartColor
+      })),
       color: chartType === 'pie' ? undefined : chartColor,
       guides: showGuides,
       snap: snapValues

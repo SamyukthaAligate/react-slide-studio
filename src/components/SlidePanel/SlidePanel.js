@@ -190,7 +190,15 @@ const SlidePanel = ({
               <div className="slide-number">{index + 1}</div>
               <div 
                 className="slide-preview"
-                style={{ backgroundColor: slide.background }}
+                style={{
+                  backgroundColor: slide.background,
+                  backgroundImage: slide.backgroundImage
+                    ? `url(${slide.backgroundImage})`
+                    : (slide.backgroundGradient || 'none'),
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat'
+                }}
               >
                 {renderSlidePreview(slide)}
               </div>

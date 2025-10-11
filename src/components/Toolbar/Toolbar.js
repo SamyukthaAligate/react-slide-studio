@@ -37,18 +37,102 @@ const Toolbar = ({
   const fontSizes = [8, 9, 10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 60, 72];
 
   const backgroundThemes = [
-    { name: 'White', color: '#ffffff', gradient: null },
-    { name: 'Light Blue', color: '#e3f2fd', gradient: null },
-    { name: 'Light Green', color: '#e8f5e8', gradient: null },
-    { name: 'Light Yellow', color: '#fffde7', gradient: null },
-    { name: 'Light Pink', color: '#fce4ec', gradient: null },
-    { name: 'Light Purple', color: '#f3e5f5', gradient: null },
-    { name: 'Blue Gradient', color: null, gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
-    { name: 'Green Gradient', color: null, gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
-    { name: 'Orange Gradient', color: null, gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' },
-    { name: 'Purple Gradient', color: null, gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' },
-    { name: 'Dark Theme', color: '#1a1a1a', gradient: null },
-    { name: 'Professional', color: '#f8f9fa', gradient: null }
+    {
+      name: 'Simple Light',
+      backgroundColor: '#ffffff',
+      gradient: 'linear-gradient(135deg, #ffffff 0%, #eef2ff 100%)',
+      previewBackground: 'linear-gradient(135deg, #ffffff 0%, #eef2ff 100%)',
+      accent: '#1a73e8',
+      accentSecondary: '#fbbc04'
+    },
+    {
+      name: 'Spearmint',
+      backgroundColor: '#d9f8ee',
+      gradient: 'linear-gradient(135deg, #d9f8ee 0%, #a6e3c9 100%)',
+      previewBackground: 'linear-gradient(135deg, #d9f8ee 0%, #a6e3c9 100%)',
+      accent: '#0f9d58',
+      accentSecondary: '#ffffff'
+    },
+    {
+      name: 'Midnight',
+      backgroundColor: '#1f2933',
+      gradient: 'linear-gradient(135deg, #1f2933 0%, #111827 100%)',
+      previewBackground: 'linear-gradient(135deg, #1f2933 0%, #111827 100%)',
+      accent: 'rgba(255,255,255,0.85)',
+      accentSecondary: '#4c6ef5'
+    },
+    {
+      name: 'Coral Sunset',
+      backgroundColor: '#ff9a9e',
+      gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+      previewBackground: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+      accent: 'rgba(255,255,255,0.9)',
+      accentSecondary: '#ff6f61'
+    },
+    {
+      name: 'Aurora',
+      backgroundColor: '#36d1dc',
+      gradient: 'linear-gradient(135deg, #36d1dc 0%, #5b86e5 100%)',
+      previewBackground: 'linear-gradient(135deg, #36d1dc 0%, #5b86e5 100%)',
+      accent: 'rgba(255,255,255,0.85)',
+      accentSecondary: 'rgba(255,255,255,0.45)'
+    },
+    {
+      name: 'Golden Pastel',
+      backgroundColor: '#fff4d6',
+      gradient: 'linear-gradient(135deg, #fff4d6 0%, #ffe4a1 100%)',
+      previewBackground: 'linear-gradient(135deg, #fff4d6 0%, #ffe4a1 100%)',
+      accent: '#f29900',
+      accentSecondary: '#ffffff'
+    },
+    {
+      name: 'Slate Focus',
+      backgroundColor: '#f5f7fa',
+      gradient: 'linear-gradient(135deg, #f5f7fa 0%, #dbe4f3 100%)',
+      previewBackground: 'linear-gradient(135deg, #f5f7fa 0%, #dbe4f3 100%)',
+      accent: '#1a73e8',
+      accentSecondary: '#9aa0a6'
+    },
+    {
+      name: 'Vibrant Plum',
+      backgroundColor: '#42275a',
+      gradient: 'linear-gradient(135deg, #42275a 0%, #734b6d 100%)',
+      previewBackground: 'linear-gradient(135deg, #42275a 0%, #734b6d 100%)',
+      accent: 'rgba(255,255,255,0.85)',
+      accentSecondary: '#ff8a80'
+    },
+    {
+      name: 'Oceanic',
+      backgroundColor: '#2193b0',
+      gradient: 'linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%)',
+      previewBackground: 'linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%)',
+      accent: 'rgba(255,255,255,0.8)',
+      accentSecondary: '#0b3954'
+    },
+    {
+      name: 'Graphite',
+      backgroundColor: '#1a1a1a',
+      gradient: 'linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%)',
+      previewBackground: 'linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%)',
+      accent: '#4a5568',
+      accentSecondary: '#718096'
+    },
+    {
+      name: 'Professional',
+      backgroundColor: '#f8f9fa',
+      gradient: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+      previewBackground: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+      accent: '#1a73e8',
+      accentSecondary: '#34a853'
+    },
+    {
+      name: 'Sunset Boulevard',
+      backgroundColor: '#f7971e',
+      gradient: 'linear-gradient(135deg, #f7971e 0%, #ffd200 100%)',
+      previewBackground: 'linear-gradient(135deg, #f7971e 0%, #ffd200 100%)',
+      accent: 'rgba(255,255,255,0.85)',
+      accentSecondary: 'rgba(34,34,34,0.6)'
+    }
   ];
 
   const textColors = [
@@ -297,12 +381,14 @@ const Toolbar = ({
 
   const applyBackgroundTheme = (theme) => {
     if (slides && slides[currentSlideIndex]) {
-      const updatedSlide = {
-        ...slides[currentSlideIndex],
-        background: theme.color || theme.gradient,
-        theme: theme.name
-      };
-      onUpdateSlide(currentSlideIndex, updatedSlide);
+      onUpdateSlide(currentSlideIndex, {
+        background: theme.backgroundColor || '#ffffff',
+        backgroundGradient: theme.gradient || null,
+        backgroundImage: null,
+        theme: theme.name,
+        themeAccent: theme.accent,
+        themeAccentSecondary: theme.accentSecondary
+      });
     }
     setShowBackgroundPicker(false);
   };
@@ -775,7 +861,7 @@ const Toolbar = ({
 
         {activeTab === 'design' && (
           <div className="design-tools">
-            <div className="control-group">
+            <div className="control-group background-picker-group">
               <label>Background Themes:</label>
               <button 
                 className="background-picker-btn"
@@ -791,12 +877,24 @@ const Toolbar = ({
                       key={theme.name}
                       className="theme-option"
                       style={{ 
-                        background: theme.color || theme.gradient,
-                        border: slides[currentSlideIndex]?.theme === theme.name ? '3px solid #1a73e8' : '1px solid #e0e0e0'
+                        border: slides[currentSlideIndex]?.theme === theme.name ? '3px solid #1a73e8' : '1px solid #2b2b2b'
                       }}
                       onClick={() => applyBackgroundTheme(theme)}
                       title={theme.name}
                     >
+                      <div
+                        className="theme-preview"
+                        style={{ background: theme.previewBackground || theme.backgroundColor }}
+                      >
+                        <div
+                          className="theme-preview-shape primary"
+                          style={{ background: theme.accent || 'rgba(0,0,0,0.2)' }}
+                        />
+                        <div
+                          className="theme-preview-shape secondary"
+                          style={{ background: theme.accentSecondary || 'rgba(0,0,0,0.1)' }}
+                        />
+                      </div>
                       <span className="theme-name">{theme.name}</span>
                     </button>
                   ))}
@@ -811,13 +909,14 @@ const Toolbar = ({
                   type="color" 
                   value={slides[currentSlideIndex]?.background || '#ffffff'}
                   onChange={(e) => {
-                    const updatedSlide = {
-                      ...slides[currentSlideIndex],
+                    onUpdateSlide(currentSlideIndex, {
                       background: e.target.value,
+                      backgroundGradient: null,
                       backgroundImage: null,
-                      theme: 'custom'
-                    };
-                    onUpdateSlide(currentSlideIndex, updatedSlide);
+                      theme: 'custom',
+                      themeAccent: null,
+                      themeAccentSecondary: null
+                    });
                   }}
                   className="color-input-large"
                 />
@@ -839,12 +938,13 @@ const Toolbar = ({
                       if (file) {
                         const reader = new FileReader();
                         reader.onload = (event) => {
-                          const updatedSlide = {
-                            ...slides[currentSlideIndex],
+                          onUpdateSlide(currentSlideIndex, {
                             backgroundImage: event.target.result,
-                            theme: 'custom'
-                          };
-                          onUpdateSlide(currentSlideIndex, updatedSlide);
+                            backgroundGradient: null,
+                            theme: 'custom',
+                            themeAccent: null,
+                            themeAccentSecondary: null
+                          });
                         };
                         reader.readAsDataURL(file);
                       }
@@ -856,11 +956,9 @@ const Toolbar = ({
                   <button 
                     className="remove-bg-btn"
                     onClick={() => {
-                      const updatedSlide = {
-                        ...slides[currentSlideIndex],
+                      onUpdateSlide(currentSlideIndex, {
                         backgroundImage: null
-                      };
-                      onUpdateSlide(currentSlideIndex, updatedSlide);
+                      });
                     }}
                   >
                     <i className="fas fa-times"></i>
@@ -879,13 +977,14 @@ const Toolbar = ({
                     className="quick-color-btn"
                     style={{ backgroundColor: color }}
                     onClick={() => {
-                      const updatedSlide = {
-                        ...slides[currentSlideIndex],
+                      onUpdateSlide(currentSlideIndex, {
                         background: color,
+                        backgroundGradient: null,
                         backgroundImage: null,
-                        theme: 'custom'
-                      };
-                      onUpdateSlide(currentSlideIndex, updatedSlide);
+                        theme: 'custom',
+                        themeAccent: null,
+                        themeAccentSecondary: null
+                      });
                     }}
                     title={color}
                   />

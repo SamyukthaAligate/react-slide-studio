@@ -38,9 +38,19 @@ const Header = ({
   const [isEditing, setIsEditing] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [fileSubmenusOpen, setFileSubmenusOpen] = useState({ recent: false });
   const menuRef = useRef(null);
   // refs for each dropdown container so we only measure alignment when menu opens
   const menuRefs = useRef({ file: null, insert: null, format: null, design: null, view: null });
+
+  const sortedSavedPresentations = React.useMemo(() => {
+    if (!savedPresentations || savedPresentations.length === 0) return [];
+    return [...savedPresentations].sort((a, b) => {
+      const dateA = a.lastModified ? new Date(a.lastModified).getTime() : 0;
+      const dateB = b.lastModified ? new Date(b.lastModified).getTime() : 0;
+      return dateB - dateA;
+    });
+  }, [savedPresentations]);
 
   const handleTitleClick = () => setIsEditing(true);
   const handleTitleInputChange = (e) => onTitleChange && onTitleChange(e.target.value);
@@ -49,7 +59,13 @@ const Header = ({
 
   const toggleMenu = (menuName) => {
     console.log('Toggling menu:', menuName, 'Current active:', activeMenu);
-    setActiveMenu(activeMenu === menuName ? null : menuName);
+    setActiveMenu(prev => {
+      const next = prev === menuName ? null : menuName;
+      if (next !== 'file') {
+        setFileSubmenusOpen({ recent: false });
+      }
+      return next;
+    });
   };
   const toggleMobileMenu = () => { setIsMobileMenuOpen(!isMobileMenuOpen); setActiveMenu(null); };
   const [alignments, setAlignments] = useState({}); // { menuName: 'left'|'right' }
@@ -87,6 +103,7 @@ const Header = ({
         console.log('Clicking outside, closing menu');
         setActiveMenu(null);
         setIsMobileMenuOpen(false);
+        setFileSubmenusOpen({ recent: false });
       }
     };
 
@@ -98,8 +115,15 @@ const Header = ({
     console.log('Menu action triggered:', action);
     setActiveMenu(null);
     setIsMobileMenuOpen(false);
+    setFileSubmenusOpen({ recent: false });
     if (typeof action === 'function') action();
   };
+
+  useEffect(() => {
+    if (activeMenu !== 'file') {
+      setFileSubmenusOpen({ recent: false });
+    }
+  }, [activeMenu]);
 
   return (
     <header className="header">
@@ -164,39 +188,51 @@ const Header = ({
                 </button>
                 <div className="dropdown-divider"></div>
                 <div className="dropdown-submenu">
-                  <button className="dropdown-item">
-                    <i className="fas fa-folder-open"></i>
-                    Open Recent
-                    <i className="fas fa-chevron-right"></i>
+                  <button
+                    className={`dropdown-item submenu-toggle ${fileSubmenusOpen.recent ? 'open' : ''}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setFileSubmenusOpen(prev => ({ ...prev, recent: !prev.recent }));
+                    }}
+                  >
+                    <span className="item-label">
+                      <i className="fas fa-folder-open"></i>
+                      Open Recent
+                    </span>
+                    <i className={`fas ${fileSubmenusOpen.recent ? 'fa-chevron-up' : 'fa-chevron-right'}`}></i>
                   </button>
-                  <div className="submenu-content">
-                    {savedPresentations && savedPresentations.length > 0 ? (
-                      savedPresentations.map((ppt, index) => (
-                        <div key={index} className="submenu-item-wrapper">
-                          <button
-                            className="dropdown-item"
-                            onClick={() => handleMenuAction(() => onOpen && onOpen(ppt.id))}
-                          >
-                            <i className="fas fa-file-powerpoint"></i>
-                            {ppt.title}
-                            <span className="file-date">{new Date(ppt.lastModified).toLocaleDateString()}</span>
-                          </button>
-                          <button
-                            className="delete-file-btn"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleMenuAction(() => onDelete && onDelete(ppt.id));
-                            }}
-                            title="Delete presentation"
-                          >
-                            <i className="fas fa-trash"></i>
-                          </button>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="dropdown-item disabled">No saved presentations</div>
-                    )}
-                  </div>
+                  {fileSubmenusOpen.recent && (
+                    <div className="submenu-content">
+                      {sortedSavedPresentations && sortedSavedPresentations.length > 0 ? (
+                        sortedSavedPresentations.map((ppt) => (
+                          <div key={ppt.id} className="submenu-item-wrapper">
+                            <button
+                              className="dropdown-item"
+                              onClick={() => handleMenuAction(() => onOpen && onOpen(ppt.id))}
+                            >
+                              <i className="fas fa-file-powerpoint"></i>
+                              {ppt.title}
+                              <span className="file-date">
+                                {ppt.lastModified ? new Date(ppt.lastModified).toLocaleString() : 'Unsaved'}
+                              </span>
+                            </button>
+                            <button
+                              className="delete-file-btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleMenuAction(() => onDelete && onDelete(ppt.id));
+                              }}
+                              title="Delete presentation"
+                            >
+                              <i className="fas fa-trash"></i>
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="dropdown-item disabled">No saved presentations</div>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <div className="dropdown-divider"></div>
                 <button className="dropdown-item" onClick={() => handleMenuAction(onDownloadPDF)}>

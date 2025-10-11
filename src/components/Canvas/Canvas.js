@@ -881,10 +881,12 @@ const Canvas = ({
           className={`canvas ${isDragOver ? 'drag-over' : ''}`}
           style={{ 
             backgroundColor: slide.background,
-            backgroundImage: slide.backgroundImage ? `url(${slide.backgroundImage})` : 'none',
-            backgroundSize: 'cover',
+            backgroundImage: slide.backgroundImage
+              ? `url(${slide.backgroundImage})`
+              : (slide.backgroundGradient || 'none'),
+            backgroundSize: slide.backgroundImage ? 'cover' : 'cover',
             backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
+            backgroundRepeat: slide.backgroundImage ? 'no-repeat' : 'no-repeat'
           }}
           onClick={handleCanvasClick}
           onContextMenu={handleContextMenu}

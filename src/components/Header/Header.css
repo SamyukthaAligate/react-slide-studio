@@ -125,7 +125,7 @@
   border-radius: 12px;
   border: 1px solid transparent;
   background: rgba(30, 30, 30, 0.8);
-  color: rgba(245, 245, 245, 0.7);
+  color: #ffffff;
   font-size: 13px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -145,10 +145,10 @@
   top: calc(100% + 12px);
   left: 0;
   min-width: 260px;
-  background: linear-gradient(135deg, rgba(32, 32, 32, 0.96) 0%, rgba(18, 18, 18, 0.95) 48%, rgba(10, 10, 10, 0.94) 100%);
+  background: linear-gradient(160deg, rgba(14, 44, 85, 0.96) 0%, rgba(28, 73, 141, 0.98) 60%, rgba(14, 32, 68, 0.98) 100%);
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 36px 60px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(56, 141, 232, 0.45);
+  box-shadow: 0 36px 60px rgba(10, 30, 60, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
   padding: 14px 12px;
   display: grid;
   gap: 6px;
@@ -196,11 +196,36 @@
   font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .dropdown-item:hover .shortcut {
-  color: rgba(255, 255, 255, 0.92);
+  color: #ffffff;
+}
+
+.dropdown-item i {
+  color: #ffffff;
+}
+
+.dropdown-submenu > .dropdown-item i.fas.fa-chevron-right {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.dropdown-item.disabled {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.dropdown-item.disabled i {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.delete-file-btn {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.delete-file-btn i {
+  color: #ffffff;
 }
 
 .dropdown-divider {
@@ -213,6 +238,23 @@
   display: grid;
   gap: 6px;
   padding-left: 8px;
+}
+
+.submenu-item-wrapper {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.submenu-item-wrapper .dropdown-item {
+  width: 100%;
+}
+
+.file-date {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.75);
+  margin-left: 8px;
 }
 
 .delete-file-btn {

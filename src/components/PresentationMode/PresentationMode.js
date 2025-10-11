@@ -321,7 +321,9 @@ const PresentationMode = ({ slides, currentSlideIndex, onSlideChange, onExit }) 
         className="presentation-slide"
         style={{ 
           backgroundColor: currentSlide.background,
-          backgroundImage: currentSlide.backgroundImage ? `url(${currentSlide.backgroundImage})` : 'none',
+          backgroundImage: currentSlide.backgroundImage
+            ? `url(${currentSlide.backgroundImage})`
+            : (currentSlide.backgroundGradient || 'none'),
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'

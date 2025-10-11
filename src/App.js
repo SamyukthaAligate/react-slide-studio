@@ -18,7 +18,11 @@ function App() {
       id: uuidv4(),
       elements: [],
       background: '#ffffff',
-      theme: 'default'
+      backgroundGradient: null,
+      backgroundImage: null,
+      theme: 'default',
+      themeAccent: null,
+      themeAccentSecondary: null
     }
   ]);
   
@@ -29,13 +33,14 @@ function App() {
   const [presentationTitle, setPresentationTitle] = useState('Untitled Presentation');
   const [currentPresentationId, setCurrentPresentationId] = useState(null);
   const [savedPresentations, setSavedPresentations] = useState([]);
+  const [recentPdfs, setRecentPdfs] = useState([]);
   const [showHelp, setShowHelp] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showChartModal, setShowChartModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(100); // Zoom level in percentage
   const [showRulers, setShowRulers] = useState(false);
-  const [toolbarActiveTab, setToolbarActiveTab] = useState(null);
+  const [toolbarActiveTab, setToolbarActiveTab] = useState('insert');
   
   // Undo/Redo functionality
   const [history, setHistory] = useState([]);
@@ -52,7 +57,19 @@ function App() {
         console.error('Error loading presentations:', e);
       }
     }
+    const storedRecent = localStorage.getItem('recentPdfs');
+    if (storedRecent) {
+      try {
+        setRecentPdfs(JSON.parse(storedRecent));
+      } catch (e) {
+        console.error('Error loading recent PDFs:', e);
+      }
+    }
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('recentPdfs', JSON.stringify(recentPdfs));
+  }, [recentPdfs]);
 
   // Save presentation to localStorage
   const savePresentation = useCallback(() => {
@@ -87,7 +104,11 @@ function App() {
         id: uuidv4(),
         elements: [],
         background: '#ffffff',
-        theme: 'default'
+        backgroundGradient: null,
+        backgroundImage: null,
+        theme: 'default',
+        themeAccent: null,
+        themeAccentSecondary: null
       }]);
       setCurrentSlideIndex(0);
       setSelectedElement(null);
@@ -127,12 +148,43 @@ function App() {
   }, [savedPresentations, currentPresentationId]);
 
   // Download as PDF
+  const addRecentPdf = useCallback((slidesSnapshot, title) => {
+    setRecentPdfs(prev => {
+      const record = {
+        id: uuidv4(),
+        title: title || 'Untitled Presentation',
+        slides: slidesSnapshot,
+        createdAt: new Date().toISOString()
+      };
+      const updated = [record, ...prev].slice(0, 10);
+      return updated;
+    });
+  }, []);
+
+  const deleteRecentPdf = useCallback((id) => {
+    setRecentPdfs(prev => prev.filter(record => record.id !== id));
+  }, []);
+
+  const openRecentPdf = useCallback(async (id) => {
+    const record = recentPdfs.find(item => item.id === id);
+    if (!record) {
+      alert('Recent PDF not found.');
+      return;
+    }
+    const result = await exportToPDF(record.slides, record.title);
+    if (!result.success && result.error) {
+      alert(`Failed to open PDF: ${result.error}`);
+    }
+  }, [recentPdfs]);
+
   const downloadAsPDF = useCallback(async () => {
     try {
       alert('Generating PDF... This may take a few moments.');
-      const result = await exportToPDF(slides, presentationTitle);
+      const slidesSnapshot = JSON.parse(JSON.stringify(slides));
+      const result = await exportToPDF(slidesSnapshot, presentationTitle);
       if (result.success) {
         alert('PDF downloaded successfully!');
+        addRecentPdf(slidesSnapshot, presentationTitle);
       } else {
         alert(`Error generating PDF: ${result.error}`);
       }
@@ -140,7 +192,7 @@ function App() {
       alert('Failed to generate PDF. Please try again.');
       console.error('PDF export error:', error);
     }
-  }, [slides, presentationTitle]);
+  }, [slides, presentationTitle, addRecentPdf]);
 
   // Export as PPTX using pptxgenjs
   const exportAsPPTX = useCallback(async () => {
@@ -381,7 +433,11 @@ function App() {
       id: uuidv4(),
       elements: [],
       background: '#ffffff',
-      theme: 'default'
+      backgroundGradient: null,
+      backgroundImage: null,
+      theme: 'default',
+      themeAccent: null,
+      themeAccentSecondary: null
     };
     const newSlides = [...slides, newSlide];
     setSlides(newSlides);
@@ -416,8 +472,26 @@ function App() {
     saveToHistory(newSlides);
   }, [slides, saveToHistory]);
 
-  const updateSlide = useCallback((index, updatedSlide) => {
-    const newSlides = slides.map((slide, i) => i === index ? updatedSlide : slide);
+  const updateSlide = useCallback((index, updatedFields) => {
+    const newSlides = slides.map((slide, i) => {
+      if (i !== index) return slide;
+      const previousTheme = slide.theme;
+      const merged = {
+        ...slide,
+        ...updatedFields
+      };
+      if (updatedFields.theme && updatedFields.theme !== previousTheme) {
+        merged.elements = slide.elements.map((element) => {
+          if (element.type !== 'text') return element;
+          return {
+            ...element,
+            color: updatedFields.themeAccent || element.color,
+            backgroundColor: updatedFields.themeAccentSecondary || element.backgroundColor
+          };
+        });
+      }
+      return merged;
+    });
     setSlides(newSlides);
     saveToHistory(newSlides);
   }, [slides, saveToHistory]);
@@ -656,6 +730,9 @@ function App() {
         onImport={importPresentation}
         onMakeCopy={makeCopy}
         savedPresentations={savedPresentations}
+        recentPdfs={recentPdfs}
+        onOpenRecentPdf={openRecentPdf}
+        onDeleteRecentPdf={deleteRecentPdf}
         onAddElement={handleHeaderAddElement}
         onShowHelp={() => setShowHelp(true)}
         onShowShare={() => setShowShare(true)}

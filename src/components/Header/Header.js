@@ -173,18 +173,24 @@ const Header = ({
             {activeMenu === 'file' && (
               <div className={`dropdown-menu ${alignments.file === 'right' ? 'align-right' : ''}`}>
                 <button className="dropdown-item" onClick={() => handleMenuAction(onNew)}>
-                  <i className="fas fa-file"></i>
-                  New Presentation
+                  <span className="item-label">
+                    <i className="fas fa-file"></i>
+                    <span>New Presentation</span>
+                  </span>
                   <span className="shortcut">Ctrl+N</span>
                 </button>
                 <button className="dropdown-item" onClick={() => handleMenuAction(onSave)}>
-                  <i className="fas fa-save"></i>
-                  Save
+                  <span className="item-label">
+                    <i className="fas fa-save"></i>
+                    <span>Save</span>
+                  </span>
                   <span className="shortcut">Ctrl+S</span>
                 </button>
                 <button className="dropdown-item" onClick={() => handleMenuAction(onMakeCopy)}>
-                  <i className="fas fa-copy"></i>
-                  Make a copy
+                  <span className="item-label">
+                    <i className="fas fa-copy"></i>
+                    <span>Make a copy</span>
+                  </span>
                 </button>
                 <div className="dropdown-divider"></div>
                 <div className="dropdown-submenu">
@@ -210,8 +216,10 @@ const Header = ({
                               className="dropdown-item"
                               onClick={() => handleMenuAction(() => onOpen && onOpen(ppt.id))}
                             >
-                              <i className="fas fa-file-powerpoint"></i>
-                              {ppt.title}
+                              <span className="item-label">
+                                <i className="fas fa-file-powerpoint"></i>
+                                <span>{ppt.title}</span>
+                              </span>
                               <span className="file-date">
                                 {ppt.lastModified ? new Date(ppt.lastModified).toLocaleString() : 'Unsaved'}
                               </span>
@@ -236,16 +244,22 @@ const Header = ({
                 </div>
                 <div className="dropdown-divider"></div>
                 <button className="dropdown-item" onClick={() => handleMenuAction(onDownloadPDF)}>
-                  <i className="fas fa-download"></i>
-                  Download as PDF
+                  <span className="item-label">
+                    <i className="fas fa-download"></i>
+                    <span>Download as PDF</span>
+                  </span>
                 </button>
                 <button className="dropdown-item" onClick={() => handleMenuAction(onExportPPTX)}>
-                  <i className="fas fa-file-archive"></i>
-                  Export as PPTX
+                  <span className="item-label">
+                    <i className="fas fa-file-archive"></i>
+                    <span>Export as PPTX</span>
+                  </span>
                 </button>
                 <button className="dropdown-item" onClick={() => handleMenuAction(onImport)}>
-                  <i className="fas fa-file-import"></i>
-                  Import presentation
+                  <span className="item-label">
+                    <i className="fas fa-file-import"></i>
+                    <span>Import presentation</span>
+                  </span>
                 </button>
               </div>
             )}
@@ -262,29 +276,39 @@ const Header = ({
             {activeMenu === 'view' && (
               <div className={`dropdown-menu ${alignments.view === 'right' ? 'align-right' : ''}`}>
                 <button className="dropdown-item" onClick={() => handleMenuAction(onStartPresentation)}>
-                  <i className="fas fa-play"></i>
-                  Start Presentation
+                  <span className="item-label">
+                    <i className="fas fa-play"></i>
+                    <span>Start Presentation</span>
+                  </span>
                   <span className="shortcut">F5</span>
                 </button>
                 <div className="dropdown-divider"></div>
                 <button className="dropdown-item" onClick={() => handleMenuAction(onZoomIn)}>
-                  <i className="fas fa-search-plus"></i>
-                  Zoom In
+                  <span className="item-label">
+                    <i className="fas fa-search-plus"></i>
+                    <span>Zoom In</span>
+                  </span>
                   <span className="shortcut">Ctrl++</span>
                 </button>
                 <button className="dropdown-item" onClick={() => handleMenuAction(onZoomOut)}>
-                  <i className="fas fa-search-minus"></i>
-                  Zoom Out
+                  <span className="item-label">
+                    <i className="fas fa-search-minus"></i>
+                    <span>Zoom Out</span>
+                  </span>
                   <span className="shortcut">Ctrl+-</span>
                 </button>
                 <button className="dropdown-item" onClick={() => handleMenuAction(onFitToScreen)}>
-                  <i className="fas fa-expand"></i>
-                  Fit to Screen
+                  <span className="item-label">
+                    <i className="fas fa-expand"></i>
+                    <span>Fit to Screen</span>
+                  </span>
                 </button>
                 <div className="dropdown-divider"></div>
                 <div className="dropdown-item zoom-level-display">
-                  <i className="fas fa-percentage"></i>
-                  Zoom: {zoomLevel}%
+                  <span className="item-label">
+                    <i className="fas fa-percentage"></i>
+                    <span>Zoom: {zoomLevel}%</span>
+                  </span>
                 </div>
               </div>
             )}

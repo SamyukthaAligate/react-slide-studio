@@ -594,12 +594,23 @@ function App() {
   }, []);
 
   const fitToScreen = useCallback(() => {
-    // Compute zoom that fits the canvas (base 800px width) into the available viewport/container width
+    // Compute zoom that fits the slide (base 960x540) within the visible canvas container
     try {
       const container = document.querySelector('.canvas-container');
-      const availableWidth = container ? (container.clientWidth - 40) : window.innerWidth - 40; // some padding
-      const scale = Math.floor((availableWidth / 800) * 100);
-      const clamped = Math.max(50, Math.min(scale, 200));
+      const baseWidth = 960;
+      const baseHeight = 540;
+
+      const containerWidth = container ? container.clientWidth : window.innerWidth;
+      const containerHeight = container ? container.clientHeight : window.innerHeight;
+
+      const availableWidth = Math.max(containerWidth - 48, 320);
+      const availableHeight = Math.max(containerHeight - 48, 240);
+
+      const widthScale = availableWidth / baseWidth;
+      const heightScale = availableHeight / baseHeight;
+
+      const scalePercentage = Math.floor(Math.min(widthScale, heightScale) * 100);
+      const clamped = Math.max(50, Math.min(scalePercentage || 100, 200));
       setZoomLevel(clamped);
     } catch (e) {
       setZoomLevel(100);
@@ -772,6 +783,7 @@ function App() {
         onShowChartModal={() => setShowChartModal(true)}
         onZoomIn={zoomIn}
         onZoomOut={zoomOut}
+        onFitToScreen={fitToScreen}
         zoomLevel={zoomLevel}
         onSpellCheck={spellCheck}
         onToggleRulers={toggleRulers}

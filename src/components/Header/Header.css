@@ -202,11 +202,38 @@
   transform: translateX(4px);
 }
 
+.dropdown-item .item-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.dropdown-item .item-label > i {
+  flex-shrink: 0;
+  width: 18px;
+  text-align: center;
+}
+
+.dropdown-item .item-label > span {
+  flex: 1;
+  text-align: left;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .dropdown-item .shortcut {
   font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.92);
+}
+
+.dropdown-item.zoom-level-display {
+  cursor: default;
 }
 
 .dropdown-item:hover .shortcut {

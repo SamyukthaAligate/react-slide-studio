@@ -1,221 +1,320 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import './ChartModal.css';
+
+const grayscalePalette = [
+  '#0f0f0f',
+  '#1f1f1f',
+  '#2f2f2f',
+  '#3f3f3f',
+  '#4f4f4f',
+  '#6f6f6f',
+  '#8f8f8f',
+  '#bfbfbf',
+  '#efefef',
+  '#ffffff'
+];
+
+const defaultChartData = [
+  { label: 'Alpha', value: 60, color: '#bfbfbf' },
+  { label: 'Beta', value: 40, color: '#6f6f6f' },
+  { label: 'Gamma', value: 25, color: '#2f2f2f' }
+];
 
 const ChartModal = ({ onClose, onCreateChart }) => {
   const [chartType, setChartType] = useState('bar');
-  const [chartData, setChartData] = useState([
-    { label: 'Item 1', value: 50, color: '#4285f4' },
-    { label: 'Item 2', value: 75, color: '#34a853' },
-    { label: 'Item 3', value: 60, color: '#fbbc04' }
-  ]);
-  const [chartColor, setChartColor] = useState('#4285f4');
+  const [chartData, setChartData] = useState(defaultChartData);
+  const [chartColor, setChartColor] = useState('#6f6f6f');
+  const [snapValues, setSnapValues] = useState(true);
+  const [showGuides, setShowGuides] = useState(true);
+
+  const maxValue = useMemo(() => {
+    const max = Math.max(...chartData.map(item => item.value || 0), 0);
+    return max <= 0 ? 1 : max;
+  }, [chartData]);
+
+  const pieGradient = useMemo(() => {
+    const total = chartData.reduce((acc, item) => acc + (item.value || 0), 0) || 1;
+    let start = 0;
+    const segments = chartData.map(item => {
+      const slice = (item.value || 0) / total * 100;
+      const end = start + slice;
+      const segment = `${item.color || '#bfbfbf'} ${start}% ${end}%`;
+      start = end;
+      return segment;
+    });
+    return `conic-gradient(${segments.join(', ')})`;
+  }, [chartData]);
+
+  const linePoints = useMemo(() => {
+    if (chartData.length === 0) return '';
+    const step = chartData.length === 1 ? 100 : 100 / (chartData.length - 1);
+    return chartData
+      .map((item, index) => {
+        const x = index * step;
+        const y = 100 - ((item.value || 0) / maxValue) * 100;
+        return `${x},${y}`;
+      })
+      .join(' ');
+  }, [chartData, maxValue]);
+
+  const handlePaletteSelect = (value) => {
+    if (chartType === 'pie') return;
+    setChartColor(value);
+    setChartData(prev => prev.map(item => ({ ...item, color: value })));
+  };
 
   const addDataPoint = () => {
-    const newItem = {
-      label: `Item ${chartData.length + 1}`,
-      value: 50,
-      color: chartType === 'pie' ? `#${Math.floor(Math.random()*16777215).toString(16)}` : chartColor
-    };
-    setChartData([...chartData, newItem]);
+    const paletteIndex = chartData.length % grayscalePalette.length;
+    const rawValue = Math.max(5, Math.round((chartData[chartData.length - 1]?.value || 20) * 0.9));
+    const value = snapValues ? Math.round(rawValue / 5) * 5 : rawValue;
+    setChartData(prev => ([
+      ...prev,
+      {
+        label: `Series ${prev.length + 1}`,
+        value,
+        color: chartType === 'pie' ? grayscalePalette[paletteIndex] : chartColor
+      }
+    ]));
   };
 
   const removeDataPoint = (index) => {
-    if (chartData.length > 1) {
-      setChartData(chartData.filter((_, i) => i !== index));
-    }
+    setChartData(prev => (prev.length <= 1 ? prev : prev.filter((_, i) => i !== index)));
   };
 
   const updateDataPoint = (index, field, value) => {
-    const updated = chartData.map((item, i) => {
-      if (i === index) {
-        return { ...item, [field]: field === 'value' ? parseFloat(value) || 0 : value };
+    setChartData(prev => prev.map((item, i) => {
+      if (i !== index) return item;
+      if (field === 'value') {
+        const numeric = Number(value);
+        const safe = Number.isFinite(numeric) ? Math.max(0, numeric) : 0;
+        const snapped = snapValues ? Math.round(safe / 5) * 5 : safe;
+        return { ...item, value: snapped };
       }
-      return item;
-    });
-    setChartData(updated);
+      return { ...item, [field]: value };
+    }));
   };
 
   const handleCreate = () => {
-    const chart = {
+    onCreateChart({
       type: 'chart',
-      chartType: chartType,
-      x: 100,
-      y: 100,
-      width: 300,
-      height: 200,
+      chartType,
+      x: 140,
+      y: 120,
+      width: 360,
+      height: 240,
       data: chartData,
-      color: chartType === 'pie' ? undefined : chartColor
-    };
-    onCreateChart(chart);
+      color: chartType === 'pie' ? undefined : chartColor,
+      guides: showGuides,
+      snap: snapValues
+    });
     onClose();
   };
 
   return (
-    <div className="chart-modal-overlay" onClick={onClose}>
-      <div className="chart-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="chart-modal-header">
-          <h2>
-            <i className="fas fa-chart-bar"></i>
-            Create Custom Chart
-          </h2>
-          <button className="close-btn" onClick={onClose}>
+    <div className="studio-overlay" onClick={onClose}>
+      <div className="studio-panel" onClick={(e) => e.stopPropagation()}>
+        <header className="studio-header">
+          <div className="studio-title">
+            <i className="fas fa-chart-area"></i>
+            <div>
+              <h2>Custom Chart Studio</h2>
+              <p>Build data visualizations with precise, monochrome styling.</p>
+            </div>
+          </div>
+          <button className="icon-button" onClick={onClose} aria-label="Close chart studio">
             <i className="fas fa-times"></i>
           </button>
-        </div>
+        </header>
 
-        <div className="chart-modal-content">
-          {/* Chart Type Selection */}
-          <div className="chart-section">
-            <h3>Chart Type</h3>
-            <div className="chart-type-selector">
-              <button
-                className={`chart-type-btn ${chartType === 'bar' ? 'active' : ''}`}
-                onClick={() => setChartType('bar')}
-              >
-                <i className="fas fa-chart-bar"></i>
-                Bar Chart
-              </button>
-              <button
-                className={`chart-type-btn ${chartType === 'pie' ? 'active' : ''}`}
-                onClick={() => setChartType('pie')}
-              >
-                <i className="fas fa-chart-pie"></i>
-                Pie Chart
-              </button>
-              <button
-                className={`chart-type-btn ${chartType === 'line' ? 'active' : ''}`}
-                onClick={() => setChartType('line')}
-              >
-                <i className="fas fa-chart-line"></i>
-                Line Chart
-              </button>
-            </div>
-          </div>
-
-          {/* Chart Color (for bar and line charts) */}
-          {chartType !== 'pie' && (
-            <div className="chart-section">
-              <h3>Chart Color</h3>
-              <div className="color-picker-row">
-                <input
-                  type="color"
-                  value={chartColor}
-                  onChange={(e) => {
-                    setChartColor(e.target.value);
-                    // Update all data points with new color
-                    setChartData(chartData.map(item => ({ ...item, color: e.target.value })));
-                  }}
-                  className="color-input-large"
-                />
-                <span className="color-value">{chartColor}</span>
+        <div className="studio-body">
+          <section className="studio-controls">
+            <div className="control-group">
+              <span className="group-label">Chart type</span>
+              <div className="segmented-control">
+                <button
+                  className={chartType === 'bar' ? 'active' : ''}
+                  onClick={() => setChartType('bar')}
+                >
+                  <i className="fas fa-chart-bar"></i>
+                  <span>Bar</span>
+                </button>
+                <button
+                  className={chartType === 'line' ? 'active' : ''}
+                  onClick={() => setChartType('line')}
+                >
+                  <i className="fas fa-chart-line"></i>
+                  <span>Line</span>
+                </button>
+                <button
+                  className={chartType === 'pie' ? 'active' : ''}
+                  onClick={() => setChartType('pie')}
+                >
+                  <i className="fas fa-chart-pie"></i>
+                  <span>Pie</span>
+                </button>
               </div>
             </div>
-          )}
 
-          {/* Data Points */}
-          <div className="chart-section">
-            <div className="section-header">
-              <h3>Data Points</h3>
-              <button className="add-data-btn" onClick={addDataPoint}>
+            <div className="control-group">
+              <span className="group-label">Data series</span>
+              <div className="data-list">
+                {chartData.map((item, index) => (
+                  <div key={index} className="data-row">
+                    <span className="row-index">{index + 1}</span>
+                    <input
+                      className="minimal-input"
+                      value={item.label}
+                      onChange={(e) => updateDataPoint(index, 'label', e.target.value)}
+                      placeholder="Label"
+                    />
+                    <input
+                      className="minimal-input value"
+                      type="number"
+                      value={item.value}
+                      min={0}
+                      onChange={(e) => updateDataPoint(index, 'value', e.target.value)}
+                    />
+                    {chartType === 'pie' ? (
+                      <div className="inline-palette">
+                        {grayscalePalette.map(color => (
+                          <button
+                            key={`${index}-${color}`}
+                            className={`swatch ${item.color === color ? 'selected' : ''}`}
+                            style={{ backgroundColor: color }}
+                            onClick={() => updateDataPoint(index, 'color', color)}
+                            aria-label={`Set color ${color}`}
+                          />
+                        ))}
+                      </div>
+                    ) : null}
+                    <button
+                      className="icon-button"
+                      onClick={() => removeDataPoint(index)}
+                      disabled={chartData.length === 1}
+                      aria-label="Remove data row"
+                    >
+                      <i className="fas fa-trash"></i>
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button className="ghost-button" onClick={addDataPoint}>
                 <i className="fas fa-plus"></i>
-                Add Data
+                Add series
               </button>
             </div>
 
-            <div className="data-points-list">
-              {chartData.map((item, index) => (
-                <div key={index} className="data-point-row">
-                  <div className="data-point-number">{index + 1}</div>
-                  <input
-                    type="text"
-                    value={item.label}
-                    onChange={(e) => updateDataPoint(index, 'label', e.target.value)}
-                    placeholder="Label"
-                    className="data-input label-input"
-                  />
-                  <input
-                    type="number"
-                    value={item.value}
-                    onChange={(e) => updateDataPoint(index, 'value', e.target.value)}
-                    placeholder="Value"
-                    className="data-input value-input"
-                    min="0"
-                  />
-                  {chartType === 'pie' && (
-                    <input
-                      type="color"
-                      value={item.color}
-                      onChange={(e) => updateDataPoint(index, 'color', e.target.value)}
-                      className="data-color-input"
-                      title="Color"
+            {chartType !== 'pie' && (
+              <div className="control-group">
+                <span className="group-label">Monochrome palette</span>
+                <div className="inline-palette expanded">
+                  {grayscalePalette.map(color => (
+                    <button
+                      key={color}
+                      className={`swatch ${chartColor === color ? 'selected' : ''}`}
+                      style={{ backgroundColor: color }}
+                      onClick={() => handlePaletteSelect(color)}
+                      aria-label={`Select ${color}`}
                     />
-                  )}
-                  <button
-                    className="remove-data-btn"
-                    onClick={() => removeDataPoint(index)}
-                    disabled={chartData.length === 1}
-                    title="Remove"
-                  >
-                    <i className="fas fa-trash"></i>
-                  </button>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
+            )}
 
-          {/* Preview */}
-          <div className="chart-section">
-            <h3>Preview</h3>
-            <div className="chart-preview">
+            <div className="control-group options">
+              <span className="group-label">Precision & layout</span>
+              <label className="toggle-row">
+                <input
+                  type="checkbox"
+                  checked={snapValues}
+                  onChange={(e) => setSnapValues(e.target.checked)}
+                />
+                <span>Snap values to neat increments</span>
+              </label>
+              <label className="toggle-row">
+                <input
+                  type="checkbox"
+                  checked={showGuides}
+                  onChange={(e) => setShowGuides(e.target.checked)}
+                />
+                <span>Show alignment guides in preview</span>
+              </label>
+            </div>
+          </section>
+
+          <section className="studio-preview">
+            <div className="preview-surface">
+              {showGuides && (
+                <>
+                  <div className="guide vertical"></div>
+                  <div className="guide horizontal"></div>
+                </>
+              )}
+
               {chartType === 'bar' && (
-                <div className="preview-bar-chart">
+                <div className="preview-bars">
                   {chartData.map((item, index) => (
-                    <div key={index} className="preview-bar-item">
+                    <div key={index} className="preview-column">
                       <div
                         className="preview-bar"
                         style={{
-                          height: `${(item.value / Math.max(...chartData.map(d => d.value))) * 100}%`,
-                          backgroundColor: item.color
+                          height: `${(item.value || 0) / maxValue * 100}%`,
+                          background: `linear-gradient(180deg, ${item.color} 0%, #111 100%)`
                         }}
                       />
-                      <span className="preview-label">{item.label}</span>
+                      <span>{item.label}</span>
                     </div>
                   ))}
                 </div>
               )}
-              {chartType === 'pie' && (
-                <div className="preview-pie-chart">
-                  <div className="pie-legend">
-                    {chartData.map((item, index) => (
-                      <div key={index} className="legend-item">
-                        <div
-                          className="legend-color"
-                          style={{ backgroundColor: item.color }}
-                        />
-                        <span>{item.label}: {item.value}</span>
-                      </div>
-                    ))}
-                  </div>
+
+              {chartType === 'line' && (
+                <div className="preview-line">
+                  <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <polyline points={linePoints} fill="none" stroke={chartColor} strokeWidth="2" />
+                    {chartData.map((item, index) => {
+                      const step = chartData.length === 1 ? 100 : 100 / (chartData.length - 1);
+                      const cx = index * step;
+                      const cy = 100 - ((item.value || 0) / maxValue) * 100;
+                      return (
+                        <circle key={index} cx={cx} cy={cy} r={2.8} fill="#ffffff" stroke={chartColor} strokeWidth="1" />
+                      );
+                    })}
+                  </svg>
                 </div>
               )}
-              {chartType === 'line' && (
-                <div className="preview-line-chart">
-                  <div className="line-preview-text">
-                    Line chart with {chartData.length} data points
-                  </div>
+
+              {chartType === 'pie' && (
+                <div className="preview-pie" style={{ backgroundImage: pieGradient }}>
+                  <div className="pie-center" />
                 </div>
               )}
             </div>
-          </div>
+
+            <div className="preview-meta">
+              <div>
+                <h4>Output specs</h4>
+                <p>360 × 240 px canvas • mono palette • export ready</p>
+              </div>
+              <div className="legend-preview">
+                {chartData.map((item, index) => (
+                  <span key={index}>
+                    <span className="dot" style={{ backgroundColor: item.color }}></span>
+                    {item.label}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </section>
         </div>
 
-        <div className="chart-modal-footer">
-          <button className="cancel-btn" onClick={onClose}>Cancel</button>
-          <button className="create-btn" onClick={handleCreate}>
+        <footer className="studio-footer">
+          <button className="ghost-button" onClick={onClose}>Cancel</button>
+          <button className="primary-button" onClick={handleCreate}>
             <i className="fas fa-check"></i>
-            Create Chart
+            Insert chart
           </button>
-        </div>
+        </footer>
       </div>
     </div>
   );

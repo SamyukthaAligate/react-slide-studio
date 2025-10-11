@@ -6,6 +6,10 @@
   color: white;
 }
 
+.tool-dropdown.open .dropdown-content {
+  display: block;
+}
+
 .toolbar-tabs {
   display: flex;
   border-bottom: 1px solid #333333;
@@ -69,7 +73,8 @@
 }
 
 .tool-btn:hover {
-  transform: translateY(-3px) scale(1.02);
+  transform: translateY(-2px);
+  color: #ffffff;
   box-shadow: 0 6px 18px rgba(26,115,232,0.14);
   background-color: rgba(255,255,255,0.05);
 }
@@ -98,20 +103,23 @@
 .dropdown-content {
   display: none;
   position: absolute;
-  top: 100%;
+  top: calc(100% + 8px);
   left: 0;
-  background-color: #fff;
-  min-width: 140px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
+  background: linear-gradient(160deg, rgba(14, 44, 85, 0.96) 0%, rgba(28, 73, 141, 0.98) 60%, rgba(14, 32, 68, 0.98) 100%);
+  border: 1px solid rgba(56, 141, 232, 0.45);
+  border-radius: 12px;
+  min-width: 200px;
+  box-shadow: 0 24px 48px rgba(10, 30, 60, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  padding: 12px;
   z-index: 1000;
-  padding: 6px 8px;
+  backdrop-filter: blur(18px);
 }
 
-/* Show dropdown when parent has .open (we toggle via JS on click) */
-.tool-dropdown.open .dropdown-content {
-  display: block;
+.dropdown-content.shape-dropdown {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  min-width: 200px;
 }
 
 .dropdown-item {
@@ -119,19 +127,25 @@
   align-items: center;
   gap: 8px;
   padding: 8px 10px;
-  background: none;
+  background: transparent;
   border: none;
   width: 100%;
   text-align: left;
-  color: #202124;
+  color: rgba(255, 255, 255, 0.9);
   font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.12s;
-  border-radius: 4px;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+  border-radius: 10px;
 }
 
 .dropdown-item:hover {
-  background-color: #f7f7f7;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.dropdown-item i {
+  color: inherit;
 }
 
 .format-controls {
@@ -228,8 +242,8 @@
   min-width: 150px;
   padding: 6px 12px;
   border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 6px;
-  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.08);
   color: white;
   font-size: 12px;
 }
@@ -256,7 +270,7 @@
   border-radius: 4px;
   color: white;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
 .size-btn:hover {
@@ -348,7 +362,7 @@
 
 .range-value {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.88);
   min-width: 30px;
 }
 

@@ -483,11 +483,19 @@ const Toolbar = ({
     setShowBackgroundPicker(false);
   };
 
+  const toolbarContentClasses = [
+    'toolbar-content',
+    activeDropdown ? 'dropdown-open' : '',
+    activeTab === 'insert' ? 'insert-mode' : '',
+    activeTab === 'format' ? 'format-mode' : '',
+    activeTab === 'design' ? 'design-mode' : ''
+  ].filter(Boolean).join(' ');
+
   return (
     <div className="toolbar">
       {/* Header controls toolbar tab state now */}
 
-  <div ref={toolbarRef} className="toolbar-content">
+      <div ref={toolbarRef} className={toolbarContentClasses}>
         {activeTab === 'insert' && (
           <div className="insert-tools">
             <div className="tool-group">

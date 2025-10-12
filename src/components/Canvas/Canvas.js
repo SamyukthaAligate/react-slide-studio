@@ -1,6 +1,11 @@
 import React, { useState, useRef, useCallback } from 'react';
 import './Canvas.css';
 
+const CANVAS_WIDTH = 960;
+const CANVAS_HEIGHT = 540;
+const MIN_ELEMENT_WIDTH = 50;
+const MIN_ELEMENT_HEIGHT = 30;
+
 const Canvas = ({ 
   slide, 
   onUpdateSlide, 
@@ -9,6 +14,12 @@ const Canvas = ({
   onUpdateElement, 
   onDeleteElement,
   onAddElement,
+  onCopyElement,
+  onCutElement,
+  onPasteElement,
+  onDuplicateElement,
+  onReorderElement,
+  clipboard,
   zoomLevel = 100,
   showRulers = false,
   onToggleRulers
@@ -24,76 +35,124 @@ const Canvas = ({
   const [gridSize, setGridSize] = useState(24);
   // track Shift key to temporarily disable snapping
   const [isShiftDown, setIsShiftDown] = useState(false);
-  const [contextMenu, setContextMenu] = useState({ show: false, x: 0, y: 0 });
+  const [contextMenu, setContextMenu] = useState({ show: false, x: 0, y: 0, absolutePosition: null });
   const [clipboardElement, setClipboardElement] = useState(null);
+  const [hoveredMenuItem, setHoveredMenuItem] = useState(null);
+  const [pastePosition, setPastePosition] = useState(null);
   const canvasRef = useRef(null);
+
+  const activeSlide = slide || { background: '#ffffff', elements: [] };
+  const elements = Array.isArray(activeSlide.elements) ? activeSlide.elements : [];
 
   const handleCanvasClick = (e) => {
     if (e.target === canvasRef.current) {
       onSelectElement(null);
       setIsEditingText(false);
-      setContextMenu({ show: false, x: 0, y: 0 });
+      setContextMenu({ show: false, x: 0, y: 0, absolutePosition: null });
+      setHoveredMenuItem(null);
+      setPastePosition(null);
     }
   };
 
   // Context menu handlers
   const handleContextMenu = (e) => {
+    if (!canvasRef.current) return;
+
     e.preventDefault();
     e.stopPropagation();
 
     const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const scale = zoomLevel / 100 || 1;
+    const localX = e.clientX - rect.left;
+    const localY = e.clientY - rect.top;
+    const absolutePosition = {
+      x: Math.round(localX / scale),
+      y: Math.round(localY / scale)
+    };
 
-    // Check if clicking on an element
-    const elementAtPoint = slide.elements.find(el => {
-      return x >= el.x && x <= el.x + el.width && y >= el.y && y <= el.y + el.height;
+    const elementAtPoint = elements.find((el) => {
+      return (
+        absolutePosition.x >= el.x &&
+        absolutePosition.x <= el.x + el.width &&
+        absolutePosition.y >= el.y &&
+        absolutePosition.y <= el.y + el.height
+      );
     });
 
     if (elementAtPoint) {
       onSelectElement(elementAtPoint);
+      setPastePosition(null);
     } else {
       onSelectElement(null);
+      setPastePosition(absolutePosition);
     }
 
-    setContextMenu({ show: true, x: e.clientX, y: e.clientY });
+    const menuHeight = 240;
+    const viewportHeight = window.innerHeight;
+    const clampedY = Math.min(e.clientY, Math.max(0, viewportHeight - menuHeight));
+
+    setHoveredMenuItem(null);
+    setContextMenu({ show: true, x: e.clientX, y: clampedY, absolutePosition });
   };
 
   const hideContextMenu = () => {
-    setContextMenu({ show: false, x: 0, y: 0 });
+    setContextMenu({ show: false, x: 0, y: 0, absolutePosition: null });
+    setHoveredMenuItem(null);
+    setPastePosition(null);
   };
 
   const handleCopy = () => {
     if (selectedElement) {
-      setClipboardElement(JSON.parse(JSON.stringify(selectedElement)));
+      const cloned = JSON.parse(JSON.stringify(selectedElement));
+      setClipboardElement(cloned);
+      if (onCopyElement) {
+        onCopyElement(selectedElement);
+      }
     }
     hideContextMenu();
   };
 
   const handleCut = () => {
     if (selectedElement) {
-      setClipboardElement(JSON.parse(JSON.stringify(selectedElement)));
-      onDeleteElement(selectedElement.id);
+      const cloned = JSON.parse(JSON.stringify(selectedElement));
+      setClipboardElement(cloned);
+      if (onCutElement) {
+        onCutElement(selectedElement);
+      } else {
+        onDeleteElement(selectedElement.id);
+      }
     }
     hideContextMenu();
   };
 
   const handlePaste = () => {
-    if (clipboardElement) {
-      const newElement = {
-        ...clipboardElement,
-        id: Date.now().toString(), // Simple unique ID
-        x: clipboardElement.x + 20, // Offset slightly
-        y: clipboardElement.y + 20
-      };
-      onAddElement(newElement);
+    const source = clipboardElement || clipboard;
+    if (!source) {
+      hideContextMenu();
+      return;
     }
-    hideContextMenu();
-  };
 
-  const handleDelete = () => {
-    if (selectedElement) {
-      onDeleteElement(selectedElement.id);
+    const canvasWidth = CANVAS_WIDTH;
+    const canvasHeight = CANVAS_HEIGHT;
+    const basePosition = pastePosition || contextMenu.absolutePosition || {};
+    const cloned = JSON.parse(JSON.stringify(source));
+    const width = Number.isFinite(cloned.width) ? cloned.width : 200;
+    const height = Number.isFinite(cloned.height) ? cloned.height : 120;
+    const baseX = typeof basePosition.x === 'number' ? basePosition.x : (typeof cloned.x === 'number' ? cloned.x + 20 : 120);
+    const baseY = typeof basePosition.y === 'number' ? basePosition.y : (typeof cloned.y === 'number' ? cloned.y + 20 : 120);
+    const nextElement = {
+      ...cloned,
+      id: Date.now().toString(),
+      width,
+      height,
+      x: Math.max(0, Math.min(canvasWidth - width, baseX)),
+      y: Math.max(0, Math.min(canvasHeight - height, baseY))
+    };
+
+    if (onPasteElement) {
+      onPasteElement({ ...basePosition });
+    } else if (onAddElement) {
+      onAddElement(nextElement);
     }
     hideContextMenu();
   };
@@ -245,8 +304,8 @@ const Canvas = ({
       const deltaY = currentY - dragStart.y;
       
       // PowerPoint-like canvas dimensions (16:9 aspect ratio)
-      const canvasWidth = 960; // 16:9 aspect ratio
-      const canvasHeight = 540; // 16:9 aspect ratio
+      const canvasWidth = CANVAS_WIDTH;
+      const canvasHeight = CANVAS_HEIGHT;
       
       let newX = Math.max(0, Math.min(canvasWidth - selectedElement.width, selectedElement.x + deltaX));
       let newY = Math.max(0, Math.min(canvasHeight - selectedElement.height, selectedElement.y + deltaY));
@@ -272,49 +331,49 @@ const Canvas = ({
       
       let updates = {};
       // PowerPoint-like canvas dimensions (16:9 aspect ratio)
-      const canvasWidth = 960;
-      const canvasHeight = 540;
+      const canvasWidth = CANVAS_WIDTH;
+      const canvasHeight = CANVAS_HEIGHT;
       
       switch (resizeHandle) {
         case 'se':
           updates = {
-            width: Math.max(50, Math.min(canvasWidth - selectedElement.x, selectedElement.width + deltaX)),
-            height: Math.max(30, Math.min(canvasHeight - selectedElement.y, selectedElement.height + deltaY))
+            width: Math.max(MIN_ELEMENT_WIDTH, Math.min(canvasWidth - selectedElement.x, selectedElement.width + deltaX)),
+            height: Math.max(MIN_ELEMENT_HEIGHT, Math.min(canvasHeight - selectedElement.y, selectedElement.height + deltaY))
           };
           if (snapToGrid && !isShiftDown) {
-            updates.width = Math.max(50, Math.round(updates.width / gridSize) * gridSize);
-            updates.height = Math.max(30, Math.round(updates.height / gridSize) * gridSize);
+            updates.width = Math.max(MIN_ELEMENT_WIDTH, Math.round(updates.width / gridSize) * gridSize);
+            updates.height = Math.max(MIN_ELEMENT_HEIGHT, Math.round(updates.height / gridSize) * gridSize);
           }
           break;
         case 'sw':
-          const newWidth = Math.max(50, selectedElement.width - deltaX);
+          const newWidth = Math.max(MIN_ELEMENT_WIDTH, selectedElement.width - deltaX);
           const newX = Math.max(0, selectedElement.x + selectedElement.width - newWidth);
           updates = {
             x: newX,
             width: newWidth,
-            height: Math.max(30, Math.min(canvasHeight - selectedElement.y, selectedElement.height + deltaY))
+            height: Math.max(MIN_ELEMENT_HEIGHT, Math.min(canvasHeight - selectedElement.y, selectedElement.height + deltaY))
           };
           if (snapToGrid && !isShiftDown) {
-            updates.width = Math.max(50, Math.round(updates.width / gridSize) * gridSize);
+            updates.width = Math.max(MIN_ELEMENT_WIDTH, Math.round(updates.width / gridSize) * gridSize);
             updates.x = Math.max(0, Math.round(updates.x / gridSize) * gridSize);
           }
           break;
         case 'ne':
-          const newHeight = Math.max(30, selectedElement.height - deltaY);
+          const newHeight = Math.max(MIN_ELEMENT_HEIGHT, selectedElement.height - deltaY);
           const newY = Math.max(0, selectedElement.y + selectedElement.height - newHeight);
           updates = {
             y: newY,
-            width: Math.max(50, Math.min(canvasWidth - selectedElement.x, selectedElement.width + deltaX)),
+            width: Math.max(MIN_ELEMENT_WIDTH, Math.min(canvasWidth - selectedElement.x, selectedElement.width + deltaX)),
             height: newHeight
           };
           if (snapToGrid && !isShiftDown) {
-            updates.height = Math.max(30, Math.round(updates.height / gridSize) * gridSize);
+            updates.height = Math.max(MIN_ELEMENT_HEIGHT, Math.round(updates.height / gridSize) * gridSize);
             updates.y = Math.max(0, Math.round(updates.y / gridSize) * gridSize);
           }
           break;
         case 'nw':
-          const newWidthNW = Math.max(50, selectedElement.width - deltaX);
-          const newHeightNW = Math.max(30, selectedElement.height - deltaY);
+          const newWidthNW = Math.max(MIN_ELEMENT_WIDTH, selectedElement.width - deltaX);
+          const newHeightNW = Math.max(MIN_ELEMENT_HEIGHT, selectedElement.height - deltaY);
           const newXNW = Math.max(0, selectedElement.x + selectedElement.width - newWidthNW);
           const newYNW = Math.max(0, selectedElement.y + selectedElement.height - newHeightNW);
           updates = {
@@ -326,8 +385,8 @@ const Canvas = ({
           if (snapToGrid && !isShiftDown) {
             updates.x = Math.max(0, Math.round(updates.x / gridSize) * gridSize);
             updates.y = Math.max(0, Math.round(updates.y / gridSize) * gridSize);
-            updates.width = Math.max(50, Math.round(updates.width / gridSize) * gridSize);
-            updates.height = Math.max(30, Math.round(updates.height / gridSize) * gridSize);
+            updates.width = Math.max(MIN_ELEMENT_WIDTH, Math.round(updates.width / gridSize) * gridSize);
+            updates.height = Math.max(MIN_ELEMENT_HEIGHT, Math.round(updates.height / gridSize) * gridSize);
           }
           break;
         default:
@@ -1037,92 +1096,107 @@ const Canvas = ({
             position: 'fixed',
             left: contextMenu.x,
             top: contextMenu.y,
-            zIndex: 1000,
-            backgroundColor: '#fff',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-            minWidth: '150px',
-            padding: '4px 0'
+            zIndex: 1200,
+            background: 'linear-gradient(165deg, rgba(12,38,76,0.96) 0%, rgba(22,56,108,0.97) 60%, rgba(10,28,58,0.96) 100%)',
+            borderRadius: '16px',
+            border: '1px solid rgba(88, 164, 255, 0.35)',
+            boxShadow: '0 36px 60px rgba(8, 22, 44, 0.66), inset 0 0 0 1px rgba(255, 255, 255, 0.05)',
+            minWidth: '220px',
+            padding: '10px 0',
+            backdropFilter: 'blur(18px)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px'
           }}
           onClick={(e) => e.stopPropagation()}
         >
           {selectedElement ? (
             <>
+              <div className="context-menu-header">
+                <div className="context-menu-title">
+                  <i className={selectedElement.type === 'text' ? 'fas fa-font' : selectedElement.type === 'image' ? 'fas fa-image' : selectedElement.type === 'video' ? 'fas fa-video' : selectedElement.type === 'chart' ? 'fas fa-chart-pie' : 'fas fa-shapes'}></i>
+                  <span>{selectedElement.type.charAt(0).toUpperCase() + selectedElement.type.slice(1)} options</span>
+                </div>
+                <span className="context-menu-position">x: {Math.round(selectedElement.x)}, y: {Math.round(selectedElement.y)}</span>
+              </div>
+
               <button
-                className="context-menu-item"
-                onClick={handleCopy}
-                style={{
-                  display: 'block',
-                  width: '100%',
-                  padding: '8px 12px',
-                  border: 'none',
-                  background: 'none',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  fontSize: '14px'
-                }}
-              >
-                <i className="fas fa-copy" style={{ marginRight: '8px' }}></i>
-                Copy
-              </button>
-              <button
-                className="context-menu-item"
+                className={`context-menu-item ${hoveredMenuItem === 'cut' ? 'hovered' : ''}`}
+                onMouseEnter={() => setHoveredMenuItem('cut')}
+                onMouseLeave={() => setHoveredMenuItem(null)}
                 onClick={handleCut}
-                style={{
-                  display: 'block',
-                  width: '100%',
-                  padding: '8px 12px',
-                  border: 'none',
-                  background: 'none',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  fontSize: '14px'
-                }}
               >
-                <i className="fas fa-cut" style={{ marginRight: '8px' }}></i>
-                Cut
+                <i className="fas fa-cut"></i>
+                <div className="label">Cut</div>
+                <span className="shortcut">Ctrl+X</span>
               </button>
-              <hr style={{ margin: '4px 0', border: 'none', borderTop: '1px solid #eee' }} />
               <button
-                className="context-menu-item"
-                onClick={handleDelete}
-                style={{
-                  display: 'block',
-                  width: '100%',
-                  padding: '8px 12px',
-                  border: 'none',
-                  background: 'none',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  color: '#d32f2f'
-                }}
+                className={`context-menu-item ${hoveredMenuItem === 'copy' ? 'hovered' : ''}`}
+                onMouseEnter={() => setHoveredMenuItem('copy')}
+                onMouseLeave={() => setHoveredMenuItem(null)}
+                onClick={handleCopy}
               >
-                <i className="fas fa-trash" style={{ marginRight: '8px' }}></i>
-                Delete
+                <i className="fas fa-copy"></i>
+                <div className="label">Copy</div>
+                <span className="shortcut">Ctrl+C</span>
+              </button>
+              <button
+                className={`context-menu-item ${hoveredMenuItem === 'paste' ? 'hovered' : ''}`}
+                onMouseEnter={() => setHoveredMenuItem('paste')}
+                onMouseLeave={() => setHoveredMenuItem(null)}
+                onClick={handlePaste}
+                disabled={!clipboardElement && !clipboard}
+              >
+                <i className="fas fa-paste"></i>
+                <div className="label">Paste</div>
+                <span className="shortcut">Ctrl+V</span>
               </button>
             </>
           ) : (
-            clipboardElement && (
+            <>
+              <div className="context-menu-header">
+                <div className="context-menu-title">
+                  <i className="fas fa-mouse-pointer"></i>
+                  <span>Canvas options</span>
+                </div>
+                {contextMenu.absolutePosition && (
+                  <span className="context-menu-position">x: {Math.round(contextMenu.absolutePosition.x)}, y: {Math.round(contextMenu.absolutePosition.y)}</span>
+                )}
+              </div>
               <button
-                className="context-menu-item"
+                className={`context-menu-item ${hoveredMenuItem === 'paste-only' ? 'hovered' : ''}`}
+                onMouseEnter={() => setHoveredMenuItem('paste-only')}
+                onMouseLeave={() => setHoveredMenuItem(null)}
                 onClick={handlePaste}
-                style={{
-                  display: 'block',
-                  width: '100%',
-                  padding: '8px 12px',
-                  border: 'none',
-                  background: 'none',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  fontSize: '14px'
-                }}
+                disabled={!clipboardElement && !clipboard}
               >
-                <i className="fas fa-paste" style={{ marginRight: '8px' }}></i>
-                Paste
+                <i className="fas fa-paste"></i>
+                <div className="label">Paste</div>
+                <span className="shortcut">Ctrl+V</span>
               </button>
-            )
+              <button
+                className={`context-menu-item ${hoveredMenuItem === 'copy-only' ? 'hovered' : ''}`}
+                onMouseEnter={() => setHoveredMenuItem('copy-only')}
+                onMouseLeave={() => setHoveredMenuItem(null)}
+                onClick={handleCopy}
+                disabled={!!selectedElement}
+              >
+                <i className="fas fa-copy"></i>
+                <div className="label">Copy</div>
+                <span className="shortcut">Ctrl+C</span>
+              </button>
+              <button
+                className={`context-menu-item ${hoveredMenuItem === 'cut-only' ? 'hovered' : ''}`}
+                onMouseEnter={() => setHoveredMenuItem('cut-only')}
+                onMouseLeave={() => setHoveredMenuItem(null)}
+                onClick={handleCut}
+                disabled={!!selectedElement}
+              >
+                <i className="fas fa-cut"></i>
+                <div className="label">Cut</div>
+                <span className="shortcut">Ctrl+X</span>
+              </button>
+            </>
           )}
         </div>
       )}

@@ -28,6 +28,7 @@ function App() {
   
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [selectedElement, setSelectedElement] = useState(null);
+  const [clipboard, setClipboard] = useState(null);
   const [isPresentationMode, setIsPresentationMode] = useState(false);
   const [presentationSlideIndex, setPresentationSlideIndex] = useState(0);
   const [presentationTitle, setPresentationTitle] = useState('Untitled Presentation');
@@ -462,9 +463,26 @@ function App() {
   }, [history, historyIndex]);
 
   const addSlide = useCallback(() => {
+    const defaultTextElement = {
+      id: uuidv4(),
+      type: 'text',
+      content: 'Click to add text',
+      x: 100,
+      y: 100,
+      width: 300,
+      height: 80,
+      fontSize: 24,
+      fontFamily: 'Roboto',
+      color: '#000000',
+      backgroundColor: 'transparent',
+      textAlign: 'left',
+      fontWeight: 'normal',
+      fontStyle: 'normal'
+    };
+
     const newSlide = {
       id: uuidv4(),
-      elements: [],
+      elements: [defaultTextElement],
       background: '#ffffff',
       backgroundGradient: null,
       backgroundImage: null,
@@ -529,7 +547,8 @@ function App() {
     saveToHistory(newSlides);
   }, [slides, saveToHistory]);
 
-  const addElement = useCallback((element) => {
+  const addElement = useCallback((element, options = {}) => {
+    const selectElement = options.select !== false;
     const newElement = {
       ...element,
       id: uuidv4()
@@ -542,6 +561,9 @@ function App() {
     );
     setSlides(newSlides);
     saveToHistory(newSlides);
+    if (selectElement) {
+      setSelectedElement(newElement);
+    }
   }, [currentSlideIndex, slides, saveToHistory]);
 
   const updateElement = useCallback((elementId, updates) => {
@@ -573,6 +595,79 @@ function App() {
     setSlides(newSlides);
     setSelectedElement(null);
     saveToHistory(newSlides);
+  }, [currentSlideIndex, slides, saveToHistory]);
+
+  const copyElement = useCallback((element) => {
+    if (!element) return;
+    const cloned = JSON.parse(JSON.stringify(element));
+    delete cloned.id;
+    setClipboard(cloned);
+  }, []);
+
+  const cutElement = useCallback((element) => {
+    if (!element) return;
+    const cloned = JSON.parse(JSON.stringify(element));
+    delete cloned.id;
+    setClipboard(cloned);
+    deleteElement(element.id);
+  }, [deleteElement]);
+
+  const pasteElement = useCallback((position = {}) => {
+    if (!clipboard) return;
+    const canvasWidth = 960;
+    const canvasHeight = 540;
+    const baseElement = JSON.parse(JSON.stringify(clipboard));
+    const width = baseElement.width || 200;
+    const height = baseElement.height || 100;
+    const fallbackX = selectedElement ? selectedElement.x + 24 : 120;
+    const fallbackY = selectedElement ? selectedElement.y + 24 : 120;
+    const rawX = typeof position.x === 'number' ? position.x : fallbackX;
+    const rawY = typeof position.y === 'number' ? position.y : fallbackY;
+    baseElement.x = Math.max(0, Math.min(canvasWidth - width, rawX));
+    baseElement.y = Math.max(0, Math.min(canvasHeight - height, rawY));
+    delete baseElement.id;
+    addElement(baseElement);
+  }, [addElement, clipboard, selectedElement]);
+
+  const duplicateElement = useCallback((element) => {
+    if (!element) return;
+    const canvasWidth = 960;
+    const canvasHeight = 540;
+    const cloned = JSON.parse(JSON.stringify(element));
+    const width = cloned.width || 200;
+    const height = cloned.height || 100;
+    cloned.x = Math.max(0, Math.min(canvasWidth - width, (element.x || 0) + 32));
+    cloned.y = Math.max(0, Math.min(canvasHeight - height, (element.y || 0) + 32));
+    delete cloned.id;
+    addElement(cloned);
+  }, [addElement]);
+
+  const reorderElement = useCallback((elementId, action) => {
+    const activeSlide = slides[currentSlideIndex];
+    if (!activeSlide) return;
+    const elements = [...activeSlide.elements];
+    const index = elements.findIndex(el => el.id === elementId);
+    if (index === -1) return;
+    const [element] = elements.splice(index, 1);
+    if (action === 'bringToFront') {
+      elements.push(element);
+    } else if (action === 'sendToBack') {
+      elements.unshift(element);
+    } else if (action === 'bringForward') {
+      elements.splice(Math.min(index + 1, elements.length), 0, element);
+    } else if (action === 'sendBackward') {
+      elements.splice(Math.max(index - 1, 0), 0, element);
+    } else {
+      elements.splice(index, 0, element);
+    }
+    const newSlides = slides.map((slide, i) => 
+      i === currentSlideIndex 
+        ? { ...slide, elements }
+        : slide
+    );
+    setSlides(newSlides);
+    saveToHistory(newSlides);
+    setSelectedElement(element);
   }, [currentSlideIndex, slides, saveToHistory]);
 
   const startPresentation = useCallback(() => {
@@ -828,6 +923,12 @@ function App() {
           onUpdateElement={updateElement}
           onDeleteElement={deleteElement}
           onAddElement={addElement}
+          onCopyElement={copyElement}
+          onCutElement={cutElement}
+          onPasteElement={pasteElement}
+          onDuplicateElement={duplicateElement}
+          onReorderElement={reorderElement}
+          clipboard={clipboard}
           zoomLevel={zoomLevel}
           showRulers={showRulers}
           onToggleRulers={toggleRulers}

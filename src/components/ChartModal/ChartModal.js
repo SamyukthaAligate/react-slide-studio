@@ -99,9 +99,9 @@ const ChartModal = ({ onClose, onCreateChart }) => {
 
   const handleCreate = () => {
     const sizeByType = {
-      bar: { width: 440, height: 300 },
-      line: { width: 460, height: 300 },
-      pie: { width: 380, height: 280 }
+      bar: { width: 360, height: 260 },
+      line: { width: 340, height: 240 },
+      pie: { width: 320, height: 240 }
     };
 
     const { width, height } = sizeByType[chartType] || sizeByType.bar;

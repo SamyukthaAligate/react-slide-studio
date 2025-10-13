@@ -313,10 +313,13 @@
 }
 
 .swatch-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(28px, 1fr));
+  display: flex;
+  flex-wrap: nowrap;
   gap: 6px;
   padding: 6px 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
 }
 
 .swatch-grid .swatch {

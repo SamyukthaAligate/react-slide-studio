@@ -541,6 +541,36 @@ function App() {
     }
   }, [deleteSlide, currentSlideIndex]);
 
+  const reorderSlides = useCallback((sourceIndex, targetIndex) => {
+    if (
+      sourceIndex === targetIndex ||
+      sourceIndex < 0 ||
+      targetIndex < 0 ||
+      sourceIndex >= slides.length ||
+      targetIndex >= slides.length
+    ) {
+      return;
+    }
+
+    const newSlides = [...slides];
+    const [movedSlide] = newSlides.splice(sourceIndex, 1);
+    newSlides.splice(targetIndex, 0, movedSlide);
+    setSlides(newSlides);
+    const newIndex = targetIndex;
+    setCurrentSlideIndex(newIndex);
+    saveToHistory(newSlides);
+  }, [slides, saveToHistory]);
+
+  const moveCurrentSlideUp = useCallback(() => {
+    if (currentSlideIndex <= 0) return;
+    reorderSlides(currentSlideIndex, currentSlideIndex - 1);
+  }, [currentSlideIndex, reorderSlides]);
+
+  const moveCurrentSlideDown = useCallback(() => {
+    if (currentSlideIndex >= slides.length - 1) return;
+    reorderSlides(currentSlideIndex, currentSlideIndex + 1);
+  }, [currentSlideIndex, slides.length, reorderSlides]);
+
   const duplicateSlide = useCallback((index) => {
     const slideToClone = slides[index];
     const newSlide = {
@@ -599,19 +629,6 @@ function App() {
       handleSelectElement(newElement);
     }
   }, [currentSlideIndex, slides, saveToHistory, handleSelectElement]);
-
-  const reorderSlides = useCallback((sourceIndex, targetIndex) => {
-    if (sourceIndex === targetIndex || sourceIndex < 0 || targetIndex < 0 || sourceIndex >= slides.length || targetIndex >= slides.length) {
-      return;
-    }
-    const newSlides = [...slides];
-    const [movedSlide] = newSlides.splice(sourceIndex, 1);
-    newSlides.splice(targetIndex, 0, movedSlide);
-    setSlides(newSlides);
-    const newIndex = targetIndex;
-    setCurrentSlideIndex(newIndex);
-    saveToHistory(newSlides);
-  }, [slides, saveToHistory]);
 
   const updateElement = useCallback((elementId, updates) => {
     const newSlides = slides.map((slide, i) => 
@@ -935,6 +952,13 @@ function App() {
         showRulers={showRulers}
         toolbarActiveTab={toolbarActiveTab}
         setToolbarActiveTab={setToolbarActiveTab}
+        slideCount={slides.length}
+        currentSlideIndex={currentSlideIndex}
+        onAddSlide={addSlide}
+        onDeleteCurrentSlide={deleteCurrentSlide}
+        onDeletePreviousSlide={deletePreviousSlide}
+        onMoveSlideUp={moveCurrentSlideUp}
+        onMoveSlideDown={moveCurrentSlideDown}
       />
       <Toolbar 
         onAddElement={addElement}

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
+import ChartFrame from '../ChartFrame/ChartFrame';
 import './Canvas.css';
 
 const CANVAS_WIDTH = 960;
@@ -593,204 +594,339 @@ const Canvas = ({
   const renderChart = (element) => {
     const { chartType, data = [], color } = element;
     const fallbackColor = color || '#4F46E5';
-    const chartWidth = Math.max(element.width || 320, 140);
-    const chartHeight = Math.max(element.height || 240, 160);
+
+    const truncated = (text, maxChars) => {
+      if (typeof text !== 'string') return text;
+      return text.length <= maxChars ? text : `${text.slice(0, maxChars - 1)}…`;
+    };
 
     if (!Array.isArray(data) || data.length === 0) {
       return (
-        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4a4a4a', fontSize: '12px' }}>
-          No data for chart
-        </div>
+        <ChartFrame>
+          {({ width, height }) => (
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4a4a4a', fontSize: Math.max(Math.min(width, height) * 0.06, 10) }}>
+              No data for chart
+            </div>
+          )}
+        </ChartFrame>
       );
     }
 
-    if (chartType === 'bar') {
-      const maxValue = Math.max(...data.map(item => (typeof item.value === 'number' ? item.value : 0)), 0) || 1;
-      const horizontalPadding = Math.min(chartWidth * 0.12, 64);
-      const verticalPadding = Math.min(chartHeight * 0.18, 84);
-      const headerSpace = 32;
-      const labelSpace = Math.min(chartHeight * 0.18, 48);
-      const innerHeight = Math.max(chartHeight - verticalPadding - headerSpace - labelSpace, 80);
-      const columnGap = Math.max(Math.min(chartWidth * 0.05, 32), 12);
-      const minColumnWidth = Math.max(
-        Math.min((chartWidth - horizontalPadding) / Math.max(data.length, 1), 140),
-        36
-      );
+    const renderBarChart = ({ width, height }) => {
+      const safeWidth = Math.max(width, 120);
+      const safeHeight = Math.max(height, 120);
+      const values = data.map(item => (typeof item.value === 'number' ? item.value : 0));
+      const maxValue = Math.max(...values, 0) || 1;
+      const basePadding = Math.min(safeWidth, safeHeight) * 0.12;
+      const xPadding = Math.max(basePadding, 24);
+      const yPaddingTop = Math.max(basePadding * 0.75, 28);
+      const yPaddingBottom = Math.max(basePadding, 36);
+      const plotHeight = safeHeight - yPaddingTop - yPaddingBottom;
+      const plotWidth = safeWidth - xPadding * 2;
+      const columnWidth = plotWidth / Math.max(data.length, 1);
+      const maxBars = Math.max(data.length, 1);
+      const tickFont = Math.max(Math.min(plotHeight * 0.12, 14), 9);
+      const labelFont = Math.max(Math.min(plotWidth / Math.max(maxBars, 1) * 0.24, 12), 9);
+
+      const columns = data.map((item, index) => {
+        const value = typeof item.value === 'number' ? item.value : 0;
+        const heightRatio = Math.max(Math.min(value / maxValue, 1), 0);
+        const barHeight = plotHeight * heightRatio;
+        const x = xPadding + index * columnWidth + columnWidth * 0.25;
+        const y = yPaddingTop + plotHeight - barHeight;
+        const width = columnWidth * 0.5;
+        return {
+          x,
+          y,
+          width,
+          height: Math.max(barHeight, 2),
+          color: item.color || fallbackColor,
+          label: item.label || `Series ${index + 1}`
+        };
+      });
+
+      const ticks = [0, 0.25, 0.5, 0.75, 1].map(ratio => {
+        const value = maxValue * ratio;
+        return {
+          ratio,
+          y: yPaddingTop + plotHeight * (1 - ratio),
+          label: value % 1 === 0 ? value.toString() : value.toFixed(1)
+        };
+      });
+
+      const maxLabelLength = Math.max(6, Math.floor(columnWidth / 12));
 
       return (
-        <div
-          style={{
-            width: '100%',
-            height: '100%',
-            padding: `${verticalPadding / 2}px ${horizontalPadding / 2}px`,
-            boxSizing: 'border-box',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden'
-          }}
-        >
-          <div style={{ fontSize: '14px', fontWeight: 600, color: '#111', textAlign: 'center', marginBottom: '8px' }}>Bar chart</div>
-          <div
-            style={{
-              flex: 1,
-              minHeight: innerHeight,
-              width: '100%',
-              display: 'flex',
-              alignItems: 'flex-end',
-              justifyContent: 'center',
-              gap: columnGap,
-              padding: '0 6px',
-              boxSizing: 'border-box'
-            }}
-          >
-            {data.map((item, index) => {
-              const value = typeof item.value === 'number' ? item.value : 0;
-              const label = item.label || `Series ${index + 1}`;
-              const barColor = item.color || fallbackColor;
-              const heightRatio = Math.max(value / maxValue, 0);
-              const barHeight = Math.min(
-                Math.max(heightRatio * innerHeight, Math.max(innerHeight * 0.06, 14)),
-                innerHeight
-              );
-
-              return (
-                <div
-                  key={index}
-                  style={{
-                    flex: `1 1 ${minColumnWidth}px`,
-                    maxWidth: Math.max(minColumnWidth, (chartWidth - horizontalPadding) / Math.max(data.length, 1)),
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '8px',
-                    overflow: 'hidden'
-                  }}
-                >
-                  <div
-                    style={{
-                      width: '100%',
-                      height: barHeight,
-                      maxHeight: innerHeight,
-                      borderRadius: '8px 8px 4px 4px',
-                      background: barColor,
-                      boxShadow: '0 6px 14px rgba(0,0,0,0.12)',
-                      transition: 'height 0.2s ease, width 0.2s ease'
-                    }}
+        <div className="chart-card">
+          <div className="chart-card__header" style={{ padding: `${Math.max(safeHeight * 0.04, 12)}px ${Math.max(safeWidth * 0.06, 16)}px 4px`, fontSize: Math.max(Math.min(safeWidth * 0.05, 16), 12) }}>
+            Bar chart
+          </div>
+          <div className="chart-card__plot" style={{ padding: `0 ${Math.max(safeWidth * 0.05, 16)}px ${Math.max(safeHeight * 0.05, 16)}px` }}>
+            <svg
+              width="100%"
+              height="100%"
+              viewBox={`0 0 ${safeWidth} ${safeHeight}`}
+            >
+              <defs>
+                <clipPath id="plot-area-clip">
+                  <rect
+                    x={xPadding}
+                    y={yPaddingTop}
+                    width={plotWidth}
+                    height={plotHeight}
+                    rx={Math.min(12, columnWidth * 0.2)}
+                    ry={Math.min(12, columnWidth * 0.2)}
                   />
-                  <span
-                    style={{
-                      fontSize: '11px',
-                      color: '#333',
-                      width: '100%',
-                      textAlign: 'center',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis'
-                    }}
+                </clipPath>
+              </defs>
+              <rect x={xPadding} y={yPaddingTop} width={plotWidth} height={plotHeight} fill="#f8fafc" rx={Math.min(12, columnWidth * 0.2)} ry={Math.min(12, columnWidth * 0.2)} />
+              {ticks.map((tick, idx) => (
+                <g key={idx}>
+                  <line
+                    x1={xPadding}
+                    y1={tick.y}
+                    x2={xPadding + plotWidth}
+                    y2={tick.y}
+                    stroke="#e2e8f0"
+                    strokeWidth={idx === ticks.length - 1 ? 1.2 : 0.8}
+                    strokeDasharray={idx === ticks.length - 1 ? 'none' : '3 4'}
+                    opacity={idx === ticks.length - 1 ? 0.9 : 0.6}
+                  />
+                  <text
+                    x={xPadding - 8}
+                    y={tick.y}
+                    textAnchor="end"
+                    alignmentBaseline="middle"
+                    fill="#475569"
+                    fontSize={tickFont}
                   >
-                    {label}
-                  </span>
-                </div>
-              );
-            })}
+                    {tick.label}
+                  </text>
+                </g>
+              ))}
+              <g clipPath="url(#plot-area-clip)">
+                {columns.map((col, index) => (
+                  <rect
+                    key={index}
+                    x={col.x}
+                    y={col.y}
+                    width={col.width}
+                    height={col.height}
+                    rx={Math.min(12, col.width / 2)}
+                    ry={Math.min(12, col.width / 2)}
+                    fill={col.color}
+                  />
+                ))}
+              </g>
+              {columns.map((col, index) => (
+                <text
+                  key={index}
+                  x={col.x + col.width / 2}
+                  y={yPaddingTop + plotHeight + labelFont + 8}
+                  textAnchor="middle"
+                  fill="#334155"
+                  fontSize={labelFont}
+                >
+                  {truncated(col.label, maxLabelLength)}
+                </text>
+              ))}
+            </svg>
           </div>
         </div>
+      );
+    };
+
+    if (chartType === 'bar') {
+      return (
+        <ChartFrame>
+          {(size) => renderBarChart(size)}
+        </ChartFrame>
       );
     }
 
     if (chartType === 'pie') {
-      const total = data.reduce((sum, item) => sum + (typeof item.value === 'number' ? item.value : 0), 0) || 1;
-      let currentAngle = 0;
-      const radius = Math.min(chartWidth, chartHeight) / 2 - 20;
-      const centerX = chartWidth / 2;
-      const centerY = chartHeight / 2;
+      const renderPieChart = ({ width, height }) => {
+        const safeWidth = Math.max(width, 160);
+        const safeHeight = Math.max(height, 160);
+        const total = data.reduce((sum, item) => sum + (typeof item.value === 'number' ? item.value : 0), 0) || 1;
+        const radius = Math.min(safeWidth, safeHeight) / 2 - Math.max(Math.min(safeWidth, safeHeight) * 0.1, 24);
+        const centerX = safeWidth / 2;
+        const centerY = safeHeight / 2;
+        let currentAngle = -90;
+        const labelFont = Math.max(Math.min(radius * 0.22, 13), 9);
+
+        return (
+          <div className="chart-card">
+            <div className="chart-card__header" style={{ padding: `${Math.max(safeHeight * 0.04, 12)}px ${Math.max(safeWidth * 0.06, 16)}px 4px`, fontSize: Math.max(Math.min(safeWidth * 0.05, 16), 12) }}>Pie chart</div>
+            <div className="chart-card__plot" style={{ padding: `0 ${Math.max(safeWidth * 0.06, 18)}px ${Math.max(safeHeight * 0.06, 18)}px`, alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+                <svg width={safeWidth} height={safeHeight} viewBox={`0 0 ${safeWidth} ${safeHeight}`}>
+                  {data.map((item, index) => {
+                    const value = typeof item.value === 'number' ? item.value : 0;
+                    const angle = (value / total) * 360;
+                    const startAngle = currentAngle;
+                    const endAngle = currentAngle + angle;
+                    currentAngle += angle;
+                    const largeArcFlag = angle > 180 ? 1 : 0;
+
+                    const x1 = centerX + radius * Math.cos((startAngle * Math.PI) / 180);
+                    const y1 = centerY + radius * Math.sin((startAngle * Math.PI) / 180);
+                    const x2 = centerX + radius * Math.cos((endAngle * Math.PI) / 180);
+                    const y2 = centerY + radius * Math.sin((endAngle * Math.PI) / 180);
+
+                    return (
+                      <path
+                        key={index}
+                        d={`M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`}
+                        fill={item.color || fallbackColor}
+                        stroke="#ffffff"
+                        strokeWidth="1.2"
+                        opacity="0.96"
+                      />
+                    );
+                  })}
+                </svg>
+                <div style={{ width: '100%', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '10px', fontSize: labelFont, color: '#475569' }}>
+                  {data.map((item, index) => (
+                    <span key={index} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ width: labelFont * 0.6, height: labelFont * 0.6, borderRadius: '50%', background: item.color || fallbackColor }}></span>
+                      {truncated(item.label || `Slice ${index + 1}`, 18)}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      };
 
       return (
-        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center', padding: '16px', boxSizing: 'border-box' }}>
-          <div style={{ fontSize: '14px', fontWeight: 600, color: '#111' }}>Pie chart</div>
-          <svg width={chartWidth} height={chartHeight - 60} viewBox={`0 0 ${chartWidth} ${chartHeight}`} preserveAspectRatio="xMidYMid meet" style={{ display: 'block' }}>
-            {data.map((item, index) => {
-              const value = typeof item.value === 'number' ? item.value : 0;
-              const angle = (value / total) * 360;
-              const startAngle = currentAngle;
-              const endAngle = currentAngle + angle;
-              currentAngle += angle;
-
-              const x1 = centerX + radius * Math.cos((startAngle * Math.PI) / 180);
-              const y1 = centerY + radius * Math.sin((startAngle * Math.PI) / 180);
-              const x2 = centerX + radius * Math.cos((endAngle * Math.PI) / 180);
-              const y2 = centerY + radius * Math.sin((endAngle * Math.PI) / 180);
-              const largeArcFlag = angle > 180 ? 1 : 0;
-
-              return (
-                <path
-                  key={index}
-                  d={`M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`}
-                  fill={item.color || fallbackColor}
-                  stroke="#0f0f0f"
-                  strokeWidth="1"
-                  opacity="0.95"
-                />
-              );
-            })}
-          </svg>
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px', fontSize: '11px', color: '#333', maxWidth: '100%' }}>
-            {data.map((item, index) => (
-              <span key={index} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: item.color || fallbackColor }}></span>
-                {item.label || `Slice ${index + 1}`}
-              </span>
-            ))}
-          </div>
-        </div>
+        <ChartFrame>
+          {(size) => renderPieChart(size)}
+        </ChartFrame>
       );
     }
 
     if (chartType === 'line') {
-      const values = data.map(item => (typeof item.value === 'number' ? item.value : 0));
-      const maxValue = Math.max(...values);
-      const minValue = Math.min(...values);
-      const range = maxValue - minValue || 1;
+      const renderLineChart = ({ width, height }) => {
+        const safeWidth = Math.max(width, 200);
+        const safeHeight = Math.max(height, 160);
+        const values = data.map(item => (typeof item.value === 'number' ? item.value : 0));
+        const maxValue = Math.max(...values);
+        const minValue = Math.min(...values);
+        const range = maxValue - minValue || 1;
+        const safeCount = data.length || 1;
+        const xPadding = Math.max(Math.min(safeWidth * 0.12, 60), 24);
+        const yPaddingTop = Math.max(safeHeight * 0.16, 28);
+        const yPaddingBottom = Math.max(safeHeight * 0.18, 36);
+        const plotWidth = safeWidth - xPadding * 2;
+        const plotHeight = safeHeight - yPaddingTop - yPaddingBottom;
+        const tickFont = Math.max(Math.min(plotHeight * 0.12, 14), 9);
+        const labelFont = Math.max(Math.min(plotWidth / Math.max(safeCount, 1) * 0.24, 12), 9);
 
-      const points = data.map((item, index) => {
-        const value = typeof item.value === 'number' ? item.value : 0;
-        const x = (index / Math.max(data.length - 1, 1)) * (chartWidth - 40) + 20;
-        const normalized = Math.max(Math.min((value - minValue) / range, 1), 0);
-        const rawY = (chartHeight - 72) - normalized * (chartHeight - 96);
-        const y = Math.max(Math.min(rawY, chartHeight - 40), 12);
-        return `${x},${y}`;
-      }).join(' ');
+        const coordinates = data.map((item, index) => {
+          const value = typeof item.value === 'number' ? item.value : 0;
+          const normalized = Math.max(Math.min((value - minValue) / range, 1), 0);
+          const x = safeCount === 1 ? safeWidth / 2 : xPadding + (plotWidth * index) / (safeCount - 1);
+          const y = yPaddingTop + plotHeight * (1 - normalized);
+          return {
+            x,
+            y,
+            value,
+            label: item.label || `Point ${index + 1}`,
+            color: item.color || fallbackColor
+          };
+        });
+
+        const points = coordinates.map(point => `${point.x},${point.y}`).join(' ');
+        const maxLabelLength = Math.max(6, Math.floor(plotWidth / Math.max(safeCount, 1) / 10));
+
+        const ticks = [0, 0.25, 0.5, 0.75, 1].map(ratio => {
+          const value = minValue + range * ratio;
+          return {
+            ratio,
+            y: yPaddingTop + plotHeight * (1 - ratio),
+            label: value % 1 === 0 ? value.toString() : value.toFixed(1)
+          };
+        });
+
+        return (
+          <div className="chart-card">
+            <div className="chart-card__header" style={{ padding: `${Math.max(safeHeight * 0.04, 12)}px ${Math.max(safeWidth * 0.06, 16)}px 4px`, fontSize: Math.max(Math.min(safeWidth * 0.05, 16), 12) }}>Line chart</div>
+            <div className="chart-card__plot" style={{ padding: `0 ${Math.max(safeWidth * 0.06, 18)}px ${Math.max(safeHeight * 0.06, 18)}px` }}>
+              <svg width={safeWidth} height={safeHeight} viewBox={`0 0 ${safeWidth} ${safeHeight}`}>
+                <defs>
+                  <clipPath id="line-plot-clip">
+                    <rect
+                      x={xPadding}
+                      y={yPaddingTop}
+                      width={plotWidth}
+                      height={plotHeight}
+                      rx={Math.min(12, plotWidth * 0.04)}
+                      ry={Math.min(12, plotWidth * 0.04)}
+                    />
+                  </clipPath>
+                </defs>
+                <rect x={xPadding} y={yPaddingTop} width={plotWidth} height={plotHeight} fill="#f8fafc" rx={Math.min(12, plotWidth * 0.04)} ry={Math.min(12, plotWidth * 0.04)} />
+                {ticks.map((tick, idx) => (
+                  <g key={idx}>
+                    <line
+                      x1={xPadding}
+                      y1={tick.y}
+                      x2={xPadding + plotWidth}
+                      y2={tick.y}
+                      stroke="#e2e8f0"
+                      strokeWidth={idx === ticks.length - 1 ? 1.2 : 0.8}
+                      strokeDasharray={idx === ticks.length - 1 ? 'none' : '3 4'}
+                      opacity={idx === ticks.length - 1 ? 0.9 : 0.6}
+                    />
+                    <text
+                      x={xPadding - 10}
+                      y={tick.y}
+                      textAnchor="end"
+                      alignmentBaseline="middle"
+                      fill="#475569"
+                      fontSize={tickFont}
+                    >
+                      {tick.label}
+                    </text>
+                  </g>
+                ))}
+                <g clipPath="url(#line-plot-clip)">
+                  <polyline
+                    fill="none"
+                    stroke={fallbackColor}
+                    strokeWidth={Math.max(plotWidth * 0.006, 2)}
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                    points={points}
+                  />
+                  {coordinates.map((point, index) => (
+                    <circle key={index} cx={point.x} cy={point.y} r={Math.max(plotWidth * 0.015, 4)} fill="#ffffff" stroke={point.color} strokeWidth={Math.max(plotWidth * 0.004, 1.4)} />
+                  ))}
+                </g>
+                {coordinates.map((point, index) => (
+                  <text
+                    key={index}
+                    x={point.x}
+                    y={yPaddingTop + plotHeight + labelFont + 10}
+                    textAnchor="middle"
+                    fill="#334155"
+                    fontSize={labelFont}
+                  >
+                    {truncated(point.label, maxLabelLength)}
+                  </text>
+                ))}
+              </svg>
+            </div>
+          </div>
+        );
+      };
 
       return (
-        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', gap: '8px', padding: '16px', boxSizing: 'border-box' }}>
-          <div style={{ fontSize: '14px', fontWeight: 600, color: '#111', textAlign: 'center' }}>Line chart</div>
-          <svg width={chartWidth} height={chartHeight - 40} style={{ display: 'block' }}>
-            <polyline
-              fill="none"
-              stroke={fallbackColor}
-              strokeWidth="3"
-              strokeLinejoin="round"
-              strokeLinecap="round"
-              points={points}
-            />
-            {data.map((item, index) => {
-              const value = typeof item.value === 'number' ? item.value : 0;
-              const x = (index / Math.max(data.length - 1, 1)) * (chartWidth - 40) + 20;
-              const normalized = Math.max(Math.min((value - minValue) / range, 1), 0);
-              const rawY = (chartHeight - 72) - normalized * (chartHeight - 96);
-              const y = Math.max(Math.min(rawY, chartHeight - 40), 12);
-
-              return (
-                <g key={index}>
-                  <circle cx={x} cy={y} r="5" fill="#ffffff" stroke={item.color || fallbackColor} strokeWidth="2" />
-                  <text x={x} y={chartHeight - 40 + 18} textAnchor="middle" fontSize="11" fill="#333">
-                    {item.label || `Point ${index + 1}`}
-                  </text>
-                </g>
-              );
-            })}
-          </svg>
-        </div>
+        <ChartFrame>
+          {(size) => renderLineChart(size)}
+        </ChartFrame>
       );
     }
 
@@ -1075,10 +1211,9 @@ const Canvas = ({
               ...elementStyle,
               border: isSelected ? '2px solid #1a73e8' : '2px solid transparent',
               cursor: isDragging ? 'grabbing' : (isSelected ? 'move' : 'pointer'),
-              borderRadius: '8px',
-              backgroundColor: '#fff',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-              padding: '16px'
+              borderRadius: '16px',
+              backgroundColor: 'transparent',
+              boxShadow: 'none'
             }}
             onClick={(e) => handleElementClick(e, element)}
             onMouseDown={(e) => handleMouseDown(e, element)}

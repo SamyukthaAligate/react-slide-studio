@@ -34,10 +34,13 @@ const Header = ({
   toolbarActiveTab,
   setToolbarActiveTab,
   savedPresentations,
+  slideCount,
+  currentSlideIndex,
   onAddSlide,
   onDeleteCurrentSlide,
   onDeletePreviousSlide,
-  onReorderSlides
+  onMoveSlideUp,
+  onMoveSlideDown
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
@@ -449,7 +452,7 @@ const Header = ({
                 <button
                   className="dropdown-item"
                   onClick={() => handleMenuAction(onDeleteCurrentSlide)}
-                  disabled={!onDeleteCurrentSlide}
+                  disabled={!onDeleteCurrentSlide || slideCount <= 1}
                 >
                   <span className="item-label">
                     <i className="fas fa-minus-square"></i>
@@ -459,7 +462,7 @@ const Header = ({
                 <button
                   className="dropdown-item"
                   onClick={() => handleMenuAction(onDeletePreviousSlide)}
-                  disabled={!onDeletePreviousSlide}
+                  disabled={!onDeletePreviousSlide || slideCount <= 1 || currentSlideIndex === 0}
                 >
                   <span className="item-label">
                     <i className="fas fa-backward"></i>
@@ -469,7 +472,8 @@ const Header = ({
                 <div className="dropdown-divider"></div>
                 <button
                   className="dropdown-item"
-                  onClick={() => handleMenuAction(() => onReorderSlides && onReorderSlides('moveUp'))}
+                  onClick={() => handleMenuAction(onMoveSlideUp)}
+                  disabled={typeof onMoveSlideUp !== 'function' || currentSlideIndex <= 0}
                 >
                   <span className="item-label">
                     <i className="fas fa-arrow-up"></i>
@@ -478,7 +482,8 @@ const Header = ({
                 </button>
                 <button
                   className="dropdown-item"
-                  onClick={() => handleMenuAction(() => onReorderSlides && onReorderSlides('moveDown'))}
+                  onClick={() => handleMenuAction(onMoveSlideDown)}
+                  disabled={typeof onMoveSlideDown !== 'function' || currentSlideIndex >= slideCount - 1}
                 >
                   <span className="item-label">
                     <i className="fas fa-arrow-down"></i>
@@ -568,13 +573,6 @@ const Header = ({
                 <span className="item-label">
                   <i className="fab fa-whatsapp"></i>
                   <span>Share on WhatsApp</span>
-                </span>
-              </button>
-              <div className="dropdown-divider"></div>
-              <button className="dropdown-item" onClick={handleOpenShareModal} type="button">
-                <span className="item-label">
-                  <i className="fas fa-sliders-h"></i>
-                  <span>Advanced share options…</span>
                 </span>
               </button>
             </div>

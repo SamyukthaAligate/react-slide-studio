@@ -29,14 +29,17 @@ const CHART_PALETTE = [
 
 const SHAPE_PALETTE = Array.from(new Set([...CHART_PALETTE, ...NEUTRAL_PALETTE]));
 
-const Toolbar = ({ 
-  onAddElement, 
-  selectedElement, 
-  onUpdateElement, 
-  onDeleteElement, 
-  slides, 
-  currentSlideIndex, 
+const Toolbar = ({
+  onAddElement,
+  selectedElement,
+  onUpdateElement,
+  onDeleteElement,
+  slides,
+  currentSlideIndex,
   onUpdateSlide,
+  onAddSlide,
+  onDeleteCurrentSlide,
+  onDeletePreviousSlide,
   toolbarActiveTab,
   setToolbarActiveTab,
   onShowChartModal
@@ -53,6 +56,7 @@ const Toolbar = ({
   const [showBackgroundPicker, setShowBackgroundPicker] = useState(false);
   const [showTextColorPicker, setShowTextColorPicker] = useState(false);
   const [showTextBgPicker, setShowTextBgPicker] = useState(false);
+  const [bulletColor, setBulletColor] = useState('#000000');
   const [gridOn, setGridOn] = useState(false);
   const [gridSize, setGridSize] = useState(24);
 
@@ -170,16 +174,42 @@ const Toolbar = ({
     '#45b7d1', '#96ceb4', '#ffeaa7', '#dda0dd', '#98d8c8', '#f7dc6f'
   ];
 
-  const addTextBox = () => {
-    const { x, y } = findNonOverlappingPosition(200, 50);
+  const bulletStyles = [
+  { id: 'disc', label: 'Filled bullets', preview: '•' },
+  { id: 'circle', label: 'Hollow bullets', preview: '◦' },
+  { id: 'square', label: 'Square bullets', preview: '▪' },
+  { id: 'decimal', label: 'Numbered list', preview: '1.' }
+];
+
+  const addTitleBox = () => {
+    const { x, y } = findNonOverlappingPosition(720, 180);
     onAddElement({
       type: 'text',
-      content: 'Click to edit text',
+      content: 'Click to add Title',
       x,
       y,
-      width: 200,
-      height: 50,
-      fontSize: 16,
+      width: 660,
+      height: 160,
+      fontSize: 42,
+      fontFamily: 'Roboto',
+      color: '#000000',
+      backgroundColor: 'transparent',
+      textAlign: 'center',
+      fontWeight: 'bold',
+      fontStyle: 'normal'
+    });
+  };
+
+  const addContentBox = () => {
+    const { x, y } = findNonOverlappingPosition(520, 240);
+    onAddElement({
+      type: 'text',
+      content: 'Click to add text',
+      x,
+      y,
+      width: 540,
+      height: 260,
+      fontSize: 20,
       fontFamily: 'Roboto',
       color: '#000000',
       backgroundColor: 'transparent',
@@ -187,6 +217,40 @@ const Toolbar = ({
       fontWeight: 'normal',
       fontStyle: 'normal'
     });
+  };
+
+  const addBulletList = (style) => {
+    const { x, y } = findNonOverlappingPosition(560, 280);
+    const bulletContent = (() => {
+      switch (style) {
+        case 'circle':
+          return ['◦ First point', '◦ Second point', '◦ Third point'];
+        case 'square':
+          return ['▪ First point', '▪ Second point', '▪ Third point'];
+        case 'decimal':
+          return ['1. First point', '2. Second point', '3. Third point'];
+        case 'disc':
+        default:
+          return ['• First point', '• Second point', '• Third point'];
+      }
+    })().join('\n');
+    onAddElement({
+      type: 'text',
+      content: bulletContent,
+      listType: style,
+      x,
+      y,
+      width: 580,
+      height: 280,
+      fontSize: 20,
+      fontFamily: 'Roboto',
+      color: bulletColor,
+      backgroundColor: 'transparent',
+      textAlign: 'left',
+      fontWeight: 'normal',
+      fontStyle: 'normal'
+    });
+    setActiveDropdown(null);
   };
 
   const addShape = (shapeType) => {
@@ -499,11 +563,65 @@ const Toolbar = ({
         {activeTab === 'insert' && (
           <div className="insert-tools">
             <div className="tool-group">
-              <button className="tool-btn" onClick={addTextBox} title="Add text box">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 4h12v2H6V4zM8 8h8v10H8V8z" fill="currentColor"/></svg>
-                <span>Text box</span>
-              </button>
-              
+              <div className={`tool-dropdown ${activeDropdown === 'textOptions' ? 'open' : ''}`}>
+                <button className="tool-btn dropdown-toggle" title="Insert title or text" onClick={() => toggleDropdown('textOptions')}>
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 5h16v2H13v12h-2V7H4V5z" fill="currentColor"/></svg>
+                  <span>Title & Text</span>
+                </button>
+                <div className="dropdown-content">
+                  <button className="dropdown-item" onClick={() => { addTitleBox(); setActiveDropdown(null); }}>
+                    <i className="fas fa-heading"></i>
+                    Title Box
+                  </button>
+                  <button className="dropdown-item" onClick={() => { addContentBox(); setActiveDropdown(null); }}>
+                    <i className="fas fa-font"></i>
+                    Content Box
+                  </button>
+                </div>
+              </div>
+
+              <div className={`tool-dropdown ${activeDropdown === 'bullet' ? 'open' : ''}`}>
+                <button className="tool-btn dropdown-toggle" title="Insert bullet list" onClick={() => toggleDropdown('bullet')}>
+                  <i className="fas fa-list-ul"></i>
+                  <span>Bullets</span>
+                </button>
+                <div className="dropdown-content">
+                  <div className="control-group column">
+                    <label>Text Color</label>
+                    <div className="quick-colors">
+                      {textColors.slice(0, 12).map(color => (
+                        <button
+                          key={`bullet-color-${color}`}
+                          className={"quick-color-btn" + (bulletColor === color ? ' active' : '')}
+                          style={{ backgroundColor: color, borderColor: bulletColor === color ? '#ffffff' : 'rgba(255,255,255,0.3)' }}
+                          onClick={() => setBulletColor(color)}
+                        />
+                      ))}
+                      <input
+                        type="color"
+                        className="color-input"
+                        value={bulletColor}
+                        onChange={(e) => setBulletColor(e.target.value)}
+                        title="Custom color"
+                      />
+                    </div>
+                  </div>
+                  <div className="dropdown-divider"></div>
+                  {bulletStyles.map((style) => (
+                    <button
+                      key={style.id}
+                      className="dropdown-item"
+                      onClick={() => addBulletList(style.id)}
+                    >
+                      <span className="item-label">
+                        <span style={{ fontSize: '18px', width: '24px', textAlign: 'center' }}>{style.preview}</span>
+                        <span>{style.label}</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className={`tool-dropdown ${activeDropdown === 'image' ? 'open' : ''}`}>
                 <button className="tool-btn dropdown-toggle" title="Insert image" onClick={() => toggleDropdown('image')}>
                   <i className="fas fa-image"></i>
@@ -589,7 +707,44 @@ const Toolbar = ({
               </div>
             </div>
             <div className="tool-group">
-              {/* Grid controls removed per request */}
+              <button
+                className="tool-btn"
+                onClick={() => {
+                  if (typeof onAddSlide === 'function') {
+                    onAddSlide();
+                  }
+                }}
+                title="Add slide"
+              >
+                <i className="fas fa-plus-square"></i>
+                <span>New Slide</span>
+              </button>
+              <button
+                className="tool-btn"
+                onClick={() => {
+                  if (typeof onDeleteCurrentSlide === 'function') {
+                    onDeleteCurrentSlide();
+                  }
+                }}
+                disabled={!slides || slides.length <= 1}
+                title="Delete current slide"
+              >
+                <i className="fas fa-minus-square"></i>
+                <span>Delete Slide</span>
+              </button>
+              <button
+                className="tool-btn"
+                onClick={() => {
+                  if (typeof onDeletePreviousSlide === 'function') {
+                    onDeletePreviousSlide();
+                  }
+                }}
+                disabled={!slides || slides.length <= 1 || currentSlideIndex === 0}
+                title="Delete previous slide"
+              >
+                <i className="fas fa-backward"></i>
+                <span>Delete Prev</span>
+              </button>
             </div>
           </div>
         )}

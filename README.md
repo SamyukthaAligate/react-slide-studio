@@ -8,6 +8,25 @@ A fully functional, modern presentation tool built with React and CSS. Create st
 
 ## ✨ Latest Features (v3.0)
 
+### 📝 **Enhanced Text & Title Insertion**
+- **Title & Content Presets**: Quick-add title or body text boxes from the Insert tab with improved default sizing and formatting.
+- **Default Slide Title**: First slide now starts with a centered `Click to add Title` placeholder for faster composition.
+
+### • **Rich Bullet Lists**
+- **Multiple Styles**: Choose from filled, hollow, square, or numbered bullet formats directly under Insert → Bullets.
+- **Color Picker**: Assign bullet text colors before inserting, with custom color support.
+- **Smart Editing**: Press Enter to continue the active bullet style; Backspace cleanly removes bullet markers; list numbering auto-adjusts.
+
+### 🗂️ **Slide Management Workflow**
+- **Toolbar Controls**: Add, delete current, or delete previous slides without leaving the Insert tab.
+- **Slides Menu**: Dedicated header dropdown with quick actions (add, delete, move up/down).
+- **Drag & Drop Reordering**: Rearrange slides in the sidebar with visual feedback, maintaining selection and history.
+
+### 🔗 **Streamlined Sharing Controls**
+- **Share Dropdown**: Access copy link, email, and social sharing directly from the header with the same glassmorphism styling as other menus.
+- **Status Feedback**: Instant clipboard success/error badges keep users informed.
+- **Advanced Options**: Launch the full `ShareModal` for PDF exports and detailed distribution flows.
+
 ### 📐 **Element Resizing & Dimensions**
 - **Universal Size Controls**: Increase/decrease size for all element types (10% increments)
 - **Precise Dimensions**: Direct width/height input controls (50-800px width, 30-600px height)
@@ -110,25 +129,33 @@ A fully functional, modern presentation tool built with React and CSS. Create st
 ### Basic Operations
 
 #### **Creating Slides**
-- Click the "+" button in the slide panel to add a new slide
-- Right-click on any slide thumbnail for options (duplicate, delete)
+- Use **Insert → New Slide** in the toolbar or the **Slides** header menu to add a fresh slide template
+- Click the "+" button in the slide panel for a quick add
+- Drag thumbnails in the slide panel to reorder; the active slide follows your drop location
+- Right-click any slide thumbnail for duplicate/delete context actions
 
 #### **Adding Elements**
-1. **Text**: Click "Text box" in the Insert tab to add editable text
-2. **Shapes**: Use the Shape dropdown to insert rectangles, circles, or triangles
-3. **Images**: Click Image → Upload to add images from your device
+1. **Title & Text Boxes**: Use the **Title & Text** dropdown to insert pre-sized title or content placeholders (the first slide starts with a default title box automatically)
+2. **Bullets**: Open the **Bullets** dropdown to select filled, hollow, square, or numbered styles and pick a text color before inserting
+3. **Shapes**: Use the Shape dropdown to insert rectangles, circles, or triangles
+4. **Images**: Click Image → Upload to add images from your device
 
 #### **Editing Elements**
 - **Select**: Click on any element to select it
 - **Move**: Drag selected elements to reposition them
 - **Resize**: Use the corner handles to resize selected elements
-- **Edit Text**: Double-click text elements to edit content inline
+- **Edit Text**: Double-click text elements to edit content inline; pressing **Enter** continues the current bullet style, while **Backspace** removes bullet markers cleanly
 - **Format**: Use the Format tab to change colors, fonts, and styles
+- **Undo/Redo**: Press `Ctrl+Z` / `Cmd+Z` (and `Ctrl+Shift+Z` / `Cmd+Shift+Z`) while typing to undo or redo without leaving edit mode
 
 #### **Presentation Mode**
 - Click the "Present" button to enter full-screen mode
 - Use arrow keys or spacebar to navigate
 - Press Escape to exit presentation mode
+
+#### **Sharing Your Presentation**
+- Use the **Share** dropdown in the header to copy the presentation link, send a quick email, or post to Twitter, LinkedIn, Facebook, and WhatsApp with consistent styling and feedback.
+- Choose **Advanced share options…** for PDF export workflows and saved presentation sharing via the modal.
 
 ### ⌨️ Keyboard Shortcuts
 
@@ -184,6 +211,8 @@ src/
 - Custom mouse event handling
 - Boundary detection and constraints
 - Smooth resize and move operations
+- **Context Menu Enhancements**: Right-clicking empty canvas surfaces opens a context menu aligned to cursor position (with viewport clamping) offering `Paste`; element context menus provide `Cut`, `Copy`, and `Paste` hooks for consistent clipboard handling.
+- **Layout Consistency**: Canvas wrapper and context dropdown styling align with the updated modern glass aesthetic for a cohesive editing feel.
 
 ### **Responsive Design**
 - CSS Grid and Flexbox layouts

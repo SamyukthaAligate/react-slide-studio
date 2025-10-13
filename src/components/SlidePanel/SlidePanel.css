@@ -55,6 +55,17 @@
   border: 2px solid transparent;
 }
 
+.slide-thumbnail.dragging {
+  opacity: 0.55;
+  transform: scale(0.98);
+}
+
+.slide-thumbnail.drag-over {
+  border-color: #ffd700;
+  box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.35);
+  transform: translateY(-2px);
+}
+
 .slide-thumbnail:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }

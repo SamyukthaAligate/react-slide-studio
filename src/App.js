@@ -12,11 +12,30 @@ import { exportToPDF } from './utils/pdfExport';
 import { exportToPPTX } from './utils/pptxExport';
 import './App.css';
 
+function createTitlePlaceholder() {
+  return {
+    id: uuidv4(),
+    type: 'text',
+    content: 'Click to add Title',
+    x: 160,
+    y: 120,
+    width: 640,
+    height: 120,
+    fontSize: 40,
+    fontFamily: 'Roboto',
+    color: '#000000',
+    backgroundColor: 'transparent',
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontStyle: 'normal'
+  };
+}
+
 function App() {
   const [slides, setSlides] = useState([
     {
       id: uuidv4(),
-      elements: [],
+      elements: [createTitlePlaceholder()],
       background: '#ffffff',
       backgroundGradient: null,
       backgroundImage: null,
@@ -47,6 +66,11 @@ function App() {
   const [history, setHistory] = useState([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const isUndoRedoAction = useRef(false);
+
+  const handleSelectElement = useCallback((element) => {
+    setSelectedElement(element);
+    setToolbarActiveTab(element ? 'format' : 'insert');
+  }, []);
 
   // Save presentation to localStorage
   const pruneStorage = useCallback((presentations) => {
@@ -110,7 +134,7 @@ function App() {
     if (window.confirm('Create a new presentation? Any unsaved changes will be lost.')) {
       setSlides([{
         id: uuidv4(),
-        elements: [],
+        elements: [createTitlePlaceholder()],
         background: '#ffffff',
         backgroundGradient: null,
         backgroundImage: null,
@@ -119,7 +143,7 @@ function App() {
         themeAccentSecondary: null
       }]);
       setCurrentSlideIndex(0);
-      setSelectedElement(null);
+      handleSelectElement(null);
       setPresentationTitle('Untitled Presentation');
       setCurrentPresentationId(null);
       setHistory([]);
@@ -135,7 +159,7 @@ function App() {
       setPresentationTitle(presentation.title);
       setCurrentPresentationId(presentation.id);
       setCurrentSlideIndex(0);
-      setSelectedElement(null);
+      handleSelectElement(null);
       setHistory([]);
       setHistoryIndex(-1);
     }
@@ -507,6 +531,16 @@ function App() {
     }
   }, [slides, currentSlideIndex, saveToHistory]);
 
+  const deleteCurrentSlide = useCallback(() => {
+    deleteSlide(currentSlideIndex);
+  }, [deleteSlide, currentSlideIndex]);
+
+  const deletePreviousSlide = useCallback(() => {
+    if (currentSlideIndex > 0) {
+      deleteSlide(currentSlideIndex - 1);
+    }
+  }, [deleteSlide, currentSlideIndex]);
+
   const duplicateSlide = useCallback((index) => {
     const slideToClone = slides[index];
     const newSlide = {
@@ -562,9 +596,22 @@ function App() {
     setSlides(newSlides);
     saveToHistory(newSlides);
     if (selectElement) {
-      setSelectedElement(newElement);
+      handleSelectElement(newElement);
     }
-  }, [currentSlideIndex, slides, saveToHistory]);
+  }, [currentSlideIndex, slides, saveToHistory, handleSelectElement]);
+
+  const reorderSlides = useCallback((sourceIndex, targetIndex) => {
+    if (sourceIndex === targetIndex || sourceIndex < 0 || targetIndex < 0 || sourceIndex >= slides.length || targetIndex >= slides.length) {
+      return;
+    }
+    const newSlides = [...slides];
+    const [movedSlide] = newSlides.splice(sourceIndex, 1);
+    newSlides.splice(targetIndex, 0, movedSlide);
+    setSlides(newSlides);
+    const newIndex = targetIndex;
+    setCurrentSlideIndex(newIndex);
+    saveToHistory(newSlides);
+  }, [slides, saveToHistory]);
 
   const updateElement = useCallback((elementId, updates) => {
     const newSlides = slides.map((slide, i) => 
@@ -593,9 +640,9 @@ function App() {
         : slide
     );
     setSlides(newSlides);
-    setSelectedElement(null);
+    handleSelectElement(null);
     saveToHistory(newSlides);
-  }, [currentSlideIndex, slides, saveToHistory]);
+  }, [currentSlideIndex, slides, saveToHistory, handleSelectElement]);
 
   const copyElement = useCallback((element) => {
     if (!element) return;
@@ -667,8 +714,8 @@ function App() {
     );
     setSlides(newSlides);
     saveToHistory(newSlides);
-    setSelectedElement(element);
-  }, [currentSlideIndex, slides, saveToHistory]);
+    handleSelectElement(element);
+  }, [currentSlideIndex, slides, saveToHistory, handleSelectElement]);
 
   const startPresentation = useCallback(() => {
     setIsPresentationMode(true);
@@ -897,6 +944,9 @@ function App() {
         slides={slides}
         currentSlideIndex={currentSlideIndex}
         onUpdateSlide={updateSlide}
+        onAddSlide={addSlide}
+        onDeleteCurrentSlide={deleteCurrentSlide}
+        onDeletePreviousSlide={deletePreviousSlide}
         toolbarActiveTab={toolbarActiveTab}
         setToolbarActiveTab={setToolbarActiveTab}
         onShowChartModal={() => setShowChartModal(true)}
@@ -909,6 +959,7 @@ function App() {
           onAddSlide={addSlide}
           onDeleteSlide={deleteSlide}
           onDuplicateSlide={duplicateSlide}
+          onReorderSlides={reorderSlides}
         />
         <Canvas
           slide={slides[currentSlideIndex] || slides[0] || {
@@ -919,7 +970,7 @@ function App() {
           }}
           onUpdateSlide={(updatedSlide) => updateSlide(currentSlideIndex, updatedSlide)}
           selectedElement={selectedElement}
-          onSelectElement={setSelectedElement}
+          onSelectElement={handleSelectElement}
           onUpdateElement={updateElement}
           onDeleteElement={deleteElement}
           onAddElement={addElement}

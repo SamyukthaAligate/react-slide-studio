@@ -416,8 +416,127 @@ const Canvas = ({
     }
   }, [isDragging, isResizing, handleMouseMove, handleMouseUp]);
 
+  const bulletForStyle = (styleName, index) => {
+    switch (styleName) {
+      case 'circle':
+        return '◦';
+      case 'square':
+        return '▪';
+      case 'decimal':
+        return `${index + 1}.`;
+      case 'disc':
+      default:
+        return '•';
+    }
+  };
+
+  const getBulletPrefix = (line, style) => {
+    if (style === 'decimal') {
+      const match = line.match(/^\d+\.\s*/);
+      return match ? match[0] : null;
+    }
+    if (['disc', 'circle', 'square'].includes(style)) {
+      const match = line.match(/^[•◦▪]\s*/);
+      return match ? match[0] : null;
+    }
+    return null;
+  };
+
+  const applyBulletContinuation = (rawValue, listType) => {
+    const style = listType || '';
+    if (!style) return rawValue;
+
+    const lines = rawValue.split('\n');
+    let bulletIndex = 0;
+
+    const processed = lines.map((line, idx) => {
+      const trimmed = line.trim();
+      if (!trimmed) {
+        if (idx === lines.length - 1) {
+          const bullet = bulletForStyle(style, bulletIndex++);
+          return `${bullet} `;
+        }
+        return '';
+      }
+
+      const bullet = bulletForStyle(style, bulletIndex++);
+
+      if (style === 'decimal') {
+        const text = trimmed.replace(/^\d+\.\s*/, '').trim();
+        return text ? `${bullet} ${text}`.trimEnd() : `${bullet} `;
+      }
+
+      if (['disc', 'circle', 'square'].includes(style)) {
+        const text = trimmed.replace(/^[•◦▪]\s*/, '').trim();
+        return text ? `${bullet} ${text}`.trimEnd() : `${bullet} `;
+      }
+
+      return line;
+    });
+
+    return processed.join('\n');
+  };
+
   const handleTextChange = (e, element) => {
-    onUpdateElement(element.id, { content: e.target.value });
+    const rawValue = e.target.value;
+    const content = applyBulletContinuation(rawValue, element.listType);
+    onUpdateElement(element.id, { content });
+  };
+
+  const handleTextKeyDown = (e, element) => {
+    if (!element.listType) return;
+
+    const textarea = e.target;
+    const { selectionStart, selectionEnd, value } = textarea;
+    const style = element.listType;
+
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+
+      const before = value.slice(0, selectionStart);
+      const after = value.slice(selectionEnd);
+
+      const linesBefore = before.split('\n');
+      let bulletCount = 0;
+      linesBefore.forEach((line) => {
+        if (!line.trim()) return;
+        bulletCount += 1;
+      });
+
+      const bullet = bulletForStyle(style, bulletCount);
+      const insertion = `\n${bullet} `;
+      const newValue = before + insertion + after;
+      const content = applyBulletContinuation(newValue, style);
+      onUpdateElement(element.id, { content });
+
+      requestAnimationFrame(() => {
+        const pos = before.length + insertion.length;
+        textarea.selectionStart = textarea.selectionEnd = pos;
+      });
+      return;
+    }
+
+    if (e.key === 'Backspace' && selectionStart === selectionEnd) {
+      const lineStart = value.lastIndexOf('\n', selectionStart - 1) + 1;
+      const currentLine = value.slice(lineStart);
+      const prefix = getBulletPrefix(currentLine, style);
+
+      if (prefix && selectionStart <= lineStart + prefix.length) {
+        e.preventDefault();
+
+        const before = value.slice(0, lineStart);
+        const after = value.slice(selectionEnd);
+        const trimmedBefore = lineStart > 0 && before.endsWith('\n') ? before.slice(0, -1) : before;
+        const newValue = trimmedBefore + after;
+        const content = applyBulletContinuation(newValue, style);
+        onUpdateElement(element.id, { content });
+
+        requestAnimationFrame(() => {
+          const pos = trimmedBefore.length;
+          textarea.selectionStart = textarea.selectionEnd = pos;
+        });
+      }
+    }
   };
 
   const handleTextBlur = () => {
@@ -724,6 +843,18 @@ const Canvas = ({
               onChange={(e) => handleTextChange(e, element)}
               onBlur={handleTextBlur}
               onKeyDown={(e) => {
+                handleTextKeyDown(e, element);
+                if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+                  if (e.shiftKey) {
+                    if (typeof window.onRedoAction === 'function') {
+                      window.onRedoAction();
+                    }
+                  } else {
+                    if (typeof window.onUndoAction === 'function') {
+                      window.onUndoAction();
+                    }
+                  }
+                }
                 if (e.key === 'Escape') {
                   handleTextBlur();
                 }

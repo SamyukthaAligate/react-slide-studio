@@ -7,9 +7,12 @@ const SlidePanel = ({
   onSlideSelect, 
   onAddSlide, 
   onDeleteSlide, 
-  onDuplicateSlide 
+  onDuplicateSlide,
+  onReorderSlides
 }) => {
   const [contextMenu, setContextMenu] = useState({ show: false, x: 0, y: 0, slideIndex: null });
+  const [draggedIndex, setDraggedIndex] = useState(null);
+  const [dragOverIndex, setDragOverIndex] = useState(null);
 
   const handleSlideClick = (index) => {
     onSlideSelect(index);
@@ -46,6 +49,46 @@ const SlidePanel = ({
 
   const closeContextMenu = () => {
     setContextMenu({ show: false, x: 0, y: 0, slideIndex: null });
+  };
+
+  const handleDragStart = (e, index) => {
+    setDraggedIndex(index);
+    setDragOverIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(index));
+  };
+
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+    setDragOverIndex(index);
+  };
+
+  const handleDragLeave = (index) => {
+    if (dragOverIndex === index) {
+      setDragOverIndex(null);
+    }
+  };
+
+  const handleDrop = (e, index) => {
+    e.preventDefault();
+    const sourceData = e.dataTransfer.getData('text/plain');
+    const sourceIndex = draggedIndex ?? (sourceData ? parseInt(sourceData, 10) : null);
+    if (sourceIndex === null || Number.isNaN(sourceIndex) || sourceIndex === index) {
+      setDraggedIndex(null);
+      setDragOverIndex(null);
+      return;
+    }
+    if (typeof onReorderSlides === 'function') {
+      onReorderSlides(sourceIndex, index);
+    }
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
   };
 
   const renderSlidePreview = (slide) => {
@@ -183,9 +226,15 @@ const SlidePanel = ({
           {slides.map((slide, index) => (
             <div
               key={slide.id}
-              className={`slide-thumbnail ${index === currentSlideIndex ? 'active' : ''}`}
+              className={`slide-thumbnail ${index === currentSlideIndex ? 'active' : ''} ${dragOverIndex === index && draggedIndex !== null && draggedIndex !== index ? 'drag-over' : ''} ${draggedIndex === index ? 'dragging' : ''}`}
               onClick={() => handleSlideClick(index)}
               onContextMenu={(e) => handleRightClick(e, index)}
+              draggable={slides.length > 1}
+              onDragStart={(e) => handleDragStart(e, index)}
+              onDragOver={(e) => handleDragOver(e, index)}
+              onDragLeave={() => handleDragLeave(index)}
+              onDrop={(e) => handleDrop(e, index)}
+              onDragEnd={handleDragEnd}
             >
               <div className="slide-number">{index + 1}</div>
               <div 

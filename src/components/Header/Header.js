@@ -33,15 +33,23 @@ const Header = ({
   showRulers,
   toolbarActiveTab,
   setToolbarActiveTab,
-  savedPresentations
+  savedPresentations,
+  onAddSlide,
+  onDeleteCurrentSlide,
+  onDeletePreviousSlide,
+  onReorderSlides
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [fileSubmenusOpen, setFileSubmenusOpen] = useState({ recent: false });
+  const [isShareMenuOpen, setIsShareMenuOpen] = useState(false);
+  const [copyStatus, setCopyStatus] = useState('idle');
   const menuRef = useRef(null);
+  const shareMenuRef = useRef(null);
   // refs for each dropdown container so we only measure alignment when menu opens
-  const menuRefs = useRef({ file: null, insert: null, format: null, design: null, view: null });
+  const menuRefs = useRef({ file: null, insert: null, format: null, design: null, view: null, slides: null });
+  const shareUrl = React.useMemo(() => window.location.href, []);
 
   const sortedSavedPresentations = React.useMemo(() => {
     if (!savedPresentations || savedPresentations.length === 0) return [];
@@ -59,6 +67,10 @@ const Header = ({
 
   const toggleMenu = (menuName) => {
     console.log('Toggling menu:', menuName, 'Current active:', activeMenu);
+    if (isShareMenuOpen) {
+      setIsShareMenuOpen(false);
+      setCopyStatus('idle');
+    }
     setActiveMenu(prev => {
       const next = prev === menuName ? null : menuName;
       if (next !== 'file') {
@@ -67,8 +79,97 @@ const Header = ({
       return next;
     });
   };
-  const toggleMobileMenu = () => { setIsMobileMenuOpen(!isMobileMenuOpen); setActiveMenu(null); };
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+    setActiveMenu(null);
+    if (isShareMenuOpen) {
+      setIsShareMenuOpen(false);
+      setCopyStatus('idle');
+    }
+  };
   const [alignments, setAlignments] = useState({}); // { menuName: 'left'|'right' }
+
+  const closeShareMenu = () => {
+    setIsShareMenuOpen(false);
+    setCopyStatus('idle');
+  };
+
+  const handleShareMenuToggle = () => {
+    if (isShareMenuOpen) {
+      closeShareMenu();
+      return;
+    }
+    setActiveMenu(null);
+    setIsMobileMenuOpen(false);
+    setFileSubmenusOpen({ recent: false });
+    setIsShareMenuOpen(true);
+  };
+
+  const handleCopyShareLink = async () => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+      } else {
+        const tempInput = document.createElement('textarea');
+        tempInput.value = shareUrl;
+        tempInput.setAttribute('readonly', '');
+        tempInput.style.position = 'absolute';
+        tempInput.style.left = '-9999px';
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+      }
+      setCopyStatus('success');
+      setTimeout(() => setCopyStatus('idle'), 2000);
+    } catch (err) {
+      console.error('Unable to copy share link', err);
+      setCopyStatus('error');
+      setTimeout(() => setCopyStatus('idle'), 2000);
+    }
+  };
+
+  const handleQuickEmailShare = () => {
+    const subject = encodeURIComponent(`Check out my presentation: ${presentationTitle}`);
+    const body = encodeURIComponent(`View the presentation at: ${shareUrl}`);
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    closeShareMenu();
+  };
+
+  const handleShareToPlatform = (platform) => {
+    const text = encodeURIComponent(`Check out my presentation: ${presentationTitle}`);
+    const url = encodeURIComponent(shareUrl);
+    let shareLink = '';
+
+    switch (platform) {
+      case 'twitter':
+        shareLink = `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
+        break;
+      case 'facebook':
+        shareLink = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+        break;
+      case 'linkedin':
+        shareLink = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+        break;
+      case 'whatsapp':
+        shareLink = `https://wa.me/?text=${text}%20${url}`;
+        break;
+      default:
+        shareLink = '';
+    }
+
+    if (shareLink) {
+      window.open(shareLink, '_blank', 'width=600,height=400');
+      closeShareMenu();
+    }
+  };
+
+  const handleOpenShareModal = () => {
+    closeShareMenu();
+    if (typeof onShowShare === 'function') {
+      onShowShare();
+    }
+  };
 
   // compute dropdown alignment to avoid overflow
   const measureAndSetAlignment = (menuName, menuButton) => {
@@ -111,11 +212,23 @@ const Header = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [activeMenu]);
 
+  useEffect(() => {
+    if (!isShareMenuOpen) return;
+    const handleClickOutsideShare = (event) => {
+      if (shareMenuRef.current && !shareMenuRef.current.contains(event.target)) {
+        closeShareMenu();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutsideShare);
+    return () => document.removeEventListener('mousedown', handleClickOutsideShare);
+  }, [isShareMenuOpen]);
+
   const handleMenuAction = (action) => {
     console.log('Menu action triggered:', action);
     setActiveMenu(null);
     setIsMobileMenuOpen(false);
     setFileSubmenusOpen({ recent: false });
+    closeShareMenu();
     if (typeof action === 'function') action();
   };
 
@@ -313,6 +426,68 @@ const Header = ({
               </div>
             )}
           </div>
+
+          {/* Slides Menu */}
+          <div className="menu-dropdown" ref={el => { menuRefs.current.slides = el; }}>
+            <button
+              className={`menu-item ${activeMenu === 'slides' ? 'active' : ''}`}
+              onClick={() => toggleMenu('slides')}
+            >
+              Slides
+            </button>
+            {activeMenu === 'slides' && (
+              <div className={`dropdown-menu ${alignments.slides === 'right' ? 'align-right' : ''}`}>
+                <button
+                  className="dropdown-item"
+                  onClick={() => handleMenuAction(onAddSlide)}
+                >
+                  <span className="item-label">
+                    <i className="fas fa-plus-square"></i>
+                    <span>Add New Slide</span>
+                  </span>
+                </button>
+                <button
+                  className="dropdown-item"
+                  onClick={() => handleMenuAction(onDeleteCurrentSlide)}
+                  disabled={!onDeleteCurrentSlide}
+                >
+                  <span className="item-label">
+                    <i className="fas fa-minus-square"></i>
+                    <span>Delete Current Slide</span>
+                  </span>
+                </button>
+                <button
+                  className="dropdown-item"
+                  onClick={() => handleMenuAction(onDeletePreviousSlide)}
+                  disabled={!onDeletePreviousSlide}
+                >
+                  <span className="item-label">
+                    <i className="fas fa-backward"></i>
+                    <span>Delete Previous Slide</span>
+                  </span>
+                </button>
+                <div className="dropdown-divider"></div>
+                <button
+                  className="dropdown-item"
+                  onClick={() => handleMenuAction(() => onReorderSlides && onReorderSlides('moveUp'))}
+                >
+                  <span className="item-label">
+                    <i className="fas fa-arrow-up"></i>
+                    <span>Move Slide Up</span>
+                  </span>
+                </button>
+                <button
+                  className="dropdown-item"
+                  onClick={() => handleMenuAction(() => onReorderSlides && onReorderSlides('moveDown'))}
+                >
+                  <span className="item-label">
+                    <i className="fas fa-arrow-down"></i>
+                    <span>Move Slide Down</span>
+                  </span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -335,10 +510,76 @@ const Header = ({
             <i className="fas fa-redo"></i>
           </button>
         </div>
-        <button className="share-btn" onClick={onShowShare}>
-          <i className="fas fa-share-alt"></i>
-          Share
-        </button>
+        <div className="menu-dropdown share-menu" ref={shareMenuRef}>
+          <button
+            className={`menu-item ${isShareMenuOpen ? 'active' : ''}`}
+            onClick={handleShareMenuToggle}
+            type="button"
+          >
+            <span className="item-label">
+              <i className="fas fa-share-alt"></i>
+              <span>Share</span>
+            </span>
+            <i className={`fas ${isShareMenuOpen ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
+          </button>
+          {isShareMenuOpen && (
+            <div className="dropdown-menu align-right share-dropdown">
+              <button className="dropdown-item" onClick={handleCopyShareLink} type="button">
+                <span className="item-label">
+                  <i className="fas fa-link"></i>
+                  <span>
+                    {copyStatus === 'success'
+                      ? 'Link copied to clipboard'
+                      : copyStatus === 'error'
+                        ? 'Unable to copy link'
+                        : 'Copy share link'}
+                  </span>
+                </span>
+                {copyStatus === 'success' && <span className="shortcut success">Done</span>}
+                {copyStatus === 'error' && <span className="shortcut error">Retry</span>}
+                {copyStatus === 'idle' && <span className="shortcut">Ctrl+C</span>}
+              </button>
+              <button className="dropdown-item" onClick={handleQuickEmailShare} type="button">
+                <span className="item-label">
+                  <i className="fas fa-envelope"></i>
+                  <span>Share via email</span>
+                </span>
+              </button>
+              <div className="dropdown-divider"></div>
+              <button className="dropdown-item" onClick={() => handleShareToPlatform('twitter')} type="button">
+                <span className="item-label">
+                  <i className="fab fa-twitter"></i>
+                  <span>Share on Twitter</span>
+                </span>
+              </button>
+              <button className="dropdown-item" onClick={() => handleShareToPlatform('linkedin')} type="button">
+                <span className="item-label">
+                  <i className="fab fa-linkedin"></i>
+                  <span>Share on LinkedIn</span>
+                </span>
+              </button>
+              <button className="dropdown-item" onClick={() => handleShareToPlatform('facebook')} type="button">
+                <span className="item-label">
+                  <i className="fab fa-facebook"></i>
+                  <span>Share on Facebook</span>
+                </span>
+              </button>
+              <button className="dropdown-item" onClick={() => handleShareToPlatform('whatsapp')} type="button">
+                <span className="item-label">
+                  <i className="fab fa-whatsapp"></i>
+                  <span>Share on WhatsApp</span>
+                </span>
+              </button>
+              <div className="dropdown-divider"></div>
+              <button className="dropdown-item" onClick={handleOpenShareModal} type="button">
+                <span className="item-label">
+                  <i className="fas fa-sliders-h"></i>
+                  <span>Advanced share options…</span>
+                </span>
+              </button>
+            </div>
+          )}
+        </div>
         <button className="present-btn" onClick={onStartPresentation}>
           <i className="fas fa-play"></i>
           Present

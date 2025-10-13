@@ -389,7 +389,7 @@
   transform: none;
 }
 
-.share-btn,
+.share-menu > .menu-item,
 .present-btn {
   display: inline-flex;
   align-items: center;
@@ -406,10 +406,51 @@
   transition: background 0.3s ease, transform 0.3s ease;
 }
 
-.share-btn:hover,
+.share-menu > .menu-item:hover,
 .present-btn:hover {
   background: rgba(255, 255, 255, 0.12);
   transform: translateY(-2px);
+}
+
+.share-menu > .menu-item .item-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 13px;
+}
+
+.share-menu > .menu-item i.fa-chevron-down,
+.share-menu > .menu-item i.fa-chevron-up {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.86);
+  transition: transform 0.2s ease;
+}
+
+.share-menu > .menu-item.active i.fa-chevron-up {
+  transform: translateY(-1px);
+}
+
+.share-dropdown {
+  min-width: 280px;
+  gap: 8px;
+}
+
+.share-dropdown .dropdown-item .item-label > span {
+  white-space: normal;
+}
+
+.share-dropdown .dropdown-item .shortcut.success {
+  color: #34d399;
+}
+
+.share-dropdown .dropdown-item .shortcut.error {
+  color: #f87171;
+}
+
+.share-dropdown .dropdown-item .item-label i.fab {
+  width: 20px;
 }
 
 .user-avatar {

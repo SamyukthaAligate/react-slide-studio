@@ -10,11 +10,15 @@
 
 .canvas-wrapper {
   position: relative;
-  box-shadow: 0 14px 40px rgba(2,6,23,0.6), 0 6px 20px rgba(0,0,0,0.4);
+  box-shadow: 0 14px 40px rgba(2, 6, 23, 0.6), 0 6px 20px rgba(0, 0, 0, 0.4);
   border-radius: 12px;
   overflow: hidden;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
   margin: 0;
+}
+/* Canvas.css */
+.resize-handles .resize-handle {
+  z-index: 5; /* make sure they sit above the content */
 }
 
 .canvas {
@@ -31,11 +35,12 @@
 
 /* Soft vignette and inner shadow for slide surface */
 .canvas::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
-  box-shadow: inset 0 -10px 60px rgba(0,0,0,0.06), inset 0 8px 20px rgba(0,0,0,0.04);
+  box-shadow: inset 0 -10px 60px rgba(0, 0, 0, 0.06),
+    inset 0 8px 20px rgba(0, 0, 0, 0.04);
 }
 
 .context-menu {
@@ -74,7 +79,12 @@
 .context-menu-divider {
   height: 1px;
   margin: 6px 12px;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255,255,255,0.18), rgba(255,255,255,0));
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.18),
+    rgba(255, 255, 255, 0)
+  );
 }
 
 .context-menu-item {
@@ -155,7 +165,7 @@
 }
 
 .crop-overlay-active .canvas::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
@@ -166,7 +176,8 @@
 .canvas-grid {
   position: absolute;
   inset: 0;
-  background-image: linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
   background-size: 24px 24px, 24px 24px;
   opacity: 0.8;
   pointer-events: none;
@@ -181,7 +192,7 @@
 /* Snap hint lines (shown briefly while dragging when snap-to-grid enabled) */
 .snap-line {
   position: absolute;
-  background: rgba(26,115,232,0.85);
+  background: rgba(26, 115, 232, 0.85);
   width: 2px;
   height: 100%;
   z-index: 1200;
@@ -288,8 +299,53 @@
   cursor: se-resize;
 }
 
+.resize-handle.n {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: n-resize;
+}
+
+.resize-handle.s {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: s-resize;
+}
+
+.resize-handle.e {
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  cursor: e-resize;
+}
+
+.resize-handle.w {
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  cursor: w-resize;
+}
+
 .resize-handle:hover {
   background-color: #1557b0;
+  transform: scale(1.2);
+}
+
+.resize-handle.n:hover {
+  transform: translateX(-50%) scale(1.2);
+}
+
+.resize-handle.s:hover {
+  transform: translateX(-50%) scale(1.2);
+}
+
+.resize-handle.e:hover {
+  transform: translateY(-50%) scale(1.2);
+}
+
+.resize-handle.w:hover {
+  transform: translateY(-50%) scale(1.2);
 }
 
 /* Responsive Design */
@@ -298,7 +354,7 @@
     width: 768px; /* Maintain 16:9 aspect ratio for tablets */
     height: 432px; /* Maintain 16:9 aspect ratio for tablets */
   }
-  
+
   .canvas-container {
     padding: 0;
   }
@@ -313,12 +369,12 @@
     width: 640px; /* Maintain 16:9 aspect ratio for smaller screens */
     height: 360px; /* Maintain 16:9 aspect ratio for smaller screens */
   }
-  
+
   .canvas-container {
     padding: 0;
     align-items: flex-start;
   }
-  
+
   .resize-handle {
     width: 12px;
     height: 12px;
@@ -334,11 +390,11 @@
     width: 480px; /* Maintain 16:9 aspect ratio for mobile */
     height: 270px; /* Maintain 16:9 aspect ratio for mobile */
   }
-  
+
   .canvas-container {
     padding: 0;
   }
-  
+
   .canvas-wrapper {
     border-radius: 4px;
     margin: 0;
@@ -521,4 +577,42 @@
   .ruler-corner {
     display: none;
   }
+}
+/* Resize zones overlay */
+.resize-zones {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Edges placed INSIDE the box */
+.rz-edge {
+  position: absolute;
+  pointer-events: auto;
+  background: transparent;
+}
+
+.rz-n { top: 0; left: 0; right: 0; height: 10px; cursor: n-resize; }
+.rz-s { bottom: 0; left: 0; right: 0; height: 10px; cursor: s-resize; }
+.rz-w { top: 0; bottom: 0; left: 0; width: 10px; cursor: w-resize; }
+.rz-e { top: 0; bottom: 0; right: 0; width: 10px; cursor: e-resize; }
+
+/* Corners inside the box too */
+.rz-corner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  pointer-events: auto;
+  background: transparent;
+}
+
+.rz-nw { top: 0; left: 0; cursor: nw-resize; }
+.rz-ne { top: 0; right: 0; cursor: ne-resize; }
+.rz-sw { bottom: 0; left: 0; cursor: sw-resize; }
+.rz-se { bottom: 0; right: 0; cursor: se-resize; }
+
+.rz-edge:hover, .rz-corner:hover {
+  outline: 1px dashed rgba(26,115,232,0.35);
+  outline-offset: -1px;
 }

@@ -48,7 +48,7 @@ const Canvas = ({
   const [isEditingText, setIsEditingText] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const editorRefs = useRef(new Map());
-
+  const ENABLE_PEER_GUIDES = false;
   const activeSlide = slide || { background: "#ffffff", elements: [] };
   const elements = Array.isArray(activeSlide.elements)
     ? activeSlide.elements
@@ -452,20 +452,15 @@ const Canvas = ({
         );
 
         // position snapping to grid (optional)
+        // optional grid snap (hold Shift to disable)
         const snap = (v) => Math.round(v / gridSize) * gridSize;
         if (snapToGrid && !isShiftDown) {
-          newX = Math.max(
-            0,
-            Math.min(canvasWidth - selectedElement.width, snap(newX))
-          );
-          newY = Math.max(
-            0,
-            Math.min(canvasHeight - selectedElement.height, snap(newY))
-          );
+          newX = snap(newX);
+          newY = snap(newY);
         }
 
-        // position smart guides (to peers)
-        if (!isShiftDown) {
+        // (DISABLED) smart guides to peers unless you re-enable the flag
+        if (ENABLE_PEER_GUIDES && !isShiftDown) {
           const snapped = snapToPeers(selectedElement, { x: newX, y: newY });
           newX = snapped.x;
           newY = snapped.y;
@@ -474,7 +469,16 @@ const Canvas = ({
           setGuides({ v: null, h: null });
         }
 
-        onUpdateElement(selectedElement.id, { x: newX, y: newY });
+        // FINAL: clamp to slide so it never goes outside
+        const clamped = clampMove(
+          newX,
+          newY,
+          selectedElement.width,
+          selectedElement.height
+        );
+        onUpdateElement(selectedElement.id, { x: clamped.x, y: clamped.y });
+
+        // keep the “relative drag” feeling
         setDragStart({ x: currentX, y: currentY });
       }
 
@@ -628,8 +632,14 @@ const Canvas = ({
             break;
         }
 
-        // important: NO size snapping here — just clamp to min/max
-        onUpdateElement(selectedElement.id, updates);
+        const rect = clampResize({
+          x: updates.x ?? selectedElement.x,
+          y: updates.y ?? selectedElement.y,
+          width: updates.width ?? selectedElement.width,
+          height: updates.height ?? selectedElement.height,
+        });
+        onUpdateElement(selectedElement.id, rect);
+
         setDragStart({ x: currentX, y: currentY });
       }
     },
@@ -916,6 +926,33 @@ const Canvas = ({
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, [contextMenu.show]);
+  const clampMove = (x, y, w, h) => {
+    const maxX = CANVAS_WIDTH - w;
+    const maxY = CANVAS_HEIGHT - h;
+    return {
+      x: Math.max(0, Math.min(maxX, x)),
+      y: Math.max(0, Math.min(maxY, y)),
+    };
+  };
+
+  const clampResize = (rect) => {
+    // rect = { x, y, width, height }
+    const minW = MIN_ELEMENT_WIDTH;
+    const minH = MIN_ELEMENT_HEIGHT;
+
+    let x = rect.x;
+    let y = rect.y;
+    let w = Math.max(minW, rect.width);
+    let h = Math.max(minH, rect.height);
+
+    // keep fully inside slide
+    if (x < 0) x = 0;
+    if (y < 0) y = 0;
+    if (x + w > CANVAS_WIDTH) w = CANVAS_WIDTH - x;
+    if (y + h > CANVAS_HEIGHT) h = CANVAS_HEIGHT - y;
+
+    return { x, y, width: w, height: h };
+  };
 
   const renderChart = (element) => {
     const { chartType, data = [], color } = element;
@@ -1706,43 +1743,43 @@ const Canvas = ({
             >
               {shapeSvg}
             </div>
+            {isSelected && !isEditingText && (
+              <div className="resize-zones" aria-hidden>
+                <div
+                  className="rz-edge rz-n"
+                  onMouseDown={(e) => handleMouseDown(e, element, "n")}
+                />
+                <div
+                  className="rz-edge rz-s"
+                  onMouseDown={(e) => handleMouseDown(e, element, "s")}
+                />
+                <div
+                  className="rz-edge rz-e"
+                  onMouseDown={(e) => handleMouseDown(e, element, "e")}
+                />
+                <div
+                  className="rz-edge rz-w"
+                  onMouseDown={(e) => handleMouseDown(e, element, "w")}
+                />
+                <div
+                  className="rz-corner rz-nw"
+                  onMouseDown={(e) => handleMouseDown(e, element, "nw")}
+                />
+                <div
+                  className="rz-corner rz-ne"
+                  onMouseDown={(e) => handleMouseDown(e, element, "ne")}
+                />
+                <div
+                  className="rz-corner rz-sw"
+                  onMouseDown={(e) => handleMouseDown(e, element, "sw")}
+                />
+                <div
+                  className="rz-corner rz-se"
+                  onMouseDown={(e) => handleMouseDown(e, element, "se")}
+                />
+              </div>
+            )}
           </div>
-          {isSelected && (
-            <div className="resize-handles">
-              <div
-                className="resize-handle nw"
-                onMouseDown={(e) => handleMouseDown(e, element, "nw")}
-              />
-              <div
-                className="resize-handle n"
-                onMouseDown={(e) => handleMouseDown(e, element, "n")}
-              />
-              <div
-                className="resize-handle ne"
-                onMouseDown={(e) => handleMouseDown(e, element, "ne")}
-              />
-              <div
-                className="resize-handle w"
-                onMouseDown={(e) => handleMouseDown(e, element, "w")}
-              />
-              <div
-                className="resize-handle e"
-                onMouseDown={(e) => handleMouseDown(e, element, "e")}
-              />
-              <div
-                className="resize-handle sw"
-                onMouseDown={(e) => handleMouseDown(e, element, "sw")}
-              />
-              <div
-                className="resize-handle s"
-                onMouseDown={(e) => handleMouseDown(e, element, "s")}
-              />
-              <div
-                className="resize-handle se"
-                onMouseDown={(e) => handleMouseDown(e, element, "se")}
-              />
-            </div>
-          )}
         </div>
       );
     }
@@ -1755,56 +1792,65 @@ const Canvas = ({
             isDragging && isSelected ? "dragging" : ""
           }`}
         >
-          <img
-            src={element.src}
-            alt=""
+          <div
             style={{
               ...elementStyle,
-              objectFit: "cover",
               border: isSelected
                 ? "2px solid #1a73e8"
                 : "2px solid transparent",
+              cursor: isDragging ? "grabbing" : isSelected ? "move" : "pointer",
             }}
             onClick={(e) => handleElementClick(e, element)}
             onMouseDown={(e) => handleMouseDown(e, element)}
-            draggable={false}
-          />
-          {isSelected && (
-            <div className="resize-handles">
-              <div
-                className="resize-handle nw"
-                onMouseDown={(e) => handleMouseDown(e, element, "nw")}
-              />
-              <div
-                className="resize-handle n"
-                onMouseDown={(e) => handleMouseDown(e, element, "n")}
-              />
-              <div
-                className="resize-handle ne"
-                onMouseDown={(e) => handleMouseDown(e, element, "ne")}
-              />
-              <div
-                className="resize-handle w"
-                onMouseDown={(e) => handleMouseDown(e, element, "w")}
-              />
-              <div
-                className="resize-handle e"
-                onMouseDown={(e) => handleMouseDown(e, element, "e")}
-              />
-              <div
-                className="resize-handle sw"
-                onMouseDown={(e) => handleMouseDown(e, element, "sw")}
-              />
-              <div
-                className="resize-handle s"
-                onMouseDown={(e) => handleMouseDown(e, element, "s")}
-              />
-              <div
-                className="resize-handle se"
-                onMouseDown={(e) => handleMouseDown(e, element, "se")}
-              />
-            </div>
-          )}
+          >
+            <img
+              src={element.src}
+              alt=""
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                pointerEvents: "none",
+              }}
+              draggable={false}
+            />
+            {isSelected && !isEditingText && (
+              <div className="resize-zones" aria-hidden>
+                <div
+                  className="rz-edge rz-n"
+                  onMouseDown={(e) => handleMouseDown(e, element, "n")}
+                />
+                <div
+                  className="rz-edge rz-s"
+                  onMouseDown={(e) => handleMouseDown(e, element, "s")}
+                />
+                <div
+                  className="rz-edge rz-e"
+                  onMouseDown={(e) => handleMouseDown(e, element, "e")}
+                />
+                <div
+                  className="rz-edge rz-w"
+                  onMouseDown={(e) => handleMouseDown(e, element, "w")}
+                />
+                <div
+                  className="rz-corner rz-nw"
+                  onMouseDown={(e) => handleMouseDown(e, element, "nw")}
+                />
+                <div
+                  className="rz-corner rz-ne"
+                  onMouseDown={(e) => handleMouseDown(e, element, "ne")}
+                />
+                <div
+                  className="rz-corner rz-sw"
+                  onMouseDown={(e) => handleMouseDown(e, element, "sw")}
+                />
+                <div
+                  className="rz-corner rz-se"
+                  onMouseDown={(e) => handleMouseDown(e, element, "se")}
+                />
+              </div>
+            )}
+          </div>
         </div>
       );
     }
@@ -1837,43 +1883,43 @@ const Canvas = ({
             onMouseDown={(e) => handleMouseDown(e, element)}
           >
             {renderChart(element)}
+            {isSelected && !isEditingText && (
+              <div className="resize-zones" aria-hidden>
+                <div
+                  className="rz-edge rz-n"
+                  onMouseDown={(e) => handleMouseDown(e, element, "n")}
+                />
+                <div
+                  className="rz-edge rz-s"
+                  onMouseDown={(e) => handleMouseDown(e, element, "s")}
+                />
+                <div
+                  className="rz-edge rz-e"
+                  onMouseDown={(e) => handleMouseDown(e, element, "e")}
+                />
+                <div
+                  className="rz-edge rz-w"
+                  onMouseDown={(e) => handleMouseDown(e, element, "w")}
+                />
+                <div
+                  className="rz-corner rz-nw"
+                  onMouseDown={(e) => handleMouseDown(e, element, "nw")}
+                />
+                <div
+                  className="rz-corner rz-ne"
+                  onMouseDown={(e) => handleMouseDown(e, element, "ne")}
+                />
+                <div
+                  className="rz-corner rz-sw"
+                  onMouseDown={(e) => handleMouseDown(e, element, "sw")}
+                />
+                <div
+                  className="rz-corner rz-se"
+                  onMouseDown={(e) => handleMouseDown(e, element, "se")}
+                />
+              </div>
+            )}
           </div>
-          {isSelected && (
-            <div className="resize-handles">
-              <div
-                className="resize-handle nw"
-                onMouseDown={(e) => handleMouseDown(e, element, "nw")}
-              />
-              <div
-                className="resize-handle n"
-                onMouseDown={(e) => handleMouseDown(e, element, "n")}
-              />
-              <div
-                className="resize-handle ne"
-                onMouseDown={(e) => handleMouseDown(e, element, "ne")}
-              />
-              <div
-                className="resize-handle w"
-                onMouseDown={(e) => handleMouseDown(e, element, "w")}
-              />
-              <div
-                className="resize-handle e"
-                onMouseDown={(e) => handleMouseDown(e, element, "e")}
-              />
-              <div
-                className="resize-handle sw"
-                onMouseDown={(e) => handleMouseDown(e, element, "sw")}
-              />
-              <div
-                className="resize-handle s"
-                onMouseDown={(e) => handleMouseDown(e, element, "s")}
-              />
-              <div
-                className="resize-handle se"
-                onMouseDown={(e) => handleMouseDown(e, element, "se")}
-              />
-            </div>
-          )}
         </div>
       );
     }
@@ -1886,57 +1932,67 @@ const Canvas = ({
             isDragging && isSelected ? "dragging" : ""
           }`}
         >
-          <video
-            src={element.src}
-            controls
+          <div
             style={{
               ...elementStyle,
-              objectFit: "cover",
               border: isSelected
                 ? "2px solid #1a73e8"
                 : "2px solid transparent",
               borderRadius: "4px",
               backgroundColor: "#000",
+              cursor: isDragging ? "grabbing" : isSelected ? "move" : "pointer",
             }}
             onClick={(e) => handleElementClick(e, element)}
             onMouseDown={(e) => handleMouseDown(e, element)}
-          />
-          {isSelected && (
-            <div className="resize-handles">
-              <div
-                className="resize-handle nw"
-                onMouseDown={(e) => handleMouseDown(e, element, "nw")}
-              />
-              <div
-                className="resize-handle n"
-                onMouseDown={(e) => handleMouseDown(e, element, "n")}
-              />
-              <div
-                className="resize-handle ne"
-                onMouseDown={(e) => handleMouseDown(e, element, "ne")}
-              />
-              <div
-                className="resize-handle w"
-                onMouseDown={(e) => handleMouseDown(e, element, "w")}
-              />
-              <div
-                className="resize-handle e"
-                onMouseDown={(e) => handleMouseDown(e, element, "e")}
-              />
-              <div
-                className="resize-handle sw"
-                onMouseDown={(e) => handleMouseDown(e, element, "sw")}
-              />
-              <div
-                className="resize-handle s"
-                onMouseDown={(e) => handleMouseDown(e, element, "s")}
-              />
-              <div
-                className="resize-handle se"
-                onMouseDown={(e) => handleMouseDown(e, element, "se")}
-              />
-            </div>
-          )}
+          >
+            <video
+              src={element.src}
+              controls
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                pointerEvents: "none",
+                borderRadius: "4px",
+              }}
+            />
+            {isSelected && !isEditingText && (
+              <div className="resize-zones" aria-hidden>
+                <div
+                  className="rz-edge rz-n"
+                  onMouseDown={(e) => handleMouseDown(e, element, "n")}
+                />
+                <div
+                  className="rz-edge rz-s"
+                  onMouseDown={(e) => handleMouseDown(e, element, "s")}
+                />
+                <div
+                  className="rz-edge rz-e"
+                  onMouseDown={(e) => handleMouseDown(e, element, "e")}
+                />
+                <div
+                  className="rz-edge rz-w"
+                  onMouseDown={(e) => handleMouseDown(e, element, "w")}
+                />
+                <div
+                  className="rz-corner rz-nw"
+                  onMouseDown={(e) => handleMouseDown(e, element, "nw")}
+                />
+                <div
+                  className="rz-corner rz-ne"
+                  onMouseDown={(e) => handleMouseDown(e, element, "ne")}
+                />
+                <div
+                  className="rz-corner rz-sw"
+                  onMouseDown={(e) => handleMouseDown(e, element, "sw")}
+                />
+                <div
+                  className="rz-corner rz-se"
+                  onMouseDown={(e) => handleMouseDown(e, element, "se")}
+                />
+              </div>
+            )}
+          </div>
         </div>
       );
     }

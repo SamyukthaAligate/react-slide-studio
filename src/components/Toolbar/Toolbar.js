@@ -56,8 +56,6 @@ const Toolbar = ({
   const setActiveTab = setToolbarActiveTab;
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showBackgroundPicker, setShowBackgroundPicker] = useState(false);
-  const [showTextColorPicker, setShowTextColorPicker] = useState(false);
-  const [showTextBgPicker, setShowTextBgPicker] = useState(false);
   const [bulletColor, setBulletColor] = useState("#000000");
   const [gridOn, setGridOn] = useState(false);
   const [gridSize, setGridSize] = useState(24);
@@ -970,795 +968,301 @@ const Toolbar = ({
         {activeTab === "format" && (
           <div className="format-tools">
             {selectedElement ? (
-              <div className="format-controls">
-                {selectedElement.type === "text" && (
-                  <>
-                    <div className="control-group">
-                      <label>Font Family:</label>
-                      <select
-                        value={selectedElement.fontFamily || "Roboto"}
-                        onChange={(e) =>
-                          updateSelectedElement("fontFamily", e.target.value)
-                        }
-                        className="font-family-select"
-                      >
-                        {fontFamilies.map((font) => (
-                          <option
-                            key={font}
-                            value={font}
-                            style={{ fontFamily: font }}
-                          >
-                            {font}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="control-group">
-                      <label>Font Size:</label>
-                      <div className="font-size-controls">
-                        <button
-                          className="size-btn"
-                          onClick={decreaseFontSize}
-                          title="Decrease font size"
-                        >
-                          <i className="fas fa-minus"></i>
-                        </button>
-                        <select
-                          value={selectedElement.fontSize || 16}
-                          onChange={(e) =>
-                            updateSelectedElement(
-                              "fontSize",
-                              parseInt(e.target.value)
-                            )
-                          }
-                          className="font-size-select"
-                        >
-                          {fontSizes.map((size) => (
-                            <option key={size} value={size}>
-                              {size}
-                            </option>
-                          ))}
-                        </select>
-                        <button
-                          className="size-btn"
-                          onClick={increaseFontSize}
-                          title="Increase font size"
-                        >
-                          <i className="fas fa-plus"></i>
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="control-group">
-                      <label>Text Color:</label>
-                      <div className="color-picker-container">
-                        <button
-                          className="color-preview-btn"
-                          style={{
-                            backgroundColor: selectedElement.color || "#000000",
-                          }}
-                          onClick={() => {
-                            setShowTextColorPicker(!showTextColorPicker);
-                            setShowTextBgPicker(false);
-                            setActiveDropdown(null);
-                          }}
-                        />
-                        {showTextColorPicker && (
-                          <div className="color-palette">
-                            {textColors.map((color) => (
-                              <button
-                                key={color}
-                                className="color-option"
-                                style={{ backgroundColor: color }}
-                                onClick={() => {
-                                  updateSelectedElement("color", color);
-                                  setShowTextColorPicker(false);
-                                }}
-                              />
-                            ))}
-                            <input
-                              type="color"
-                              value={selectedElement.color || "#000000"}
-                              onChange={(e) =>
-                                updateSelectedElement("color", e.target.value)
-                              }
-                              className="custom-color-input"
-                              title="Custom color"
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="control-group">
-                      <label>Style:</label>
-                      <div className="text-style-controls">
-                        <button
-                          className={`format-btn ${
-                            selectedElement.fontWeight === "bold"
-                              ? "active"
-                              : ""
-                          }`}
-                          onClick={() =>
-                            updateSelectedElement(
-                              "fontWeight",
-                              selectedElement.fontWeight === "bold"
-                                ? "normal"
-                                : "bold"
-                            )
-                          }
-                          title="Bold"
-                        >
-                          <i className="fas fa-bold"></i>
-                        </button>
-                        <button
-                          className={`format-btn ${
-                            selectedElement.fontStyle === "italic"
-                              ? "active"
-                              : ""
-                          }`}
-                          onClick={() =>
-                            updateSelectedElement(
-                              "fontStyle",
-                              selectedElement.fontStyle === "italic"
-                                ? "normal"
-                                : "italic"
-                            )
-                          }
-                          title="Italic"
-                        >
-                          <i className="fas fa-italic"></i>
-                        </button>
-                        <button
-                          className={`format-btn ${
-                            selectedElement.textDecoration === "underline"
-                              ? "active"
-                              : ""
-                          }`}
-                          onClick={() =>
-                            updateSelectedElement(
-                              "textDecoration",
-                              selectedElement.textDecoration === "underline"
-                                ? "none"
-                                : "underline"
-                            )
-                          }
-                          title="Underline"
-                        >
-                          <i className="fas fa-underline"></i>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* duplicate Text Color removed; single color picker exists above */}
-
-                    <div className="control-group">
-                      <label>Text Background:</label>
-                      <div className="color-picker-container">
-                        <button
-                          className="color-preview-btn"
-                          style={{
-                            backgroundColor:
-                              selectedElement.backgroundColor === "transparent"
-                                ? "#ffffff"
-                                : selectedElement.backgroundColor ||
-                                  "transparent",
-                          }}
-                          onClick={() => {
-                            setShowTextBgPicker(!showTextBgPicker);
-                            setShowTextColorPicker(false);
-                            setActiveDropdown(null);
-                          }}
-                        />
-                        {showTextBgPicker && (
-                          <div className="color-palette">
-                            <button
-                              className="color-option transparent"
-                              onClick={() => {
-                                updateSelectedElement(
-                                  "backgroundColor",
-                                  "transparent"
-                                );
-                                setShowTextBgPicker(false);
-                              }}
-                              title="Transparent"
-                            >
-                              <i className="fas fa-ban"></i>
-                            </button>
-                            {textColors.map((color) => (
-                              <button
-                                key={color}
-                                className="color-option"
-                                style={{ backgroundColor: color }}
-                                onClick={() => {
-                                  updateSelectedElement(
-                                    "backgroundColor",
-                                    color
-                                  );
-                                  setShowTextBgPicker(false);
-                                }}
-                              />
-                            ))}
-                            <input
-                              type="color"
-                              value={
-                                selectedElement.backgroundColor ===
-                                "transparent"
-                                  ? "#ffffff"
-                                  : selectedElement.backgroundColor || "#ffffff"
-                              }
-                              onChange={(e) =>
-                                updateSelectedElement(
-                                  "backgroundColor",
-                                  e.target.value
-                                )
-                              }
-                              className="custom-color-input"
-                              title="Custom color"
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="control-group">
-                      <label>Size:</label>
-                      <div className="size-controls">
-                        <button
-                          className="format-btn"
-                          onClick={() => {
-                            const newWidth =
-                              (selectedElement.width || 200) * 1.1;
-                            const newHeight =
-                              (selectedElement.height || 50) * 1.1;
-                            onUpdateElement(selectedElement.id, {
-                              width: newWidth,
-                              height: newHeight,
-                            });
-                          }}
-                          title="Increase size"
-                        >
-                          <i className="fas fa-search-plus"></i>
-                        </button>
-                        <button
-                          className="format-btn"
-                          onClick={() => {
-                            const newWidth =
-                              (selectedElement.width || 200) * 0.9;
-                            const newHeight =
-                              (selectedElement.height || 50) * 0.9;
-                            onUpdateElement(selectedElement.id, {
-                              width: newWidth,
-                              height: newHeight,
-                            });
-                          }}
-                          title="Decrease size"
-                        >
-                          <i className="fas fa-search-minus"></i>
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="control-group">
-                      <label>Alignment:</label>
-                      <div className="alignment-controls">
-                        <button
-                          className={`format-btn ${
-                            selectedElement.textAlign === "left" ? "active" : ""
-                          }`}
-                          onClick={() =>
-                            updateSelectedElement("textAlign", "left")
-                          }
-                          title="Align left"
-                        >
-                          <i className="fas fa-align-left"></i>
-                        </button>
-                        <button
-                          className={`format-btn ${
-                            selectedElement.textAlign === "center"
-                              ? "active"
-                              : ""
-                          }`}
-                          onClick={() =>
-                            updateSelectedElement("textAlign", "center")
-                          }
-                          title="Align center"
-                        >
-                          <i className="fas fa-align-center"></i>
-                        </button>
-                        <button
-                          className={`format-btn ${
-                            selectedElement.textAlign === "right"
-                              ? "active"
-                              : ""
-                          }`}
-                          onClick={() =>
-                            updateSelectedElement("textAlign", "right")
-                          }
-                          title="Align right"
-                        >
-                          <i className="fas fa-align-right"></i>
-                        </button>
-                        <button
-                          className={`format-btn ${
-                            selectedElement.textAlign === "justify"
-                              ? "active"
-                              : ""
-                          }`}
-                          onClick={() =>
-                            updateSelectedElement("textAlign", "justify")
-                          }
-                          title="Justify"
-                        >
-                          <i className="fas fa-align-justify"></i>
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {selectedElement.type === "shape" && (
-                  <>
-                    <div className="control-group column">
-                      <label>Fill</label>
-                      <div className="swatch-grid">
-                        {SHAPE_PALETTE.map((color) => (
-                          <button
-                            key={`fill-${color}`}
-                            className={`swatch ${
-                              selectedElement.fill === color ? "selected" : ""
-                            }`}
-                            style={{ backgroundColor: color }}
-                            onClick={() =>
-                              updateShapeProperties({ fill: color })
-                            }
-                            aria-label={`Set fill ${color}`}
-                          />
-                        ))}
-                      </div>
-                      <input
-                        type="color"
-                        value={selectedElement.fill || "#2f2f2f"}
-                        onChange={(e) =>
-                          updateShapeProperties({ fill: e.target.value })
-                        }
-                        className="color-input"
-                      />
-                    </div>
-
-                    <div className="control-group column">
-                      <label>Border</label>
-                      <div className="swatch-grid">
-                        {SHAPE_PALETTE.map((color) => (
-                          <button
-                            key={`stroke-${color}`}
-                            className={`swatch ${
-                              selectedElement.stroke === color ? "selected" : ""
-                            }`}
-                            style={{ backgroundColor: color }}
-                            onClick={() =>
-                              updateShapeProperties({ stroke: color })
-                            }
-                            aria-label={`Set border ${color}`}
-                          />
-                        ))}
-                      </div>
-                      <input
-                        type="color"
-                        value={selectedElement.stroke || "#f5f5f5"}
-                        onChange={(e) =>
-                          updateShapeProperties({ stroke: e.target.value })
-                        }
-                        className="color-input"
-                      />
-                      <div className="slider-row">
-                        <input
-                          type="range"
-                          min="0"
-                          max="16"
-                          step="1"
-                          value={selectedElement.strokeWidth ?? 0}
-                          onChange={(e) =>
-                            updateShapeProperties({
-                              strokeWidth: parseInt(e.target.value, 10) || 0,
-                            })
-                          }
-                          className="slider-input"
-                        />
-                        <span className="slider-value">
-                          {selectedElement.strokeWidth ?? 0}px
-                        </span>
-                      </div>
-                    </div>
-
-                    {selectedElement.shapeType === "rectangle" && (
-                      <div className="control-group column">
-                        <label>Corner radius</label>
-                        <input
-                          type="range"
-                          min="0"
-                          max="60"
-                          value={selectedElement.cornerRadius ?? 0}
-                          onChange={(e) =>
-                            updateShapeProperties({
-                              cornerRadius: parseInt(e.target.value, 10) || 0,
-                            })
-                          }
-                          className="slider-input"
-                        />
-                        <span className="slider-value">
-                          {selectedElement.cornerRadius ?? 0}px
-                        </span>
-                      </div>
-                    )}
-
-                    <div className="control-group column">
-                      <label>Opacity</label>
-                      <input
-                        type="range"
-                        min="0.2"
-                        max="1"
-                        step="0.05"
-                        value={selectedElement.opacity ?? 1}
-                        onChange={(e) =>
-                          updateShapeProperties({
-                            opacity: parseFloat(e.target.value),
-                          })
-                        }
-                        className="slider-input"
-                      />
-                      <span className="slider-value">
-                        {Math.round((selectedElement.opacity ?? 1) * 100)}%
-                      </span>
-                    </div>
-
-                    <div className="control-group">
-                      <button
-                        className={`toggle-chip ${
-                          selectedElement.shadow ? "active" : ""
-                        }`}
-                        onClick={() =>
-                          updateShapeProperties({
-                            shadow: !selectedElement.shadow,
-                          })
-                        }
-                      >
-                        <i className="fas fa-adjust"></i>
-                        Shadow
-                      </button>
-                    </div>
-
-                    {/* <div className="control-group">
-                      <label>Size</label>
-                      <div className="size-controls">
-                        <button
-                          className="format-btn"
-                          onClick={() => {
-                            const newWidth = (selectedElement.width || 120) * 1.1;
-                            const newHeight = (selectedElement.height || 120) * 1.1;
-                            updateShapeProperties({ width: newWidth, height: newHeight });
-                          }}
-                          title="Increase size"
-                        >
-                          <i className="fas fa-search-plus"></i>
-                        </button>
-                        <button
-                          className="format-btn"
-                          onClick={() => {
-                            const newWidth = (selectedElement.width || 120) * 0.9;
-                            const newHeight = (selectedElement.height || 120) * 0.9;
-                            updateShapeProperties({ width: newWidth, height: newHeight });
-                          }}
-                          title="Decrease size"
-                        >
-                          <i className="fas fa-search-minus"></i>
-                        </button>
-                      </div>
-                    </div> */}
-
-                    <div className="control-group">
-                      <label>Dimensions</label>
-                      <div className="dimension-controls">
-                        <div className="dimension-input-group">
-                          <label>W</label>
-                          <input
-                            type="number"
-                            value={Math.round(selectedElement.width || 160)}
-                            onChange={(e) =>
-                              updateShapeProperties({
-                                width: parseInt(e.target.value, 10) || 60,
-                              })
-                            }
-                            className="dimension-input"
-                            min="40"
-                            max="800"
-                          />
-                        </div>
-                        <div className="dimension-input-group">
-                          <label>H</label>
-                          <input
-                            type="number"
-                            value={Math.round(selectedElement.height || 160)}
-                            onChange={(e) =>
-                              updateShapeProperties({
-                                height: parseInt(e.target.value, 10) || 40,
-                              })
-                            }
-                            className="dimension-input"
-                            min="40"
-                            max="600"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {selectedElement.type === "chart" && (
-                  <>
-                    <div className="control-group">
-                      <label>Chart type</label>
-                      <select
-                        value={selectedElement.chartType || "bar"}
-                        onChange={(e) =>
-                          updateChartProperties({ chartType: e.target.value })
-                        }
-                        className="font-family-select"
-                      >
-                        <option value="bar">Bar</option>
-                        <option value="line">Line</option>
-                        <option value="pie">Pie</option>
-                      </select>
-                    </div>
-
-                    <div className="control-group column">
-                      <label>Palette</label>
-                      <div className="swatch-grid">
-                        {CHART_PALETTE.map((color) => (
-                          <button
-                            key={`chart-palette-${color}`}
-                            className={`swatch ${
-                              selectedElement.color === color ? "selected" : ""
-                            }`}
-                            style={{ backgroundColor: color }}
-                            onClick={() => updateChartProperties({ color })}
-                            aria-label={`Set chart color ${color}`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="chart-data-editor">
-                      {(selectedElement.data || []).map((row, index) => (
-                        <div
-                          key={`chart-row-${index}`}
-                          className="chart-data-row"
-                        >
-                          <span className="row-index">{index + 1}</span>
-                          <input
-                            className="minimal-input"
-                            value={row.label || ""}
-                            onChange={(e) =>
-                              updateChartDataPoint(
-                                index,
-                                "label",
-                                e.target.value
-                              )
-                            }
-                            placeholder="Label"
-                          />
-                          <input
-                            className="minimal-input value"
-                            type="number"
-                            value={row.value ?? 0}
-                            onChange={(e) =>
-                              updateChartDataPoint(
-                                index,
-                                "value",
-                                Number(e.target.value)
-                              )
-                            }
-                          />
-                          <input
-                            type="color"
-                            className="color-input"
-                            value={
-                              row.color || selectedElement.color || "#4F46E5"
-                            }
-                            onChange={(e) =>
-                              updateChartDataPoint(
-                                index,
-                                "color",
-                                e.target.value
-                              )
-                            }
-                          />
-                          <button
-                            className="icon-button"
-                            onClick={() => removeChartDataPoint(index)}
-                            disabled={(selectedElement.data || []).length <= 1}
-                            title="Remove row"
-                          >
-                            <i className="fas fa-minus-circle"></i>
-                          </button>
-                        </div>
-                      ))}
-                      <button
-                        className="ghost-button"
-                        onClick={addChartDataPoint}
-                      >
-                        <i className="fas fa-plus"></i>
-                        Add data row
-                      </button>
-                    </div>
-
-                    <div className="control-group">
-                      <label>Size</label>
-                      <div className="size-controls">
-                        <button
-                          className="format-btn"
-                          onClick={() => {
-                            const newWidth =
-                              (selectedElement.width || 360) * 1.1;
-                            const newHeight =
-                              (selectedElement.height || 260) * 1.1;
-                            updateChartProperties({
-                              width: newWidth,
-                              height: newHeight,
-                            });
-                          }}
-                          title="Increase size"
-                        >
-                          <i className="fas fa-search-plus"></i>
-                        </button>
-                        <button
-                          className="format-btn"
-                          onClick={() => {
-                            const newWidth =
-                              (selectedElement.width || 360) * 0.9;
-                            const newHeight =
-                              (selectedElement.height || 260) * 0.9;
-                            updateChartProperties({
-                              width: newWidth,
-                              height: newHeight,
-                            });
-                          }}
-                          title="Decrease size"
-                        >
-                          <i className="fas fa-search-minus"></i>
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="control-group">
-                      <label>Dimensions</label>
-                      <div className="dimension-controls">
-                        <div className="dimension-input-group">
-                          <label>W</label>
-                          <input
-                            type="number"
-                            value={Math.round(selectedElement.width || 420)}
-                            onChange={(e) =>
-                              updateChartProperties({
-                                width: parseInt(e.target.value, 10) || 120,
-                              })
-                            }
-                            className="dimension-input"
-                            min="120"
-                            max="900"
-                          />
-                        </div>
-                        <div className="dimension-input-group">
-                          <label>H</label>
-                          <input
-                            type="number"
-                            value={Math.round(selectedElement.height || 280)}
-                            onChange={(e) =>
-                              updateChartProperties({
-                                height: parseInt(e.target.value, 10) || 120,
-                              })
-                            }
-                            className="dimension-input"
-                            min="120"
-                            max="700"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {(selectedElement.type === "image" ||
-                  selectedElement.type === "video") && (
-                  <>
-                    <div className="control-group">
-                      <label>Size</label>
-                      <div className="size-controls">
-                        <button
-                          className="format-btn"
-                          onClick={() => {
-                            const newWidth =
-                              (selectedElement.width || 200) * 1.1;
-                            const newHeight =
-                              (selectedElement.height || 150) * 1.1;
-                            onUpdateElement(selectedElement.id, {
-                              width: newWidth,
-                              height: newHeight,
-                            });
-                          }}
-                          title="Increase size"
-                        >
-                          <i className="fas fa-search-plus"></i>
-                        </button>
-                        <button
-                          className="format-btn"
-                          onClick={() => {
-                            const newWidth =
-                              (selectedElement.width || 200) * 0.9;
-                            const newHeight =
-                              (selectedElement.height || 150) * 0.9;
-                            onUpdateElement(selectedElement.id, {
-                              width: newWidth,
-                              height: newHeight,
-                            });
-                          }}
-                          title="Decrease size"
-                        >
-                          <i className="fas fa-search-minus"></i>
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="control-group">
-                      <label>Dimensions</label>
-                      <div className="dimension-controls">
-                        <div className="dimension-input-group">
-                          <label>W</label>
-                          <input
-                            type="number"
-                            value={Math.round(selectedElement.width || 200)}
-                            onChange={(e) =>
-                              updateSelectedElement(
-                                "width",
-                                parseInt(e.target.value, 10) || 50
-                              )
-                            }
-                            className="dimension-input"
-                            min="50"
-                            max="800"
-                          />
-                        </div>
-                        <div className="dimension-input-group">
-                          <label>H</label>
-                          <input
-                            type="number"
-                            value={Math.round(selectedElement.height || 150)}
-                            onChange={(e) =>
-                              updateSelectedElement(
-                                "height",
-                                parseInt(e.target.value, 10) || 30
-                              )
-                            }
-                            className="dimension-input"
-                            min="30"
-                            max="600"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                <div className="control-group">
+              <div className="tool-group">
+                <div
+                  className={`tool-dropdown ${
+                    activeDropdown === "fontFamily" ? "open" : ""
+                  }`}
+                >
                   <button
-                    className="delete-btn"
-                    onClick={deleteSelectedElement}
+                    className="tool-btn dropdown-toggle"
+                    title="Select font family"
+                    onClick={() => toggleDropdown("fontFamily")}
                   >
-                    <i className="fas fa-trash"></i>
-                    Delete Element
+                    <i className="fas fa-font"></i>
+                    <span>{selectedElement.fontFamily || "Roboto"}</span>
                   </button>
+                  <div className="dropdown-content">
+                    {fontFamilies.map((font) => (
+                      <button
+                        key={font}
+                        className={`dropdown-item ${
+                          selectedElement.fontFamily === font ? "active" : ""
+                        }`}
+                        onClick={() => {
+                          updateSelectedElement("fontFamily", font);
+                          setActiveDropdown(null);
+                        }}
+                        style={{ fontFamily: font }}
+                      >
+                        {font}
+                      </button>
+                    ))}
+                  </div>
                 </div>
+
+                <div
+                  className={`tool-dropdown ${
+                    activeDropdown === "fontSize" ? "open" : ""
+                  }`}
+                >
+                  <button
+                    className="tool-btn dropdown-toggle"
+                    title="Select font size"
+                    onClick={() => toggleDropdown("fontSize")}
+                  >
+                    <i className="fas fa-text-height"></i>
+                    <span>{selectedElement.fontSize || 16}px</span>
+                  </button>
+                  <div className="dropdown-content">
+                    {fontSizes.map((size) => (
+                      <button
+                        key={size}
+                        className={`dropdown-item ${
+                          selectedElement.fontSize === size ? "active" : ""
+                        }`}
+                        onClick={() => {
+                          updateSelectedElement("fontSize", size);
+                          setActiveDropdown(null);
+                        }}
+                      >
+                        {size}px
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div
+                  className={`tool-dropdown ${
+                    activeDropdown === "style" ? "open" : ""
+                  }`}
+                >
+                  <button
+                    className="tool-btn dropdown-toggle"
+                    title="Select text style"
+                    onClick={() => toggleDropdown("style")}
+                  >
+                    <i className="fas fa-magic"></i>
+                    <span>
+                      {(() => {
+                        const weight =
+                          selectedElement.fontWeight === "bold"
+                            ? "Bold"
+                            : "Normal";
+                        const style =
+                          selectedElement.fontStyle === "italic"
+                            ? " Italic"
+                            : "";
+                        const deco =
+                          selectedElement.textDecoration === "underline"
+                            ? " Underline"
+                            : "";
+                        return weight + style + deco || "Normal";
+                      })()}
+                    </span>
+                  </button>
+                  <div className="dropdown-content">
+                    <button
+                      className={`dropdown-item ${
+                        !selectedElement.fontWeight &&
+                        !selectedElement.fontStyle &&
+                        !selectedElement.textDecoration
+                          ? "active"
+                          : ""
+                      }`}
+                      onClick={() => {
+                        updateSelectedElement("fontWeight", "normal");
+                        updateSelectedElement("fontStyle", "normal");
+                        updateSelectedElement("textDecoration", "none");
+                        setActiveDropdown(null);
+                      }}
+                    >
+                      Normal
+                    </button>
+                    <button
+                      className={`dropdown-item ${
+                        selectedElement.fontWeight === "bold" &&
+                        !selectedElement.fontStyle &&
+                        !selectedElement.textDecoration
+                          ? "active"
+                          : ""
+                      }`}
+                      onClick={() => {
+                        updateSelectedElement("fontWeight", "bold");
+                        updateSelectedElement("fontStyle", "normal");
+                        updateSelectedElement("textDecoration", "none");
+                        setActiveDropdown(null);
+                      }}
+                    >
+                      Bold
+                    </button>
+                    <button
+                      className={`dropdown-item ${
+                        selectedElement.fontStyle === "italic" &&
+                        !selectedElement.fontWeight &&
+                        !selectedElement.textDecoration
+                          ? "active"
+                          : ""
+                      }`}
+                      onClick={() => {
+                        updateSelectedElement("fontWeight", "normal");
+                        updateSelectedElement("fontStyle", "italic");
+                        updateSelectedElement("textDecoration", "none");
+                        setActiveDropdown(null);
+                      }}
+                    >
+                      Italic
+                    </button>
+                    <button
+                      className={`dropdown-item ${
+                        selectedElement.fontWeight === "bold" &&
+                        selectedElement.fontStyle === "italic" &&
+                        !selectedElement.textDecoration
+                          ? "active"
+                          : ""
+                      }`}
+                      onClick={() => {
+                        updateSelectedElement("fontWeight", "bold");
+                        updateSelectedElement("fontStyle", "italic");
+                        updateSelectedElement("textDecoration", "none");
+                        setActiveDropdown(null);
+                      }}
+                    >
+                      Bold Italic
+                    </button>
+                    <button
+                      className={`dropdown-item ${
+                        selectedElement.textDecoration === "underline" &&
+                        !selectedElement.fontWeight &&
+                        !selectedElement.fontStyle
+                          ? "active"
+                          : ""
+                      }`}
+                      onClick={() => {
+                        updateSelectedElement("fontWeight", "normal");
+                        updateSelectedElement("fontStyle", "normal");
+                        updateSelectedElement("textDecoration", "underline");
+                        setActiveDropdown(null);
+                      }}
+                    >
+                      Underline
+                    </button>
+                  </div>
+                </div>
+
+                <div
+                  className={`tool-dropdown ${
+                    activeDropdown === "alignment" ? "open" : ""
+                  }`}
+                >
+                  <button
+                    className="tool-btn dropdown-toggle"
+                    title="Select text alignment"
+                    onClick={() => toggleDropdown("alignment")}
+                  >
+                    <i className="fas fa-align-left"></i>
+                    <span>{selectedElement.textAlign || "Left"}</span>
+                  </button>
+                  <div className="dropdown-content">
+                    <button
+                      className={`dropdown-item ${
+                        selectedElement.textAlign === "left" ? "active" : ""
+                      }`}
+                      onClick={() => {
+                        updateSelectedElement("textAlign", "left");
+                        setActiveDropdown(null);
+                      }}
+                    >
+                      <i className="fas fa-align-left"></i>
+                      Left
+                    </button>
+                    <button
+                      className={`dropdown-item ${
+                        selectedElement.textAlign === "center" ? "active" : ""
+                      }`}
+                      onClick={() => {
+                        updateSelectedElement("textAlign", "center");
+                        setActiveDropdown(null);
+                      }}
+                    >
+                      <i className="fas fa-align-center"></i>
+                      Center
+                    </button>
+                    <button
+                      className={`dropdown-item ${
+                        selectedElement.textAlign === "right" ? "active" : ""
+                      }`}
+                      onClick={() => {
+                        updateSelectedElement("textAlign", "right");
+                        setActiveDropdown(null);
+                      }}
+                    >
+                      <i className="fas fa-align-right"></i>
+                      Right
+                    </button>
+                    <button
+                      className={`dropdown-item ${
+                        selectedElement.textAlign === "justify" ? "active" : ""
+                      }`}
+                      onClick={() => {
+                        updateSelectedElement("textAlign", "justify");
+                        setActiveDropdown(null);
+                      }}
+                    >
+                      <i className="fas fa-align-justify"></i>
+                      Justify
+                    </button>
+                  </div>
+                </div>
+
+                <input
+                  type="color"
+                  value={selectedElement.color || "#000000"}
+                  onChange={(e) =>
+                    updateSelectedElement("color", e.target.value)
+                  }
+                  className="color-input-large"
+                  title="Text Color"
+                />
+
+                <div className="bg-controls">
+                  <input
+                    type="color"
+                    value={
+                      selectedElement.backgroundColor === "transparent"
+                        ? "#ffffff"
+                        : selectedElement.backgroundColor || "#ffffff"
+                    }
+                    onChange={(e) =>
+                      updateSelectedElement("backgroundColor", e.target.value)
+                    }
+                    className="color-input-large"
+                    disabled={selectedElement.backgroundColor === "transparent"}
+                    title="Text Background"
+                  />
+                  <label className="transparent-label">
+                    <input
+                      type="checkbox"
+                      checked={selectedElement.backgroundColor === "transparent"}
+                      onChange={(e) =>
+                        updateSelectedElement(
+                          "backgroundColor",
+                          e.target.checked ? "transparent" : "#ffffff"
+                        )
+                      }
+                    />
+                    Transparent
+                  </label>
+                </div>
+
+                <button
+                  className="tool-btn"
+                  onClick={deleteSelectedElement}
+                  title="Delete element"
+                >
+                  <i className="fas fa-trash"></i>
+                  <span>Delete</span>
+                </button>
               </div>
             ) : (
               <div className="no-selection">
@@ -1771,21 +1275,25 @@ const Toolbar = ({
 
         {activeTab === "design" && (
           <div className="design-tools">
-            <div className="control-group background-picker-group">
-              <label>Background Themes:</label>
-              <button
-                className="background-picker-btn"
-                onClick={() => setShowBackgroundPicker(!showBackgroundPicker)}
+            <div className="tool-group">
+              <div
+                className={`tool-dropdown ${
+                  activeDropdown === "backgroundThemes" ? "open" : ""
+                }`}
               >
-                <i className="fas fa-palette"></i>
-                Choose Theme
-              </button>
-              {showBackgroundPicker && (
-                <div className="background-themes">
+                <button
+                  className="tool-btn dropdown-toggle"
+                  title="Select background theme"
+                  onClick={() => toggleDropdown("backgroundThemes")}
+                >
+                  <i className="fas fa-palette"></i>
+                  <span>Background Themes</span>
+                </button>
+                <div className="dropdown-content">
                   {backgroundThemes.map((theme) => (
                     <button
                       key={theme.name}
-                      className="theme-option"
+                      className="dropdown-item"
                       style={{
                         border:
                           slides[currentSlideIndex]?.theme === theme.name
@@ -1820,12 +1328,10 @@ const Toolbar = ({
                     </button>
                   ))}
                 </div>
-              )}
-            </div>
+              </div>
 
-            <div className="control-group">
-              <label>Custom Background Color:</label>
               <div className="custom-bg-controls">
+                <label>Custom Background Color:</label>
                 <input
                   type="color"
                   value={slides[currentSlideIndex]?.background || "#ffffff"}
@@ -1845,12 +1351,10 @@ const Toolbar = ({
                   {slides[currentSlideIndex]?.background || "#ffffff"}
                 </span>
               </div>
-            </div>
 
-            <div className="control-group">
-              <label>Background Image:</label>
               <div className="bg-image-controls">
-                <label className="upload-bg-btn">
+                <label>Background Image:</label>
+                <label className="upload-bg-btn tool-btn">
                   <i className="fas fa-image"></i>
                   Upload Image
                   <input
@@ -1877,41 +1381,18 @@ const Toolbar = ({
                 </label>
                 {slides[currentSlideIndex]?.backgroundImage && (
                   <button
-                    className="remove-bg-btn"
+                    className="tool-btn"
                     onClick={() => {
                       onUpdateSlide(currentSlideIndex, {
                         backgroundImage: null,
                       });
                     }}
+                    title="Remove background image"
                   >
                     <i className="fas fa-times"></i>
                     Remove
                   </button>
                 )}
-              </div>
-            </div>
-
-            <div className="control-group">
-              <label>Quick Colors:</label>
-              <div className="quick-colors">
-                {textColors.slice(0, 12).map((color) => (
-                  <button
-                    key={color}
-                    className="quick-color-btn"
-                    style={{ backgroundColor: color }}
-                    onClick={() => {
-                      onUpdateSlide(currentSlideIndex, {
-                        background: color,
-                        backgroundGradient: null,
-                        backgroundImage: null,
-                        theme: "custom",
-                        themeAccent: null,
-                        themeAccentSecondary: null,
-                      });
-                    }}
-                    title={color}
-                  />
-                ))}
               </div>
             </div>
           </div>

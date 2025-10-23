@@ -39,19 +39,15 @@
 }
 
 .toolbar-content {
-  padding: 12px 16px;
-  max-height: none;
-  overflow: visible;
+  max-height: 80px;
+  overflow-y: auto;
+  padding: 8px 16px;
 }
 
-.toolbar-content.insert-mode {
-  max-height: none;
-  overflow: visible;
-}
-
+.toolbar-content.insert-mode,
 .toolbar-content.format-mode,
 .toolbar-content.design-mode {
-  max-height: 200px;
+  max-height: 80px;
   overflow-y: auto;
 }
 
@@ -69,22 +65,24 @@
 .tool-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .tool-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 10px;
+  padding: 6px 12px;
   background: rgba(255,255,255,0.03);
   border: 1px solid rgba(255,255,255,0.04);
   border-radius: 6px;
   color: #ffffff; /* white text */
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
   transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
   min-width: 56px;
+  height: 32px;
 }
 
 .tool-btn:hover {
@@ -120,11 +118,10 @@
   position: absolute;
   top: calc(100% + 8px);
   left: 0;
-  background: linear-gradient(160deg, rgba(14, 44, 85, 0.96) 0%, rgba(28, 73, 141, 0.98) 60%, rgba(14, 32, 68, 0.98) 100%);
-  border: 1px solid rgba(56, 141, 232, 0.45);
+  background: rgba(21,21,21,0.95);
   border-radius: 12px;
   min-width: 200px;
-  box-shadow: 0 24px 48px rgba(10, 30, 60, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  box-shadow: 0 24px 48px rgba(10, 30, 60, 0.55);
   padding: 12px;
   z-index: 1000;
   backdrop-filter: blur(18px);
@@ -153,7 +150,7 @@
   border-radius: 10px;
 }
 
-.dropdown-item:hover {
+.dropdown-item.active {
   background: rgba(255, 255, 255, 0.12);
   color: #ffffff;
   transform: translateY(-1px);
@@ -166,7 +163,7 @@
 .format-controls {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
@@ -447,7 +444,31 @@
   text-align: center;
 }
 
-.font-size-select option {
+/* Toolbar Selects */
+.toolbar-select {
+  min-width: 180px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toolbar-select:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.toolbar-select:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.toolbar-select option {
   background-color: #333;
   color: white;
 }
@@ -834,73 +855,75 @@
 }
 
 /* Design Tab Styles */
-.custom-bg-controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.color-input-large {
-  width: 60px;
-  height: 40px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.color-value {
-  font-family: 'Courier New', monospace;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.9);
-  background: rgba(255, 255, 255, 0.1);
-  padding: 4px 8px;
-  border-radius: 4px;
-}
-
-/* Background Image Controls */
-.bg-image-controls {
-  display: flex;
-  gap: 8px;
-}
-
 .upload-bg-btn {
-  padding: 10px 16px;
-  background: rgba(255, 255, 255, 0.2);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
-  color: white;
-  cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.3s;
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 12px;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+  min-width: 56px;
+  height: 32px;
+  justify-content: center;
 }
 
 .upload-bg-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(26,115,232,0.14);
+  background-color: rgba(255,255,255,0.05);
 }
 
-.remove-bg-btn {
-  padding: 10px 16px;
-  background: rgba(234, 67, 53, 0.2);
-  border: 2px solid rgba(234, 67, 53, 0.3);
+.color-input-large {
+  width: 32px;
+  height: 32px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
-  color: #ff6b6b;
   cursor: pointer;
+}
+
+.custom-bg-controls {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.3s;
+  height: 32px;
 }
 
-.remove-bg-btn:hover {
-  background: rgba(234, 67, 53, 0.3);
-  border-color: rgba(234, 67, 53, 0.5);
+.custom-bg-controls label {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  margin: 0;
+}
+
+.bg-image-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+}
+
+.bg-image-controls label {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  margin: 0;
+}
+
+.bg-image-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 32px;
 }
 
 /* Quick Colors */
@@ -919,8 +942,22 @@
   transition: all 0.2s;
 }
 
-.quick-color-btn:hover {
-  transform: scale(1.1);
-  border-color: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+/* Text Background Controls */
+.bg-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 32px;
+}
+
+.transparent-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.transparent-label input[type="checkbox"] {
+  margin: 0;
 }

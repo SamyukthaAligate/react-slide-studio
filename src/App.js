@@ -60,15 +60,13 @@ function App() {
   const [showShare, setShowShare] = useState(false);
   const [showChartModal, setShowChartModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [zoomLevel, setZoomLevel] = useState(100); // Zoom level in percentage
   const [showRulers, setShowRulers] = useState(false);
   const [toolbarActiveTab, setToolbarActiveTab] = useState("insert");
-
-  // Undo/Redo functionality
   const [history, setHistory] = useState([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const isUndoRedoAction = useRef(false);
   const [chartEditing, setChartEditing] = useState(null);
+  const [zoomLevel, setZoomLevel] = useState(100);
 
   const handleSelectElement = useCallback((element) => {
     setSelectedElement(element);
@@ -1073,21 +1071,6 @@ function App() {
   return (
     <div className="app">
       <Header
-        onStartPresentation={startPresentation}
-        onUndo={undo}
-        onRedo={redo}
-        canUndo={historyIndex > 0}
-        canRedo={historyIndex < history.length - 1}
-        presentationTitle={presentationTitle}
-        onTitleChange={setPresentationTitle}
-        onSave={handleSave}
-        onNew={createNewPresentation}
-        onOpen={openPresentation}
-        onDelete={deletePresentation}
-        onDownloadPDF={downloadAsPDF}
-        onExportPPTX={exportAsPPTX}
-        onImport={importPresentation}
-        onMakeCopy={makeCopy}
         savedPresentations={savedPresentations}
         recentPdfs={recentPdfs}
         onOpenRecentPdf={openRecentPdf}
@@ -1115,6 +1098,7 @@ function App() {
         onDeletePreviousSlide={deletePreviousSlide}
         onMoveSlideUp={moveCurrentSlideUp}
         onMoveSlideDown={moveCurrentSlideDown}
+        onStartPresentation={startPresentation}
       />
       <Toolbar
         onAddElement={addElement}
@@ -1142,15 +1126,7 @@ function App() {
           onReorderSlides={reorderSlides}
         />
         <Canvas
-          slide={
-            slides[currentSlideIndex] ||
-            slides[0] || {
-              id: "placeholder",
-              elements: [],
-              background: "#ffffff",
-              theme: "default",
-            }
-          }
+          slide={slides[currentSlideIndex] || slides[0] || {id: "placeholder", elements: [], background: "#ffffff", theme: "default"}}
           onUpdateSlide={(updatedSlide) =>
             updateSlide(currentSlideIndex, updatedSlide)
           }

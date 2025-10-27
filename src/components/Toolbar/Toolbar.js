@@ -616,6 +616,7 @@ const Toolbar = ({
     activeTab === "insert" ? "insert-mode" : "",
     activeTab === "format" ? "format-mode" : "",
     activeTab === "design" ? "design-mode" : "",
+    !selectedElement && activeTab === "format" ? "no-selection-mode" : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -968,304 +969,291 @@ const Toolbar = ({
         {activeTab === "format" && (
           <div className="format-tools">
             {selectedElement ? (
-              <div className="tool-group">
-                <div
-                  className={`tool-dropdown ${
-                    activeDropdown === "fontFamily" ? "open" : ""
-                  }`}
-                >
-                  <button
-                    className="tool-btn dropdown-toggle"
-                    title="Select font family"
-                    onClick={() => toggleDropdown("fontFamily")}
+              selectedElement.type === "chart" ? (
+                // Chart-specific formatting options
+                <div className="tool-group">
+                  <div
+                    className={`tool-dropdown ${
+                      activeDropdown === "chartType" ? "open" : ""
+                    }`}
                   >
-                    <i className="fas fa-font"></i>
-                    <span>{selectedElement.fontFamily || "Roboto"}</span>
-                  </button>
-                  <div className="dropdown-content">
-                    {fontFamilies.map((font) => (
+                    <button
+                      className="tool-btn dropdown-toggle"
+                      title="Change chart type"
+                      onClick={() => toggleDropdown("chartType")}
+                    >
+                      <i className="fas fa-chart-pie"></i>
+                      <span>
+                        {selectedElement.chartType === "bar"
+                          ? "Bar Chart"
+                          : selectedElement.chartType === "pie"
+                          ? "Pie Chart"
+                          : selectedElement.chartType === "line"
+                          ? "Line Chart"
+                          : "Chart Type"}
+                      </span>
+                    </button>
+                    <div className="dropdown-content">
                       <button
-                        key={font}
                         className={`dropdown-item ${
-                          selectedElement.fontFamily === font ? "active" : ""
+                          selectedElement.chartType === "bar" ? "active" : ""
                         }`}
                         onClick={() => {
-                          updateSelectedElement("fontFamily", font);
-                          setActiveDropdown(null);
-                        }}
-                        style={{ fontFamily: font }}
-                      >
-                        {font}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div
-                  className={`tool-dropdown ${
-                    activeDropdown === "fontSize" ? "open" : ""
-                  }`}
-                >
-                  <button
-                    className="tool-btn dropdown-toggle"
-                    title="Select font size"
-                    onClick={() => toggleDropdown("fontSize")}
-                  >
-                    <i className="fas fa-text-height"></i>
-                    <span>{selectedElement.fontSize || 16}px</span>
-                  </button>
-                  <div className="dropdown-content">
-                    {fontSizes.map((size) => (
-                      <button
-                        key={size}
-                        className={`dropdown-item ${
-                          selectedElement.fontSize === size ? "active" : ""
-                        }`}
-                        onClick={() => {
-                          updateSelectedElement("fontSize", size);
+                          updateChartProperties({ chartType: "bar" });
                           setActiveDropdown(null);
                         }}
                       >
-                        {size}px
+                        <i className="fas fa-chart-bar"></i>
+                        Bar Chart
                       </button>
-                    ))}
+                      <button
+                        className={`dropdown-item ${
+                          selectedElement.chartType === "pie" ? "active" : ""
+                        }`}
+                        onClick={() => {
+                          updateChartProperties({ chartType: "pie" });
+                          setActiveDropdown(null);
+                        }}
+                      >
+                        <i className="fas fa-chart-pie"></i>
+                        Pie Chart
+                      </button>
+                      <button
+                        className={`dropdown-item ${
+                          selectedElement.chartType === "line" ? "active" : ""
+                        }`}
+                        onClick={() => {
+                          updateChartProperties({ chartType: "line" });
+                          setActiveDropdown(null);
+                        }}
+                      >
+                        <i className="fas fa-chart-line"></i>
+                        Line Chart
+                      </button>
+                    </div>
                   </div>
-                </div>
 
-                <div
-                  className={`tool-dropdown ${
-                    activeDropdown === "style" ? "open" : ""
-                  }`}
-                >
-                  <button
-                    className="tool-btn dropdown-toggle"
-                    title="Select text style"
-                    onClick={() => toggleDropdown("style")}
-                  >
-                    <i className="fas fa-magic"></i>
-                    <span>
-                      {(() => {
-                        const weight =
-                          selectedElement.fontWeight === "bold"
-                            ? "Bold"
-                            : "Normal";
-                        const style =
-                          selectedElement.fontStyle === "italic"
-                            ? " Italic"
-                            : "";
-                        const deco =
-                          selectedElement.textDecoration === "underline"
-                            ? " Underline"
-                            : "";
-                        return weight + style + deco || "Normal";
-                      })()}
-                    </span>
-                  </button>
-                  <div className="dropdown-content">
-                    <button
-                      className={`dropdown-item ${
-                        !selectedElement.fontWeight &&
-                        !selectedElement.fontStyle &&
-                        !selectedElement.textDecoration
-                          ? "active"
-                          : ""
-                      }`}
-                      onClick={() => {
-                        updateSelectedElement("fontWeight", "normal");
-                        updateSelectedElement("fontStyle", "normal");
-                        updateSelectedElement("textDecoration", "none");
-                        setActiveDropdown(null);
-                      }}
-                    >
-                      Normal
-                    </button>
-                    <button
-                      className={`dropdown-item ${
-                        selectedElement.fontWeight === "bold" &&
-                        !selectedElement.fontStyle &&
-                        !selectedElement.textDecoration
-                          ? "active"
-                          : ""
-                      }`}
-                      onClick={() => {
-                        updateSelectedElement("fontWeight", "bold");
-                        updateSelectedElement("fontStyle", "normal");
-                        updateSelectedElement("textDecoration", "none");
-                        setActiveDropdown(null);
-                      }}
-                    >
-                      Bold
-                    </button>
-                    <button
-                      className={`dropdown-item ${
-                        selectedElement.fontStyle === "italic" &&
-                        !selectedElement.fontWeight &&
-                        !selectedElement.textDecoration
-                          ? "active"
-                          : ""
-                      }`}
-                      onClick={() => {
-                        updateSelectedElement("fontWeight", "normal");
-                        updateSelectedElement("fontStyle", "italic");
-                        updateSelectedElement("textDecoration", "none");
-                        setActiveDropdown(null);
-                      }}
-                    >
-                      Italic
-                    </button>
-                    <button
-                      className={`dropdown-item ${
-                        selectedElement.fontWeight === "bold" &&
-                        selectedElement.fontStyle === "italic" &&
-                        !selectedElement.textDecoration
-                          ? "active"
-                          : ""
-                      }`}
-                      onClick={() => {
-                        updateSelectedElement("fontWeight", "bold");
-                        updateSelectedElement("fontStyle", "italic");
-                        updateSelectedElement("textDecoration", "none");
-                        setActiveDropdown(null);
-                      }}
-                    >
-                      Bold Italic
-                    </button>
-                    <button
-                      className={`dropdown-item ${
-                        selectedElement.textDecoration === "underline" &&
-                        !selectedElement.fontWeight &&
-                        !selectedElement.fontStyle
-                          ? "active"
-                          : ""
-                      }`}
-                      onClick={() => {
-                        updateSelectedElement("fontWeight", "normal");
-                        updateSelectedElement("fontStyle", "normal");
-                        updateSelectedElement("textDecoration", "underline");
-                        setActiveDropdown(null);
-                      }}
-                    >
-                      Underline
-                    </button>
-                  </div>
-                </div>
-
-                <div
-                  className={`tool-dropdown ${
-                    activeDropdown === "alignment" ? "open" : ""
-                  }`}
-                >
-                  <button
-                    className="tool-btn dropdown-toggle"
-                    title="Select text alignment"
-                    onClick={() => toggleDropdown("alignment")}
-                  >
-                    <i className="fas fa-align-left"></i>
-                    <span>{selectedElement.textAlign || "Left"}</span>
-                  </button>
-                  <div className="dropdown-content">
-                    <button
-                      className={`dropdown-item ${
-                        selectedElement.textAlign === "left" ? "active" : ""
-                      }`}
-                      onClick={() => {
-                        updateSelectedElement("textAlign", "left");
-                        setActiveDropdown(null);
-                      }}
-                    >
-                      <i className="fas fa-align-left"></i>
-                      Left
-                    </button>
-                    <button
-                      className={`dropdown-item ${
-                        selectedElement.textAlign === "center" ? "active" : ""
-                      }`}
-                      onClick={() => {
-                        updateSelectedElement("textAlign", "center");
-                        setActiveDropdown(null);
-                      }}
-                    >
-                      <i className="fas fa-align-center"></i>
-                      Center
-                    </button>
-                    <button
-                      className={`dropdown-item ${
-                        selectedElement.textAlign === "right" ? "active" : ""
-                      }`}
-                      onClick={() => {
-                        updateSelectedElement("textAlign", "right");
-                        setActiveDropdown(null);
-                      }}
-                    >
-                      <i className="fas fa-align-right"></i>
-                      Right
-                    </button>
-                    <button
-                      className={`dropdown-item ${
-                        selectedElement.textAlign === "justify" ? "active" : ""
-                      }`}
-                      onClick={() => {
-                        updateSelectedElement("textAlign", "justify");
-                        setActiveDropdown(null);
-                      }}
-                    >
-                      <i className="fas fa-align-justify"></i>
-                      Justify
-                    </button>
-                  </div>
-                </div>
-
-                <input
-                  type="color"
-                  value={selectedElement.color || "#000000"}
-                  onChange={(e) =>
-                    updateSelectedElement("color", e.target.value)
-                  }
-                  className="color-input-large"
-                  title="Text Color"
-                />
-
-                <div className="bg-controls">
                   <input
                     type="color"
-                    value={
-                      selectedElement.backgroundColor === "transparent"
-                        ? "#ffffff"
-                        : selectedElement.backgroundColor || "#ffffff"
-                    }
+                    value={selectedElement.color || "#4F46E5"}
                     onChange={(e) =>
-                      updateSelectedElement("backgroundColor", e.target.value)
+                      updateChartProperties({ color: e.target.value })
                     }
                     className="color-input-large"
-                    disabled={selectedElement.backgroundColor === "transparent"}
-                    title="Text Background"
+                    title="Chart Color"
                   />
-                  <label className="transparent-label">
+
+                  <div
+                    className={`tool-dropdown ${
+                      activeDropdown === "dataPoints" ? "open" : ""
+                    }`}
+                  >
+                    <button
+                      className="tool-btn dropdown-toggle"
+                      title="Manage data points"
+                      onClick={() => toggleDropdown("dataPoints")}
+                    >
+                      <i className="fas fa-database"></i>
+                      <span>
+                        Data ({Array.isArray(selectedElement.data) ? selectedElement.data.length : 0} points)
+                      </span>
+                    </button>
+                    <div className="dropdown-content">
+                      <button
+                        className="dropdown-item"
+                        onClick={() => {
+                          addChartDataPoint();
+                          setActiveDropdown(null);
+                        }}
+                      >
+                        <i className="fas fa-plus"></i>
+                        Add Data Point
+                      </button>
+                      {Array.isArray(selectedElement.data) &&
+                        selectedElement.data.map((point, index) => (
+                          <div key={index} className="data-point-item">
+                            <div className="data-point-controls">
+                              <input
+                                type="text"
+                                placeholder="Label"
+                                value={point.label || ""}
+                                onChange={(e) =>
+                                  updateChartDataPoint(index, "label", e.target.value)
+                                }
+                                className="data-point-input"
+                              />
+                              <input
+                                type="number"
+                                placeholder="Value"
+                                value={point.value || 0}
+                                onChange={(e) =>
+                                  updateChartDataPoint(index, "value", parseFloat(e.target.value) || 0)
+                                }
+                                className="data-point-input"
+                              />
+                              <input
+                                type="color"
+                                value={point.color || "#4F46E5"}
+                                onChange={(e) =>
+                                  updateChartDataPoint(index, "color", e.target.value)
+                                }
+                                className="data-point-color"
+                              />
+                              {selectedElement.data.length > 1 && (
+                                <button
+                                  className="remove-data-point"
+                                  onClick={() => removeChartDataPoint(index)}
+                                  title="Remove data point"
+                                >
+                                  <i className="fas fa-trash"></i>
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+
+                  <button
+                    className="tool-btn"
+                    onClick={() => {
+                      if (typeof window.openChartEditor === "function") {
+                        window.openChartEditor(selectedElement);
+                      }
+                    }}
+                    title="Edit chart in detail"
+                  >
+                    <i className="fas fa-edit"></i>
+                    <span>Edit Chart</span>
+                  </button>
+
+                  <button
+                    className="tool-btn"
+                    onClick={deleteSelectedElement}
+                    title="Delete chart"
+                  >
+                    <i className="fas fa-trash"></i>
+                    <span>Delete</span>
+                  </button>
+                </div>
+              ) : (
+                // Text/shape formatting options (existing code)
+                <div className="tool-group">
+                  {selectedElement.type === "text" && (
+                    <>
+                      <div
+                        className={`tool-dropdown ${
+                          activeDropdown === "fontFamily" ? "open" : ""
+                        }`}
+                      >
+                        <button
+                          className="tool-btn dropdown-toggle"
+                          title="Select font family"
+                          onClick={() => toggleDropdown("fontFamily")}
+                        >
+                          <i className="fas fa-font"></i>
+                          <span>{selectedElement.fontFamily || "Roboto"}</span>
+                        </button>
+                        <div className="dropdown-content">
+                          {fontFamilies.map((font) => (
+                            <button
+                              key={font}
+                              className={`dropdown-item ${
+                                selectedElement.fontFamily === font ? "active" : ""
+                              }`}
+                              onClick={() => {
+                                updateSelectedElement("fontFamily", font);
+                                setActiveDropdown(null);
+                              }}
+                              style={{ fontFamily: font }}
+                            >
+                              {font}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div
+                        className={`tool-dropdown ${
+                          activeDropdown === "fontSize" ? "open" : ""
+                        }`}
+                      >
+                        <button
+                          className="tool-btn dropdown-toggle"
+                          title="Select font size"
+                          onClick={() => toggleDropdown("fontSize")}
+                        >
+                          <i className="fas fa-text-height"></i>
+                          <span>{selectedElement.fontSize || 16}px</span>
+                        </button>
+                        <div className="dropdown-content">
+                          {fontSizes.map((size) => (
+                            <button
+                              key={size}
+                              className={`dropdown-item ${
+                                selectedElement.fontSize === size ? "active" : ""
+                              }`}
+                              onClick={() => {
+                                updateSelectedElement("fontSize", size);
+                                setActiveDropdown(null);
+                              }}
+                            >
+                              {size}px
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <input
+                        type="color"
+                        value={selectedElement.color || "#000000"}
+                        onChange={(e) =>
+                          updateSelectedElement("color", e.target.value)
+                        }
+                        className="color-input-large"
+                        title="Text Color"
+                      />
+                    </>
+                  )}
+
+                  {(selectedElement.type === "shape" || selectedElement.type === "text") && (
                     <input
-                      type="checkbox"
-                      checked={selectedElement.backgroundColor === "transparent"}
-                      onChange={(e) =>
-                        updateSelectedElement(
-                          "backgroundColor",
-                          e.target.checked ? "transparent" : "#ffffff"
-                        )
+                      type="color"
+                      value={
+                        selectedElement.type === "shape"
+                          ? selectedElement.fill || "#2f2f2f"
+                          : selectedElement.backgroundColor === "transparent"
+                          ? "#ffffff"
+                          : selectedElement.backgroundColor || "#ffffff"
+                      }
+                      onChange={(e) => {
+                        if (selectedElement.type === "shape") {
+                          updateSelectedElement("fill", e.target.value);
+                        } else {
+                          updateSelectedElement("backgroundColor", e.target.value);
+                        }
+                      }}
+                      className="color-input-large"
+                      title={
+                        selectedElement.type === "shape"
+                          ? "Shape Fill Color"
+                          : "Background Color"
                       }
                     />
-                    Transparent
-                  </label>
-                </div>
+                  )}
 
-                <button
-                  className="tool-btn"
-                  onClick={deleteSelectedElement}
-                  title="Delete element"
-                >
-                  <i className="fas fa-trash"></i>
-                  <span>Delete</span>
-                </button>
-              </div>
+                  <button
+                    className="tool-btn"
+                    onClick={deleteSelectedElement}
+                    title="Delete element"
+                  >
+                    <i className="fas fa-trash"></i>
+                    <span>Delete</span>
+                  </button>
+                </div>
+              )
             ) : (
-              <div className="no-selection">
+              <div className="select-element-info">
                 <i className="fas fa-mouse-pointer"></i>
                 <span>Select an element to format</span>
               </div>
@@ -1355,7 +1343,7 @@ const Toolbar = ({
               <div className="bg-image-controls">
                 <label>Background Image:</label>
                 <label className="upload-bg-btn tool-btn">
-                  <i className="fas fa-image"></i>
+                  <i className="fas fa-image" style={{ marginRight: "8px" }}></i>
                   Upload Image
                   <input
                     type="file"

@@ -1099,6 +1099,20 @@ function App() {
         onMoveSlideUp={moveCurrentSlideUp}
         onMoveSlideDown={moveCurrentSlideDown}
         onStartPresentation={startPresentation}
+        onUndo={undo}
+        onRedo={redo}
+        canUndo={historyIndex > 0}
+        canRedo={historyIndex < history.length - 1}
+        presentationTitle={presentationTitle}
+        onTitleChange={setPresentationTitle}
+        onNew={createNewPresentation}
+        onSave={handleSave}
+        onOpen={openPresentation}
+        onDelete={deletePresentation}
+        onDownloadPDF={downloadAsPDF}
+        onExportPPTX={exportAsPPTX}
+        onImport={importPresentation}
+        onMakeCopy={makeCopy}
       />
       <Toolbar
         onAddElement={addElement}

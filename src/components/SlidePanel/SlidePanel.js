@@ -216,43 +216,63 @@ const SlidePanel = ({
     <>
       <div className="slide-panel">
         <div className="slide-panel-header">
-          <h3>Slides</h3>
+          <div className="header-info">
+            <h3>Slides</h3>
+            <span className="slide-count">{slides.length} {slides.length === 1 ? 'slide' : 'slides'}</span>
+          </div>
           <button className="add-slide-btn" onClick={onAddSlide} title="Add slide">
             <i className="fas fa-plus"></i>
           </button>
         </div>
         
         <div className="slides-container">
-          {slides.map((slide, index) => (
-            <div
-              key={slide.id}
-              className={`slide-thumbnail ${index === currentSlideIndex ? 'active' : ''} ${dragOverIndex === index && draggedIndex !== null && draggedIndex !== index ? 'drag-over' : ''} ${draggedIndex === index ? 'dragging' : ''}`}
-              onClick={() => handleSlideClick(index)}
-              onContextMenu={(e) => handleRightClick(e, index)}
-              draggable={slides.length > 1}
-              onDragStart={(e) => handleDragStart(e, index)}
-              onDragOver={(e) => handleDragOver(e, index)}
-              onDragLeave={() => handleDragLeave(index)}
-              onDrop={(e) => handleDrop(e, index)}
-              onDragEnd={handleDragEnd}
-            >
-              <div className="slide-number">{index + 1}</div>
-              <div 
-                className="slide-preview"
-                style={{
-                  backgroundColor: slide.background,
-                  backgroundImage: slide.backgroundImage
-                    ? `url(${slide.backgroundImage})`
-                    : (slide.backgroundGradient || 'none'),
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat'
-                }}
-              >
-                {renderSlidePreview(slide)}
+          {slides.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-state-icon">
+                <i className="fas fa-images"></i>
               </div>
+              <p className="empty-state-text">No slides yet</p>
+              <span className="empty-state-subtext">Click the + button to add your first slide</span>
             </div>
-          ))}
+          ) : (
+            slides.map((slide, index) => (
+              <div
+                key={slide.id}
+                className={`slide-thumbnail ${index === currentSlideIndex ? 'active' : ''} ${dragOverIndex === index && draggedIndex !== null && draggedIndex !== index ? 'drag-over' : ''} ${draggedIndex === index ? 'dragging' : ''}`}
+                onClick={() => handleSlideClick(index)}
+                onContextMenu={(e) => handleRightClick(e, index)}
+                draggable={slides.length > 1}
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragLeave={() => handleDragLeave(index)}
+                onDrop={(e) => handleDrop(e, index)}
+                onDragEnd={handleDragEnd}
+              >
+                <div className="slide-number">{index + 1}</div>
+                <div 
+                  className="slide-preview"
+                  style={{
+                    backgroundColor: slide.background,
+                    backgroundImage: slide.backgroundImage
+                      ? `url(${slide.backgroundImage})`
+                      : (slide.backgroundGradient || 'none'),
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat'
+                  }}
+                >
+                  {slide.elements.length === 0 ? (
+                    <div className="slide-empty-indicator">
+                      <i className="fas fa-plus"></i>
+                      <span>Empty slide</span>
+                    </div>
+                  ) : (
+                    renderSlidePreview(slide)
+                  )}
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 

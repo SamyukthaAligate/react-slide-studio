@@ -907,41 +907,65 @@
   display: block;
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
+/* Enhanced Responsive Design */
+@media (max-width: 1400px) {
   .toolbar-content {
-    max-height: 180px;
-  }
-
-  .background-themes {
-    grid-template-columns: repeat(2, 1fr);
-    min-width: 240px;
-  }
-
-  .dropdown-content {
-    min-width: 200px;
-  }
-
-  .tool-dropdown .dropdown-content {
-    position: fixed;
-    left: auto;
-    right: auto;
-  }
-}
-
-@media (max-width: 768px) {
-  .toolbar-content {
-    padding: 12px 16px;
-    max-height: 160px;
+    padding: 18px 20px;
+    gap: 18px;
   }
 
   .insert-tools, .format-tools, .design-tools {
-    gap: 12px;
+    gap: 16px;
   }
 
   .tool-btn {
-    min-width: 44px;
-    padding: 6px 10px;
+    min-width: 40px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .format-controls {
+    gap: 12px;
+  }
+
+  .control-group {
+    gap: 8px;
+  }
+
+  .font-family-select, .font-size-select {
+    min-width: 130px;
+    font-size: 12px;
+  }
+
+  .dimension-input {
+    width: 65px;
+    font-size: 12px;
+  }
+
+  .background-themes {
+    grid-template-columns: repeat(3, 1fr);
+    min-width: 260px;
+  }
+
+  .dropdown-content {
+    min-width: 220px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .toolbar-content {
+    padding: 16px 18px;
+    gap: 16px;
+    max-height: 200px;
+  }
+
+  .insert-tools, .format-tools, .design-tools {
+    gap: 14px;
+  }
+
+  .tool-btn {
+    min-width: 38px;
+    padding: 7px 10px;
     font-size: 11px;
   }
 
@@ -950,13 +974,11 @@
   }
 
   .format-controls {
-    gap: 8px;
+    gap: 10px;
   }
 
   .control-group {
     gap: 6px;
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .font-family-select, .font-size-select {
@@ -964,29 +986,103 @@
     font-size: 11px;
   }
 
-  .dimension-controls {
-    gap: 8px;
-  }
-
   .dimension-input {
     width: 60px;
     font-size: 11px;
   }
 
+  .background-themes {
+    grid-template-columns: repeat(2, 1fr);
+    min-width: 240px;
+    gap: 12px;
+  }
+
+  .theme-option {
+    width: 80px;
+    height: 55px;
+  }
+
+  .dropdown-content {
+    min-width: 200px;
+    padding: 14px 12px;
+  }
+
+  .dropdown-item {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .toolbar-content {
+    max-height: 180px;
+    padding: 14px 16px;
+    gap: 14px;
+  }
+
+  .insert-tools, .format-tools, .design-tools {
+    gap: 12px;
+  }
+
+  .tool-btn {
+    min-width: 36px;
+    padding: 6px 9px;
+    font-size: 10px;
+  }
+
+  .tool-btn span {
+    font-size: 9px;
+  }
+
+  .format-controls {
+    gap: 8px;
+  }
+
+  .control-group {
+    gap: 5px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .font-family-select, .font-size-select {
+    min-width: 110px;
+    font-size: 10px;
+  }
+
+  .dimension-controls {
+    gap: 6px;
+  }
+
+  .dimension-input {
+    width: 55px;
+    font-size: 10px;
+  }
+
   .color-palette {
-    grid-template-columns: repeat(4, 1fr);
-    min-width: 180px;
+    grid-template-columns: repeat(5, 1fr);
+    min-width: 200px;
+    gap: 8px;
+  }
+
+  .quick-colors {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+
+  .quick-color-btn {
+    width: 36px;
+    height: 36px;
   }
 
   .background-themes {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
     padding: 12px;
-    min-width: 200px;
+    min-width: 220px;
   }
 
   .theme-option {
-    width: 70px;
+    width: 75px;
     height: 50px;
   }
 
@@ -996,45 +1092,81 @@
   }
 
   .dropdown-item {
-    padding: 10px 12px;
-    font-size: 12px;
+    padding: 9px 11px;
+    font-size: 11px;
+  }
+
+  .data-point-input {
+    min-width: 70px;
+    font-size: 10px;
   }
 }
 
-@media (max-width: 480px) {
-  .tab {
-    padding: 10px 16px;
-    font-size: 12px;
+@media (max-width: 768px) {
+  .toolbar-content {
+    padding: 12px 14px;
+    max-height: 160px;
+    gap: 12px;
+  }
+
+  /* No selection mode responsive */
+  .toolbar-content.no-selection-mode {
+    padding: 16px 12px;
+  }
+
+  .no-selection {
+    padding: 32px 16px;
+    font-size: 14px;
+    gap: 12px;
+  }
+
+  .no-selection i {
+    font-size: 20px;
+  }
+
+  .insert-tools, .format-tools, .design-tools {
+    gap: 10px;
+  }
+
+  .tool-btn {
+    min-width: 34px;
+    padding: 5px 8px;
+    font-size: 9px;
   }
 
   .tool-btn span {
-    display: none;
-  }
-
-  .control-group label {
-    font-size: 10px;
+    font-size: 8px;
   }
 
   .format-controls {
+    gap: 6px;
     justify-content: center;
   }
 
-  .toolbar-content {
-    max-height: 140px;
+  .control-group {
+    gap: 4px;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .font-family-select, .font-size-select {
     min-width: 100px;
-    font-size: 10px;
+    font-size: 9px;
   }
 
-  .dimension-input-group {
-    padding: 2px 6px;
+  .dimension-controls {
+    gap: 4px;
   }
 
   .dimension-input {
     width: 50px;
-    font-size: 10px;
+    font-size: 9px;
+  }
+
+  .color-palette {
+    grid-template-columns: repeat(4, 1fr);
+    min-width: 180px;
+    gap: 6px;
   }
 
   .quick-colors {
@@ -1043,8 +1175,20 @@
   }
 
   .quick-color-btn {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .background-themes {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 10px;
+    min-width: 200px;
+  }
+
+  .theme-option {
+    width: 70px;
+    height: 45px;
   }
 
   .dropdown-content {
@@ -1054,13 +1198,561 @@
 
   .dropdown-item {
     padding: 8px 10px;
-    font-size: 11px;
-    gap: 8px;
+    font-size: 10px;
+    gap: 6px;
   }
 
   .data-point-input {
     min-width: 60px;
+    font-size: 9px;
+  }
+
+  .control-group label {
+    font-size: 9px;
+  }
+
+  .bg-image-controls label,
+  .custom-bg-controls label {
     font-size: 10px;
+  }
+}
+
+@media (max-width: 640px) {
+  .toolbar-content {
+    padding: 10px 12px;
+    max-height: 140px;
+    gap: 10px;
+  }
+
+  /* No selection mode responsive */
+  .toolbar-content.no-selection-mode {
+    padding: 14px 10px;
+  }
+
+  .no-selection {
+    padding: 28px 14px;
+    font-size: 13px;
+    gap: 10px;
+    min-height: 70px;
+  }
+
+  .no-selection i {
+    font-size: 18px;
+  }
+
+  .insert-tools, .format-tools, .design-tools {
+    gap: 8px;
+  }
+
+  .tool-btn {
+    min-width: 32px;
+    padding: 4px 6px;
+    font-size: 8px;
+  }
+
+  .tool-btn span {
+    font-size: 7px;
+  }
+
+  .format-controls {
+    gap: 5px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .control-group {
+    gap: 3px;
+  }
+
+  .font-family-select, .font-size-select {
+    min-width: 90px;
+    font-size: 8px;
+  }
+
+  .dimension-controls {
+    gap: 3px;
+  }
+
+  .dimension-input {
+    width: 45px;
+    font-size: 8px;
+  }
+
+  .color-palette {
+    grid-template-columns: repeat(3, 1fr);
+    min-width: 150px;
+    gap: 5px;
+  }
+
+  .quick-colors {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+  }
+
+  .quick-color-btn {
+    width: 28px;
+    height: 28px;
+  }
+
+  .background-themes {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    padding: 8px;
+    min-width: 180px;
+  }
+
+  .theme-option {
+    width: 60px;
+    height: 40px;
+  }
+
+  .dropdown-content {
+    min-width: 140px;
+    padding: 8px 6px;
+  }
+
+  .dropdown-item {
+    padding: 6px 8px;
+    font-size: 9px;
+    gap: 5px;
+  }
+
+  .data-point-input {
+    min-width: 50px;
+    font-size: 8px;
+  }
+
+  .control-group label {
+    font-size: 8px;
+  }
+
+  .bg-image-controls label,
+  .custom-bg-controls label {
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 480px) {
+  .toolbar-content {
+    padding: 8px 10px;
+    max-height: 120px;
+    gap: 8px;
+  }
+
+  /* No selection mode responsive */
+  .toolbar-content.no-selection-mode {
+    padding: 12px 8px;
+  }
+
+  .no-selection {
+    padding: 24px 12px;
+    font-size: 12px;
+    gap: 8px;
+    min-height: 60px;
+  }
+
+  .no-selection i {
+    font-size: 16px;
+  }
+
+  .insert-tools, .format-tools, .design-tools {
+    gap: 6px;
+  }
+
+  .tool-btn {
+    min-width: 30px;
+    padding: 3px 5px;
+    font-size: 7px;
+  }
+
+  .tool-btn span {
+    display: none; /* Hide text, show only icons */
+  }
+
+  .format-controls {
+    gap: 4px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .control-group {
+    gap: 2px;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .font-family-select, .font-size-select {
+    min-width: 80px;
+    font-size: 7px;
+  }
+
+  .dimension-controls {
+    gap: 2px;
+  }
+
+  .dimension-input {
+    width: 40px;
+    font-size: 7px;
+  }
+
+  .color-palette {
+    grid-template-columns: repeat(3, 1fr);
+    min-width: 120px;
+    gap: 4px;
+  }
+
+  .quick-colors {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+  }
+
+  .quick-color-btn {
+    width: 24px;
+    height: 24px;
+  }
+
+  .background-themes {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+    padding: 6px;
+    min-width: 160px;
+  }
+
+  .theme-option {
+    width: 50px;
+    height: 35px;
+  }
+
+  .dropdown-content {
+    min-width: 120px;
+    padding: 6px 4px;
+  }
+
+  .dropdown-item {
+    padding: 5px 6px;
+    font-size: 8px;
+    gap: 4px;
+  }
+
+  .data-point-input {
+    min-width: 40px;
+    font-size: 7px;
+  }
+
+  .control-group label {
+    font-size: 7px;
+  }
+
+  .bg-image-controls label,
+  .custom-bg-controls label {
+    font-size: 8px;
+  }
+
+  .bg-image-controls,
+  .custom-bg-controls {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 360px) {
+  .toolbar-content {
+    padding: 6px 8px;
+    max-height: 100px;
+    gap: 6px;
+  }
+
+  /* No selection mode responsive */
+  .toolbar-content.no-selection-mode {
+    padding: 10px 6px;
+  }
+
+  .no-selection {
+    padding: 20px 10px;
+    font-size: 11px;
+    gap: 6px;
+    min-height: 50px;
+  }
+
+  .no-selection i {
+    font-size: 14px;
+  }
+
+  .insert-tools, .format-tools, .design-tools {
+    gap: 4px;
+  }
+
+  .tool-btn {
+    min-width: 28px;
+    padding: 2px 4px;
+    font-size: 6px;
+  }
+
+  .format-controls {
+    gap: 3px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .control-group {
+    gap: 1px;
+  }
+
+  .font-family-select, .font-size-select {
+    min-width: 70px;
+    font-size: 6px;
+  }
+
+  .dimension-controls {
+    gap: 1px;
+  }
+
+  .dimension-input {
+    width: 35px;
+    font-size: 6px;
+  }
+
+  .color-palette {
+    grid-template-columns: repeat(2, 1fr);
+    min-width: 100px;
+    gap: 3px;
+  }
+
+  .quick-colors {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3px;
+  }
+
+  .quick-color-btn {
+    width: 20px;
+    height: 20px;
+  }
+
+  .background-themes {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3px;
+    padding: 4px;
+    min-width: 140px;
+  }
+
+  .theme-option {
+    width: 40px;
+    height: 30px;
+  }
+
+  .dropdown-content {
+    min-width: 100px;
+    padding: 4px 2px;
+  }
+
+  .dropdown-item {
+    padding: 4px 5px;
+    font-size: 7px;
+    gap: 3px;
+  }
+
+  .data-point-input {
+    min-width: 35px;
+    font-size: 6px;
+  }
+
+  .control-group label {
+    font-size: 6px;
+  }
+
+  .bg-image-controls label,
+  .custom-bg-controls label {
+    font-size: 7px;
+  }
+
+  .bg-image-controls,
+  .custom-bg-controls {
+    gap: 4px;
+  }
+}
+
+@media (min-width: 1600px) {
+  .toolbar-content {
+    padding: 24px 28px;
+    gap: 24px;
+    max-height: 200px;
+  }
+
+  .insert-tools, .format-tools, .design-tools {
+    gap: 20px;
+  }
+
+  .tool-btn {
+    min-width: 48px;
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .tool-btn span {
+    font-size: 13px;
+  }
+
+  .format-controls {
+    gap: 16px;
+  }
+
+  .control-group {
+    gap: 10px;
+  }
+
+  .font-family-select, .font-size-select {
+    min-width: 150px;
+    font-size: 14px;
+  }
+
+  .dimension-input {
+    width: 75px;
+    font-size: 14px;
+  }
+
+  .color-palette {
+    grid-template-columns: repeat(7, 1fr);
+    min-width: 280px;
+    gap: 12px;
+  }
+
+  .quick-colors {
+    grid-template-columns: repeat(7, 1fr);
+    gap: 12px;
+  }
+
+  .quick-color-btn {
+    width: 48px;
+    height: 48px;
+  }
+
+  .background-themes {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    padding: 16px;
+    min-width: 320px;
+  }
+
+  .theme-option {
+    width: 90px;
+    height: 65px;
+  }
+
+  .dropdown-content {
+    min-width: 260px;
+    padding: 16px 14px;
+  }
+
+  .dropdown-item {
+    padding: 12px 16px;
+    font-size: 14px;
+    gap: 12px;
+  }
+
+  .data-point-input {
+    min-width: 100px;
+    font-size: 14px;
+  }
+
+  .control-group label {
+    font-size: 13px;
+  }
+
+  .bg-image-controls label,
+  .custom-bg-controls label {
+    font-size: 13px;
+  }
+}
+
+@media (min-width: 1920px) {
+  .toolbar-content {
+    padding: 28px 32px;
+    gap: 28px;
+    max-height: 220px;
+  }
+
+  .insert-tools, .format-tools, .design-tools {
+    gap: 24px;
+  }
+
+  .tool-btn {
+    min-width: 52px;
+    padding: 12px 18px;
+    font-size: 15px;
+  }
+
+  .tool-btn span {
+    font-size: 14px;
+  }
+
+  .format-controls {
+    gap: 18px;
+  }
+
+  .control-group {
+    gap: 12px;
+  }
+
+  .font-family-select, .font-size-select {
+    min-width: 160px;
+    font-size: 15px;
+  }
+
+  .dimension-input {
+    width: 80px;
+    font-size: 15px;
+  }
+
+  .color-palette {
+    grid-template-columns: repeat(8, 1fr);
+    min-width: 320px;
+    gap: 14px;
+  }
+
+  .quick-colors {
+    grid-template-columns: repeat(8, 1fr);
+    gap: 14px;
+  }
+
+  .quick-color-btn {
+    width: 52px;
+    height: 52px;
+  }
+
+  .background-themes {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    padding: 18px;
+    min-width: 360px;
+  }
+
+  .theme-option {
+    width: 100px;
+    height: 70px;
+  }
+
+  .dropdown-content {
+    min-width: 280px;
+    padding: 18px 16px;
+  }
+
+  .dropdown-item {
+    padding: 14px 18px;
+    font-size: 15px;
+    gap: 14px;
+  }
+
+  .data-point-input {
+    min-width: 110px;
+    font-size: 15px;
+  }
+
+  .control-group label {
+    font-size: 14px;
+  }
+
+  .bg-image-controls label,
+  .custom-bg-controls label {
+    font-size: 14px;
   }
 }
 

@@ -1895,10 +1895,10 @@
 
 /* Design Tab Styles */
 .color-input-large {
-  width: 36px;
-  height: 36px;
+  width: 26px;
+  height: 26px;
   border: 2px solid rgba(255, 255, 255, 0.18);
-  border-radius: 10px;
+  border-radius: 0px;
   cursor: pointer;
   background: rgba(255, 255, 255, 0.05);
   transition: all 0.25s ease;

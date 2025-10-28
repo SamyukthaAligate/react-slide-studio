@@ -4,15 +4,17 @@
   top: 0;
   z-index: 4000;
   width: 100%;
-  padding: 18px clamp(24px, 6vw, 72px);
+  padding: 10px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 32px;
-  background: rgba(18, 18, 18, 0.78);
+  gap: 12px;
+  background: rgba(18, 18, 18, 0.98);
   backdrop-filter: blur(18px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+  overflow: visible;
 }
 
 .header-left,
@@ -20,11 +22,19 @@
 .header-right {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 12px;
+  flex-shrink: 0;
+  min-width: 0;
 }
 
 .header-left {
-  min-width: 220px;
+  min-width: auto;
+  flex: 0 0 auto;
+  max-width: 25%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .logo {
@@ -43,7 +53,10 @@
 
 .title-section {
   position: relative;
-  max-width: clamp(220px, 24vw, 360px);
+  max-width: 100%;
+  min-width: 100px;
+  flex: 1 1 auto;
+  overflow: hidden;
 }
 
 .title-section h1,
@@ -57,25 +70,36 @@
 
 .presentation-title {
   margin: 0;
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 500;
   color: #fafafa;
   cursor: pointer;
   transition: color 0.3s ease;
-}
-
-.presentation-title:hover {
-  color: #dcdcdc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  display: inline-block;
 }
 
 .title-input {
-  padding: 8px 14px;
-  border-radius: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(24, 24, 24, 0.9);
   color: #f4f4f4;
-  font-size: 16px;
-  min-width: 220px;
+  font-size: 15px;
+  width: 100%;
+  min-width: 100px;
+  box-sizing: border-box;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.title-input:focus {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
 }
 
 .title-input:focus {
@@ -84,33 +108,46 @@
 }
 
 .header-center {
-  flex: 1;
+  flex: 1 1 auto;
   justify-content: center;
-  gap: 32px;
+  gap: 8px;
+  overflow: hidden;
+  min-width: 0;
+  padding: 0 4px;
 }
 
 .header-tabs {
   display: flex;
-  gap: 18px;
+  gap: 6px;
   background: rgba(27, 27, 27, 0.8);
-  border-radius: 14px;
-  padding: 8px 18px;
+  border-radius: 8px;
+  padding: 4px 8px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  max-width: 100%;
+  flex-shrink: 1;
+}
+
+.header-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .header-tabs .menu-item {
   position: relative;
-  padding: 10px 18px;
+  padding: 8px 12px;
   border: none;
-  border-radius: 10px;
+  border-radius: 6px;
   background: transparent;
   color: rgba(242, 242, 242, 0.72);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
+  white-space: nowrap;
   transition: color 0.3s ease, background 0.3s ease, transform 0.3s ease;
 }
 
@@ -320,11 +357,18 @@
 
 
 .header-right {
-  flex: 1;
-  justify-content: flex-end;
-  gap: clamp(18px, 2.4vw, 32px);
-  flex-wrap: nowrap;
-  padding-left: clamp(12px, 1.5vw, 24px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+  padding-left: 4px;
+  overflow: visible;
+}
+
+.present-btn {
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .header-right > * {

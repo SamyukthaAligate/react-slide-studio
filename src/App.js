@@ -276,23 +276,33 @@ function App() {
     }
   }, [slides, presentationTitle, addRecentPdf]);
 
-  // Load saved presentations from localStorage on mount
+  // Load saved data on mount
   useEffect(() => {
-    const saved = localStorage.getItem("savedPresentations");
-    if (saved) {
-      try {
-        setSavedPresentations(JSON.parse(saved));
-      } catch (e) {
-        console.error("Error loading presentations:", e);
+    try {
+      // Load saved presentations
+      const saved = localStorage.getItem("savedPresentations");
+      if (saved && saved !== 'undefined' && saved !== 'null') {
+        const parsed = JSON.parse(saved);
+        setSavedPresentations(Array.isArray(parsed) ? parsed : []);
+      } else {
+        setSavedPresentations([]);
       }
-    }
-    const storedRecent = localStorage.getItem("recentPdfs");
-    if (storedRecent) {
-      try {
-        setRecentPdfs(JSON.parse(storedRecent));
-      } catch (e) {
-        console.error("Error loading recent PDFs:", e);
+
+      // Load recent PDFs
+      const storedRecent = localStorage.getItem("recentPdfs");
+      if (storedRecent && storedRecent !== 'undefined' && storedRecent !== 'null') {
+        const parsed = JSON.parse(storedRecent);
+        setRecentPdfs(Array.isArray(parsed) ? parsed : []);
+      } else {
+        setRecentPdfs([]);
       }
+    } catch (error) {
+      console.error("Error loading data from localStorage:", error);
+      // Clear potentially corrupted data
+      localStorage.removeItem("savedPresentations");
+      localStorage.removeItem("recentPdfs");
+      setSavedPresentations([]);
+      setRecentPdfs([]);
     }
   }, []);
 

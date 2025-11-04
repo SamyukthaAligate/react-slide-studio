@@ -175,6 +175,12 @@
   backdrop-filter: blur(22px);
   border: 1px solid rgba(56, 141, 232, 0.45);
   animation: dropdown-fade 0.2s ease;
+  overflow-y: auto;
+  scrollbar-width: none;
+  max-height: 400px;
+}
+.dropdown-content::-webkit-scrollbar {
+  display: none;
 }
 
 .dropdown-content.shape-dropdown {

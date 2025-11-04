@@ -220,9 +220,13 @@ const ChartModal = ({ onClose, onCreateChart, initialData }) => {
                       type="number"
                       value={item.value}
                       min={0}
-                      onChange={(e) =>
-                        updateDataPoint(index, "value", e.target.value)
-                      }
+                      onChange={(e) => {
+  let val = parseFloat(e.target.value);
+  if (snapValues) {
+    val = Math.round(val / 5) * 5; // snap to nearest 5
+  }
+  updateDataPoint(index, "value", val);
+}}
                     />
                     {chartType === "pie" ? (
                       <div className="inline-palette">

@@ -3,41 +3,50 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #000000;
-  padding: 0;
+  background-color: #0f0f0f;
+  padding: 20px;
+  margin: 0;
   overflow: auto;
   width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
+  height: 100%;
   position: relative;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
 }
 
 .canvas-wrapper {
   position: relative;
-  box-shadow: 0 14px 40px rgba(2, 6, 23, 0.6), 0 6px 20px rgba(0, 0, 0, 0.4);
-  border-radius: 12px;
-  overflow: hidden;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
   margin: 0;
-  max-width: 100%;
-  width: fit-content;
-  height: fit-content;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
 }
+
 /* Canvas.css */
 .resize-handles .resize-handle {
   z-index: 5; /* make sure they sit above the content */
 }
 
 .canvas {
-  width: 960px; /* PowerPoint-like 16:9 aspect ratio */
-  max-width: 100%;
-  height: 540px; /* PowerPoint-like 16:9 aspect ratio */
+  width: 900px;
+  height: 506px; /* 16:9 aspect ratio */
   background-color: #ffffff;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   cursor: default;
   transition: all 0.3s ease;
-  touch-action: manipulation; /* better touch handling */
+  touch-action: manipulation;
+  transform-origin: center center;
+  box-shadow: 0 14px 40px rgba(2, 6, 23, 0.6), 0 6px 20px rgba(0, 0, 0, 0.4);
+  border-radius: 8px;
+  margin: 20px;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 /* Soft vignette and inner shadow for slide surface */
@@ -415,7 +424,7 @@
   }
 
   .canvas {
-    width: 864px; /* Slightly smaller for large tablets */
+    width: 864px;
     height: 486px;
   }
 
@@ -430,8 +439,8 @@
   }
 
   .canvas {
-    width: 768px; /* Maintain 16:9 aspect ratio for tablets */
-    height: 432px; /* Maintain 16:9 aspect ratio for tablets */
+    width: 768px;
+    height: 432px;
   }
 
   .canvas-wrapper {
@@ -448,7 +457,7 @@
   }
 
   .canvas {
-    width: 704px; /* Adjusted for medium tablets */
+    width: 704px;
     height: 396px;
   }
 
@@ -467,10 +476,11 @@
   }
 
   .canvas {
-    width: 640px; /* Maintain 16:9 aspect ratio for mobile landscape */
-    height: 360px; /* Maintain 16:9 aspect ratio for mobile landscape */
-    max-width: calc(100vw - 32px);
-    max-height: calc(100vh - 200px);
+    width: 100%;
+    max-width: 640px;
+    height: auto;
+    aspect-ratio: 16/9;
+    transform: scale(0.9);
   }
 
   .canvas-wrapper {
@@ -482,33 +492,13 @@
   .resize-handle {
     width: 14px;
     height: 14px;
+    transform: scale(0.8);
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
   }
 }
-
-@media (max-width: 640px) {
-  .canvas-container {
-    padding: 0 2px;
-    min-height: 350px;
-  }
-
-  .canvas {
-    width: 560px; /* Adjusted for small tablets */
-    height: 315px;
-    max-width: calc(100vw - 16px);
-    max-height: calc(100vh - 180px);
-  }
-
-  .canvas-wrapper {
-    border-radius: 6px;
-    margin: 8px auto;
-  }
-
-  .resize-handle {
-    width: 16px;
-    height: 16px;
-  }
-}
-
 @media (max-width: 1024px) {
   .canvas {
     width: 800px;
@@ -523,11 +513,40 @@
   }
 }
 
+/* Responsive scaling */
+@media (max-width: 1200px) {
+  .canvas {
+    transform: scale(0.9);
+  }
+}
+
+@media (max-width: 992px) {
+  .canvas {
+    transform: scale(0.8);
+  }
+}
+
+@media (max-width: 768px) {
+  .canvas {
+    transform: scale(0.7);
+  }
+}
+
+@media (max-width: 576px) {
+  .canvas {
+    transform: scale(0.6);
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
+  }
+}
+
 @media (max-width: 480px) {
+  .canvas {
+    transform: scale(0.5);
+  }
+  
   .canvas-container {
-    padding: 0;
-    min-height: 300px;
-    overflow-x: hidden;
     overflow-y: auto;
   }
 
@@ -536,17 +555,6 @@
     height: 270px; /* Maintain 16:9 aspect ratio for mobile portrait */
     max-width: calc(100vw - 8px);
     max-height: calc(100vh - 160px);
-  }
-
-  .canvas-wrapper {
-    border-radius: 4px;
-    margin: 4px auto;
-    box-shadow: 0 6px 18px rgba(2, 6, 23, 0.4), 0 3px 9px rgba(0, 0, 0, 0.25);
-  }
-
-  .resize-handle {
-    width: 18px;
-    height: 18px;
   }
 }
 

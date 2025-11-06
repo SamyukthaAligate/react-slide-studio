@@ -2,8 +2,8 @@ import React, { useState, useRef, useCallback } from "react";
 import ChartFrame from "../ChartFrame/ChartFrame";
 import "./Canvas.css";
 
-const CANVAS_WIDTH = 960;
-const CANVAS_HEIGHT = 540;
+const CANVAS_WIDTH = 800;  // Further reduced to ensure all corners are visible
+const CANVAS_HEIGHT = 450; // Maintain 16:9 aspect ratio (800/1.778 = ~450)
 const MIN_ELEMENT_WIDTH = 50;
 const MIN_ELEMENT_HEIGHT = 30;
 
@@ -1182,8 +1182,6 @@ const Canvas = ({
                   safeHeight * 0.06,
                   18
                 )}px`,
-                alignItems: "center",
-                justifyContent: "center",
               }}
             >
               <div
@@ -2003,7 +2001,24 @@ const Canvas = ({
   const zoomScale = zoomLevel / 100;
 
   return (
-    <div className="canvas-container">
+    <div 
+      className="canvas-container"
+      style={{
+        transform: `scale(${zoomScale})`,
+        transformOrigin: "center center",
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        height: '100%',
+        padding: '10px',
+        margin: 0,
+        overflow: 'hidden',
+        boxSizing: 'border-box',
+        minWidth: 0,
+        minHeight: 0
+      }}
+    >
       {showRulers && (
         <>
           <div className="ruler-corner">
@@ -2045,42 +2060,40 @@ const Canvas = ({
         </>
       )}
       <div
-        className="canvas-wrapper"
+        ref={canvasRef}
+        className={`canvas ${isDragOver ? "drag-over" : ""}`}
         style={{
-          transform: `scale(${zoomScale})`,
-          transformOrigin: "top center",
-          marginLeft: showRulers ? "30px" : "0",
-          marginTop: showRulers ? "30px" : "20px",
+          backgroundColor: slide.background,
+          backgroundImage: slide.backgroundImage
+            ? `url(${slide.backgroundImage})`
+            : slide.backgroundGradient || "none",
+          backgroundSize: slide.backgroundImage ? "cover" : "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: slide.backgroundImage ? "no-repeat" : "no-repeat",
+          width: `${CANVAS_WIDTH}px`,
+          height: `${CANVAS_HEIGHT}px`,
+          margin: '0 auto',
+          position: 'relative',
+          overflow: 'hidden',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+          flexShrink: 0,
+          boxSizing: 'border-box'
         }}
+        onMouseDown={handleCanvasBackgroundMouseDown}
+        onContextMenu={handleContextMenu}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
       >
-        <div
-          ref={canvasRef}
-          className={`canvas ${isDragOver ? "drag-over" : ""}`}
-          style={{
-            backgroundColor: slide.background,
-            backgroundImage: slide.backgroundImage
-              ? `url(${slide.backgroundImage})`
-              : slide.backgroundGradient || "none",
-            backgroundSize: slide.backgroundImage ? "cover" : "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: slide.backgroundImage ? "no-repeat" : "no-repeat",
-          }}
-          onMouseDown={handleCanvasBackgroundMouseDown}
-          onContextMenu={handleContextMenu}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-        >
-          {slide.elements.map(renderElement)}
-          {isDragOver && (
-            <div className="drag-overlay">
-              <div className="drag-message">
-                <i className="fas fa-cloud-upload-alt"></i>
-                <p>Drop images, videos, or text files here</p>
-              </div>
+        {slide.elements.map(renderElement)}
+        {isDragOver && (
+          <div className="drag-overlay">
+            <div className="drag-message">
+              <i className="fas fa-cloud-upload-alt"></i>
+              <p>Drop images, videos, or text files here</p>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Context Menu */}

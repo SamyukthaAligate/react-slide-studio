@@ -292,37 +292,84 @@ const Header = ({
       </div>
 
       <div className="header-center" ref={menuRef}>
-        <div className="header-tabs">
-          <button
-            className={`menu-item ${
-              toolbarActiveTab === "insert" ? "active" : ""
-            }`}
-            onClick={() => setToolbarActiveTab("insert")}
-          >
-            Insert
-          </button>
-          <button
-            className={`menu-item ${
-              toolbarActiveTab === "format" ? "active" : ""
-            }`}
-            onClick={() => setToolbarActiveTab("format")}
-          >
-            Format
-          </button>
-          <button
-            className={`menu-item ${
-              toolbarActiveTab === "design" ? "active" : ""
-            }`}
-            onClick={() => setToolbarActiveTab("design")}
-          >
-            Design
-          </button>
-        </div>
         <button className="mobile-menu-toggle" onClick={toggleMobileMenu}>
           <i className={`fas ${isMobileMenuOpen ? "fa-times" : "fa-bars"}`}></i>
         </button>
 
         <div className={`menu-items ${isMobileMenuOpen ? "mobile-open" : ""}`}>
+          {/* Insert Menu */}
+          <div
+            className="menu-dropdown"
+            ref={(el) => {
+              menuRefs.current.insert = el;
+            }}
+          >
+            <button
+              className={`menu-item ${
+                toolbarActiveTab === "insert" ? "active" : ""
+              }`}
+              onClick={() => setToolbarActiveTab("insert")}
+            >
+              Insert
+            </button>
+          </div>
+
+          {/* Format Menu */}
+          <div
+            className="menu-dropdown"
+            ref={(el) => {
+              menuRefs.current.format = el;
+            }}
+          >
+            <button
+              className={`menu-item ${
+                toolbarActiveTab === "format" ? "active" : ""
+              }`}
+              onClick={() => setToolbarActiveTab("format")}
+            >
+              Format
+            </button>
+          </div>
+
+          {/* Design Menu */}
+          <div
+            className="menu-dropdown"
+            ref={(el) => {
+              menuRefs.current.design = el;
+            }}
+          >
+            <button
+              className={`menu-item ${
+                toolbarActiveTab === "design" ? "active" : ""
+              }`}
+              onClick={() => setToolbarActiveTab("design")}
+            >
+              Design
+            </button>
+          </div>
+
+          {/* Undo/Redo Buttons */}
+          <div className="menu-dropdown">
+            <button
+              className="menu-item"
+              onClick={onUndo}
+              disabled={!canUndo}
+              title="Undo (Ctrl+Z)"
+            >
+              <i className="fas fa-undo"></i>
+            </button>
+          </div>
+          <div className="menu-dropdown">
+            <button
+              className="menu-item"
+              onClick={onRedo}
+              disabled={!canRedo}
+              title="Redo (Ctrl+Y)"
+            >
+              <i className="fas fa-redo"></i>
+            </button>
+          </div>
+
           {/* File Menu */}
           <div
             className="menu-dropdown"
@@ -629,34 +676,14 @@ const Header = ({
       </div>
 
       <div className="header-right">
-        <div className="undo-redo-controls">
-          <button
-            className={`undo-btn ${!canUndo ? "disabled" : ""}`}
-            onClick={onUndo}
-            disabled={!canUndo}
-            title="Undo (Ctrl+Z)"
-          >
-            <i className="fas fa-undo"></i>
-          </button>
-          <button
-            className={`redo-btn ${!canRedo ? "disabled" : ""}`}
-            onClick={onRedo}
-            disabled={!canRedo}
-            title="Redo (Ctrl+Y)"
-          >
-            <i className="fas fa-redo"></i>
-          </button>
-        </div>
         <div className="menu-dropdown share-menu" ref={shareMenuRef}>
           <button
             className={`menu-item ${isShareMenuOpen ? "active" : ""}`}
             onClick={handleShareMenuToggle}
             type="button"
+            title="Share"
           >
-            <span className="item-label">
-              <i className="fas fa-share-alt"></i>
-              <span>Share</span>
-            </span>
+            <i className="fas fa-share-alt"></i>
             <i
               className={`fas ${
                 isShareMenuOpen ? "fa-chevron-up" : "fa-chevron-down"
@@ -744,13 +771,13 @@ const Header = ({
             </div>
           )}
         </div>
-        <button className="present-btn" onClick={onStartPresentation}>
+        <button 
+          className="present-btn" 
+          onClick={onStartPresentation}
+          title="Present"
+        >
           <i className="fas fa-play"></i>
-          Present
         </button>
-        <div className="user-avatar">
-          <i className="fas fa-user-circle"></i>
-        </div>
       </div>
     </header>
   );

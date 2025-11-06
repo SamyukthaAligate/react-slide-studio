@@ -51,7 +51,7 @@ function App() {
   const [isPresentationMode, setIsPresentationMode] = useState(false);
   const [presentationSlideIndex, setPresentationSlideIndex] = useState(0);
   const [presentationTitle, setPresentationTitle] = useState(
-    "Untitled Presentation"
+    "Presentation"
   );
   const [currentPresentationId, setCurrentPresentationId] = useState(null);
   const [savedPresentations, setSavedPresentations] = useState([]);
@@ -125,7 +125,7 @@ function App() {
   const handleSave = useCallback(() => {
     const presentation = {
       id: currentPresentationId || Date.now().toString(),
-      title: presentationTitle.trim() || "Untitled Presentation",
+      title: presentationTitle.trim() || "Presentation",
       slides: JSON.parse(JSON.stringify(slides)),
       lastModified: new Date().toISOString(),
     };
@@ -175,7 +175,7 @@ function App() {
       ]);
       setCurrentSlideIndex(0);
       handleSelectElement(null);
-      setPresentationTitle("Untitled Presentation");
+      setPresentationTitle("Presentation");
       setCurrentPresentationId(null);
       setHistory([]);
       setHistoryIndex(-1);
@@ -231,7 +231,7 @@ function App() {
     setRecentPdfs((prev) => {
       const record = {
         id: uuidv4(),
-        title: title || "Untitled Presentation",
+        title: title || "Presentation",
         slides: slidesSnapshot,
         createdAt: new Date().toISOString(),
       };
@@ -1124,7 +1124,8 @@ function App() {
         onImport={importPresentation}
         onMakeCopy={makeCopy}
       />
-      <Toolbar
+      <div className="app-content">
+<Toolbar
         onAddElement={addElement}
         selectedElement={selectedElement}
         onUpdateElement={updateElement}
@@ -1170,6 +1171,9 @@ function App() {
           onToggleRulers={toggleRulers}
         />
       </div>
+
+      </div>
+      
       {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
       {showShare && (
         <ShareModal

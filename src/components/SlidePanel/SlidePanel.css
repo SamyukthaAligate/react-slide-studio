@@ -1,5 +1,5 @@
 .slide-panel {
-  width: 280px;
+  width: 240px;
   background: linear-gradient(180deg, rgba(20, 20, 22, 0.95) 0%, rgba(16, 16, 18, 0.98) 100%);
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
@@ -15,7 +15,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
+  padding: 10px 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   background: linear-gradient(135deg, rgba(56, 141, 232, 0.08) 0%, rgba(28, 73, 141, 0.04) 50%, rgba(14, 44, 85, 0.06) 100%);
   backdrop-filter: blur(8px);
@@ -53,11 +53,17 @@
   z-index: 1;
 }
 .slides-panel {
-  width: 260px;    /* your slide bar width */
+  width: 100%;
   overflow-y: auto;
-  height: 100vh;
+  max-height: calc(100vh - 120px);
   position: relative;
   z-index: 1;
+  padding: 12px 8px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 .slide-count {
   font-size: 11px;
@@ -109,15 +115,18 @@
 .slides-container {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-  align-content: flex-start;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
   box-sizing: border-box;
-  height: calc(100% - 60px); /* Account for header height */
+  width: 100%;
+  max-height: calc(100vh - 180px);
   background: linear-gradient(180deg, rgba(18, 18, 20, 0.3) 0%, rgba(14, 14, 16, 0.5) 100%);
   position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
 .slides-container::-webkit-scrollbar {
@@ -138,16 +147,35 @@
   background: rgba(255, 255, 255, 0.3);
 }
 
+.slide-item {
+  position: relative;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(30, 30, 35, 0.8);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transform: scale(0.9);
+  transform-origin: center;
+}
+
 .slide-thumbnail {
   position: relative;
-  margin-bottom: 24px;
+  width: 180px;
+  height: 101.25px; /* 16:9 aspect ratio */
+  min-height: 101.25px; /* Prevent height collapse */
   cursor: pointer;
-  border-radius: 12px;
+  border-radius: 6px;
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   border: 2px solid transparent;
   background: rgba(255, 255, 255, 0.02);
   backdrop-filter: blur(4px);
+  flex-shrink: 0; /* Prevent slides from shrinking */
+  margin: 0; /* Remove default margins */
+  transform-origin: center;
 }
 
 .slide-thumbnail.dragging {
@@ -691,7 +719,32 @@
 
 @media (max-width: 480px) {
   .slide-panel {
+    width: 100%;
     height: 120px;
+  }
+
+  .slides-panel {
+    flex-direction: row;
+    padding: 8px 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-height: 120px;
+    gap: 8px;
+  }
+
+  .slide-thumbnail {
+    width: 160px;
+    height: 90px;
+    min-height: 90px;
+    margin-bottom: 0;
+  }
+
+  .slides-container {
+    flex-direction: row;
+    padding: 8px 12px;
+    max-height: 120px;
+    overflow-x: auto;
+    overflow-y: hidden;
   }
 
   .slide-panel-header {

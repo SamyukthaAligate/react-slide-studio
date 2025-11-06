@@ -209,10 +209,10 @@ const Toolbar = ({
   ];
 
   const bulletStyles = [
-    { id: "disc", label: "Filled bullets", preview: "•" },
-    { id: "circle", label: "Hollow bullets", preview: "◦" },
-    { id: "square", label: "Square bullets", preview: "▪" },
-    { id: "decimal", label: "Numbered list", preview: "1." },
+    { id: "disc", label: "Filled bullets", preview: "•", icon: "fa-circle" },
+    { id: "circle", label: "Hollow bullets", preview: "◦", icon: "fa-circle-notch" },
+    { id: "square", label: "Square bullets", preview: "▪", icon: "fa-square" },
+    { id: "decimal", label: "Numbered list", preview: "1.", icon: "fa-list-ol" },
   ];
 
   const addTitleBox = () => {
@@ -685,57 +685,34 @@ const Toolbar = ({
                   <i className="fas fa-list-ul"></i>
                   <span>Bullets</span>
                 </button>
-                <div className="dropdown-content">
-                  <div className="control-group column">
-                    <label>Text Color</label>
-                    <div className="quick-colors">
-                      {textColors.slice(0, 12).map((color) => (
-                        <button
-                          key={`bullet-color-${color}`}
-                          className={
-                            "quick-color-btn" +
-                            (bulletColor === color ? " active" : "")
-                          }
-                          style={{
-                            backgroundColor: color,
-                            borderColor:
-                              bulletColor === color
-                                ? "#ffffff"
-                                : "rgba(255,255,255,0.3)",
-                          }}
-                          onClick={() => setBulletColor(color)}
-                        />
-                      ))}
-                      <input
-                        type="color"
-                        className="color-input"
-                        value={bulletColor}
-                        onChange={(e) => setBulletColor(e.target.value)}
-                        title="Custom color"
-                      />
-                    </div>
+                <div className="dropdown-content" style={{ minWidth: '40px', padding: '8px 4px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {bulletStyles.map((style) => (
+                      <button
+                        key={style.id}
+                        className="dropdown-item"
+                        onClick={() => addBulletList(style.id)}
+                        title={style.label}
+                        style={{
+                          padding: '6px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          borderRadius: '4px',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <i className={`fas ${style.icon}`} style={{
+                          fontSize: '16px',
+                          width: '20px',
+                          height: '20px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}></i>
+                      </button>
+                    ))}
                   </div>
-                  <div className="dropdown-divider"></div>
-                  {bulletStyles.map((style) => (
-                    <button
-                      key={style.id}
-                      className="dropdown-item"
-                      onClick={() => addBulletList(style.id)}
-                    >
-                      <span className="item-label">
-                        <span
-                          style={{
-                            fontSize: "18px",
-                            width: "24px",
-                            textAlign: "center",
-                          }}
-                        >
-                          {style.preview}
-                        </span>
-                        <span>{style.label}</span>
-                      </span>
-                    </button>
-                  ))}
                 </div>
               </div>
 

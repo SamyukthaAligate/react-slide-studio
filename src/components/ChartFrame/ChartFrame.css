@@ -1,4 +1,9 @@
-/* Chart Frame Styles */
+/* .chart-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+} */
 .chart-frame {
   width: 100%;
   height: 100%;
@@ -6,10 +11,17 @@
 }
 
 .chart-frame__body {
-  position: relative;
   width: 100%;
   height: 100%;
   overflow: hidden;
+  border-radius: 16px;
+}
+
+.chart-frame__body {
+  position: relative;
+  overflow: visible;
+  width: 100%;
+  height: 100%;
   border-radius: 18px;
   background: #ffffff;
   box-shadow: 0 18px 42px rgba(15, 23, 42, 0.12);
@@ -17,7 +29,6 @@
   flex-direction: column;
 }
 
-/* Chart Card Styles */
 .chart-card {
   width: 100%;
   height: 100%;
@@ -25,12 +36,14 @@
   flex-direction: column;
 }
 
-.chart-card__title,
+.chart-card__title {
+  font-weight: 600;
+  color: #0f172a;
+}
+
 .chart-card__header {
   font-weight: 600;
   color: #0f172a;
-  margin: 0;
-  padding: 12px 16px;
 }
 
 .chart-card__plot {
@@ -40,7 +53,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 0 40px;
+  padding-left: 40px; 
   box-sizing: border-box;
   align-items: center;
   justify-content: center;
@@ -50,7 +63,6 @@
 .chart-card__plot svg {
   width: 100%;
   height: 100%;
-  max-height: 90%;
   display: block;
   overflow: visible;
 }
@@ -62,7 +74,7 @@
   gap: 10px;
   color: #475569;
   margin-top: 12px;
+  padding-bottom: 12px;
   min-height: 40px;
-  padding: 6px 16px 16px;
-  box-sizing: border-box;
+  padding: 6px 0 10px;
 }

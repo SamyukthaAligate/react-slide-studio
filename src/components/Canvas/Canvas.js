@@ -1,9 +1,10 @@
 import React, { useState, useRef, useCallback } from "react";
 import ChartFrame from "../ChartFrame/ChartFrame";
+import ShapeRenderer from "../ShapeRenderer/ShapeRenderer";
 import "./Canvas.css";
 
-const CANVAS_WIDTH = 800;  // Further reduced to ensure all corners are visible
-const CANVAS_HEIGHT = 450; // Maintain 16:9 aspect ratio (800/1.778 = ~450)
+const CANVAS_WIDTH = 960;  // Standard canvas width matching App.js
+const CANVAS_HEIGHT = 540; // Standard canvas height matching App.js (16:9 aspect ratio)
 const MIN_ELEMENT_WIDTH = 50;
 const MIN_ELEMENT_HEIGHT = 30;
 
@@ -47,6 +48,8 @@ const Canvas = ({
   const canvasRef = useRef(null);
   const [isEditingText, setIsEditingText] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [isRotating, setIsRotating] = useState(false);
+  const [rotationStart, setRotationStart] = useState({ angle: 0, x: 0, y: 0 });
   const editorRefs = useRef(new Map());
   const ENABLE_PEER_GUIDES = false;
   const activeSlide = slide || { background: "#ffffff", elements: [] };
@@ -141,15 +144,36 @@ const Canvas = ({
       setPastePosition(absolutePosition);
     }
 
-    const menuHeight = 240;
-    const viewportHeight = window.innerHeight;
-    const clampedY = Math.min(
-      e.clientY,
-      Math.max(0, viewportHeight - menuHeight)
-    );
+    const menuHeight = 400; // Estimated max menu height
+    const menuWidth = 280; // Estimated menu width
+    
+    // Get canvas bounds to constrain menu within canvas area
+    const canvasBounds = canvasRef.current.getBoundingClientRect();
+    const canvasRight = canvasBounds.right;
+    const canvasBottom = canvasBounds.bottom;
+    const canvasLeft = canvasBounds.left;
+    const canvasTop = canvasBounds.top;
+    
+    // Position menu at cursor, but ensure it stays within canvas bounds
+    let clampedX = e.clientX;
+    let clampedY = e.clientY;
+    
+    // If menu would go off right edge of canvas, position it to the left
+    if (clampedX + menuWidth > canvasRight) {
+      clampedX = Math.max(canvasLeft, canvasRight - menuWidth - 10);
+    }
+    
+    // If menu would go off bottom edge of canvas, position it above
+    if (clampedY + menuHeight > canvasBottom) {
+      clampedY = Math.max(canvasTop, canvasBottom - menuHeight - 10);
+    }
+    
+    // Ensure menu doesn't go off left or top edges
+    clampedX = Math.max(canvasLeft, clampedX);
+    clampedY = Math.max(canvasTop, clampedY);
 
     setHoveredMenuItem(null);
-    setContextMenu({ show: true, x: e.clientX, y: clampedY, absolutePosition });
+    setContextMenu({ show: true, x: clampedX, y: clampedY, absolutePosition });
   };
 
   const hideContextMenu = () => {
@@ -340,7 +364,19 @@ const Canvas = ({
     e.stopPropagation();
     e.preventDefault();
 
-    if (handle) {
+    if (handle === 'rotate') {
+      setIsRotating(true);
+      const rect = canvasRef.current.getBoundingClientRect();
+      const centerX = element.x + element.width / 2;
+      const centerY = element.y + element.height / 2;
+      setRotationStart({ 
+        angle: element.rotation || 0, 
+        x: e.clientX, 
+        y: e.clientY,
+        centerX,
+        centerY
+      });
+    } else if (handle) {
       setIsResizing(true);
       setResizeHandle(handle);
     } else {
@@ -421,20 +457,22 @@ const Canvas = ({
 
   const handleMouseMove = useCallback(
     (e) => {
-      if (!selectedElement || (!isDragging && !isResizing) || isEditingText)
+      if (!selectedElement || (!isDragging && !isResizing && !isRotating) || isEditingText)
         return;
 
-      // mouse in canvas coordinates (accounts for zoom)
-      const p = getLocalPoint(e);
-      const currentX = p.x;
-      const currentY = p.y;
+      // Use requestAnimationFrame for smoother performance
+      requestAnimationFrame(() => {
+        // mouse in canvas coordinates (accounts for zoom)
+        const p = getLocalPoint(e);
+        const currentX = p.x;
+        const currentY = p.y;
 
-      if (isDragging) {
-        const deltaX = currentX - dragStart.x;
-        const deltaY = currentY - dragStart.y;
+        if (isDragging) {
+          const deltaX = currentX - dragStart.x;
+          const deltaY = currentY - dragStart.y;
 
-        const canvasWidth = CANVAS_WIDTH;
-        const canvasHeight = CANVAS_HEIGHT;
+          const canvasWidth = CANVAS_WIDTH;
+          const canvasHeight = CANVAS_HEIGHT;
 
         let newX = Math.max(
           0,
@@ -642,12 +680,51 @@ const Canvas = ({
 
         setDragStart({ x: currentX, y: currentY });
       }
+
+      if (isRotating) {
+        // Calculate angle from element center to mouse position
+        const rect = canvasRef.current.getBoundingClientRect();
+        const scale = zoomLevel / 100 || 1;
+        
+        // Get element center in screen coordinates
+        const centerScreenX = rect.left + (rotationStart.centerX * scale);
+        const centerScreenY = rect.top + (rotationStart.centerY * scale);
+        
+        // Calculate angle from center to current mouse position
+        const deltaX = e.clientX - centerScreenX;
+        const deltaY = e.clientY - centerScreenY;
+        const angleRad = Math.atan2(deltaY, deltaX);
+        const angleDeg = angleRad * (180 / Math.PI);
+        
+        // Calculate initial angle
+        const initialDeltaX = rotationStart.x - centerScreenX;
+        const initialDeltaY = rotationStart.y - centerScreenY;
+        const initialAngleRad = Math.atan2(initialDeltaY, initialDeltaX);
+        const initialAngleDeg = initialAngleRad * (180 / Math.PI);
+        
+        // Calculate rotation delta
+        let newRotation = rotationStart.angle + (angleDeg - initialAngleDeg);
+        
+        // Normalize to 0-360 range
+        newRotation = ((newRotation % 360) + 360) % 360;
+        
+        // Snap to 15-degree increments if Shift is held
+        if (e.shiftKey) {
+          newRotation = Math.round(newRotation / 15) * 15;
+        }
+        
+        onUpdateElement(selectedElement.id, { rotation: newRotation });
+      }
+      }); // Close requestAnimationFrame
     },
     [
       selectedElement,
       isDragging,
       isResizing,
+      isRotating,
       isEditingText,
+      rotationStart,
+      zoomLevel,
       dragStart,
       resizeHandle,
       onUpdateElement,
@@ -660,12 +737,13 @@ const Canvas = ({
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
     setIsResizing(false);
+    setIsRotating(false);
     setResizeHandle(null);
     setGuides({ v: null, h: null });
   }, []);
 
   React.useEffect(() => {
-    if (isDragging || isResizing) {
+    if (isDragging || isResizing || isRotating) {
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
 
@@ -674,7 +752,41 @@ const Canvas = ({
         document.removeEventListener("mouseup", handleMouseUp);
       };
     }
-  }, [isDragging, isResizing, handleMouseMove, handleMouseUp]);
+  }, [isDragging, isResizing, isRotating, handleMouseMove, handleMouseUp]);
+
+  const addBulletList = (style) => {
+    // Set initial dimensions to fit within canvas with safe margins
+    const initialWidth = 300; // Slightly narrower for better fit
+    const initialHeight = 120; // Reduced height to ensure visibility
+    
+    // Position in the top-left corner with some padding
+    const x = 20; // 20px from left
+    const y = 20; // 20px from top
+    
+    const bulletContent = (() => {
+      switch (style) {
+        case "circle":
+          return ["◦ First point"];
+        case "square":
+          return ["▪ First point"];
+        case "decimal":
+          return ["1. First point"];
+        case "disc":
+        default:
+          return ["• First point"];
+      }
+    })().join("\n");
+    
+    onAddElement({
+      type: "text",
+      content: bulletContent,
+      listType: style,
+      x,
+      y,
+      width: initialWidth,
+      height: initialHeight,
+    });
+  };
 
   const bulletForStyle = (styleName, index) => {
     switch (styleName) {
@@ -703,82 +815,157 @@ const Canvas = ({
   };
 
   const applyBulletContinuation = (rawValue, listType) => {
-    const style = listType || "";
-    if (!style) return rawValue;
+    try {
+      // Handle undefined or null input
+      if (rawValue === undefined || rawValue === null) {
+        return '';
+      }
+      
+      // Ensure rawValue is a string
+      const stringValue = String(rawValue);
+      const style = listType || '';
+      
+      // If no list type is specified, return the original value as a string
+      if (!style) return stringValue;
 
-    const lines = rawValue.split("\n");
-    let bulletIndex = 0;
+      const lines = stringValue.split('\n');
+      let bulletIndex = 0;
 
-    const processed = lines.map((line, idx) => {
-      const trimmed = line.trim();
-      if (!trimmed) {
-        if (idx === lines.length - 1) {
-          const bullet = bulletForStyle(style, bulletIndex++);
-          return `${bullet} `;
+      const processed = lines.map((line, idx) => {
+        // Ensure line is a string before calling trim()
+        const lineStr = String(line || '');
+        const trimmed = lineStr.trim();
+        
+        if (!trimmed) {
+          if (idx === lines.length - 1) {
+            const bullet = bulletForStyle(style, bulletIndex++);
+            return `${bullet} `;
+          }
+          return '';
         }
-        return "";
-      }
 
-      const bullet = bulletForStyle(style, bulletIndex++);
+        const bullet = bulletForStyle(style, bulletIndex++);
 
-      if (style === "decimal") {
-        const text = trimmed.replace(/^\d+\.\s*/, "").trim();
-        return text ? `${bullet} ${text}`.trimEnd() : `${bullet} `;
-      }
+        if (style === 'decimal') {
+          const text = trimmed.replace(/^\d+\.\s*/, '').trim();
+          return text ? `${bullet} ${text}`.trimEnd() : `${bullet} `;
+        }
 
-      if (["disc", "circle", "square"].includes(style)) {
-        const text = trimmed.replace(/^[•◦▪]\s*/, "").trim();
-        return text ? `${bullet} ${text}`.trimEnd() : `${bullet} `;
-      }
+        if (['disc', 'circle', 'square'].includes(style)) {
+          const text = trimmed.replace(/^[•◦▪]\s*/, '').trim();
+          return text ? `${bullet} ${text}`.trimEnd() : `${bullet} `;
+        }
 
-      return line;
-    });
+        return lineStr;
+      });
 
-    return processed.join("\n");
+      return processed.join('\n');
+    } catch (error) {
+      console.error('Error in applyBulletContinuation:', error);
+      return rawValue !== undefined ? String(rawValue) : '';
+    }
   };
 
   const handleTextChange = (e, element) => {
     const node = e.target;
     const rawValue = node.value;
     const content = applyBulletContinuation(rawValue, element.listType);
-    // 1) grow the DOM node
-    node.style.height = "auto";
-    const newH = Math.max(30, Math.ceil(node.scrollHeight));
-    node.style.height = newH + "px";
-    // 2) persist in element state so the box keeps the size after blur
-    onUpdateElement(element.id, { content, height: newH });
+    
+    // Calculate new height based on content
+    node.style.height = 'auto';
+    const lineHeight = parseInt(window.getComputedStyle(node).lineHeight) || 24; // Default to 24px if can't compute
+    const minHeight = lineHeight * 1.5; // At least 1.5 lines height
+    const newHeight = Math.max(minHeight, Math.ceil(node.scrollHeight));
+    
+    // Get canvas container
+    const canvasContainer = node.closest('.canvas-container');
+    if (!canvasContainer) return;
+    
+    const canvasRect = canvasContainer.getBoundingClientRect();
+    const elementRect = node.parentElement.getBoundingClientRect();
+    
+    // Calculate available space
+    const maxAvailableHeight = canvasRect.height - element.y - 20; // 20px padding from bottom
+    const maxAvailableWidth = canvasRect.width - element.x - 20;   // 20px padding from right
+    
+    // Calculate new dimensions
+    const finalHeight = Math.min(newHeight, maxAvailableHeight);
+    const finalWidth = Math.min(Math.max(200, elementRect.width), maxAvailableWidth); // Min width 200px
+    
+    // Apply new dimensions to textarea
+    node.style.height = `${finalHeight}px`;
+    node.style.overflowY = newHeight > finalHeight ? 'auto' : 'hidden';
+    
+    // Update element state
+    onUpdateElement(element.id, { 
+      content,
+      height: finalHeight,
+      width: finalWidth
+    });
+    
+    // Auto-scroll the container if needed
+    if (node.scrollHeight > node.clientHeight) {
+      node.scrollTop = node.scrollHeight;
+    }
   };
 
   const handleTextKeyDown = (e, element) => {
-    if (!element.listType) return;
-
     const textarea = e.target;
     const { selectionStart, selectionEnd, value } = textarea;
     const style = element.listType;
 
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter") {
       e.preventDefault();
-
-      const before = value.slice(0, selectionStart);
-      const after = value.slice(selectionEnd);
-
-      const linesBefore = before.split("\n");
-      let bulletCount = 0;
-      linesBefore.forEach((line) => {
-        if (!line.trim()) return;
-        bulletCount += 1;
-      });
-
-      const bullet = bulletForStyle(style, bulletCount);
-      const insertion = `\n${bullet} `;
-      const newValue = before + insertion + after;
-      const content = applyBulletContinuation(newValue, style);
-      onUpdateElement(element.id, { content });
-
-      requestAnimationFrame(() => {
-        const pos = before.length + insertion.length;
-        textarea.selectionStart = textarea.selectionEnd = pos;
-      });
+      
+      // For bullet points, handle the bullet insertion
+      if (style) {
+        const before = value.slice(0, selectionStart);
+        const after = value.slice(selectionEnd);
+        
+        // Count existing bullets to determine the next number for numbered lists
+        const linesBefore = before.split("\n");
+        let bulletCount = 0;
+        linesBefore.forEach((line) => {
+          if (!line.trim()) return;
+          bulletCount += 1;
+        });
+        
+        const bullet = bulletForStyle(style, bulletCount);
+        const insertion = e.shiftKey ? "\n" : `\n${bullet} `;
+        const newValue = before + insertion + after;
+        const content = applyBulletContinuation(newValue, style);
+        
+        // Update element with new content
+        onUpdateElement(element.id, { content });
+        
+        // Set cursor position after the new bullet
+        requestAnimationFrame(() => {
+          const pos = before.length + insertion.length;
+          textarea.selectionStart = textarea.selectionEnd = pos;
+          
+          // Trigger a resize to ensure the textarea expands if needed
+          const event = new Event('input', { bubbles: true });
+          Object.defineProperty(event, 'target', { value: textarea, enumerable: true });
+          textarea.dispatchEvent(event);
+        });
+      } else {
+        // For regular text, just add a new line and resize
+        const before = value.slice(0, selectionStart);
+        const after = value.slice(selectionEnd);
+        const newValue = before + "\n" + after;
+        
+        onUpdateElement(element.id, { content: newValue });
+        
+        requestAnimationFrame(() => {
+          const pos = before.length + 1;
+          textarea.selectionStart = textarea.selectionEnd = pos;
+          
+          // Trigger a resize to ensure the textarea expands if needed
+          const event = new Event('input', { bubbles: true });
+          Object.defineProperty(event, 'target', { value: textarea, enumerable: true });
+          textarea.dispatchEvent(event);
+        });
+      }
       return;
     }
 
@@ -1571,6 +1758,8 @@ const Canvas = ({
                   minHeight: "30px",
                   boxSizing: "border-box",
                   position: "absolute",
+                  transform: element.rotation ? `rotate(${element.rotation}deg)` : "none",
+                  transformOrigin: "center center",
                 }}
                 onClick={(e) => handleElementClick(e, element)}
                 onDoubleClick={(e) => handleElementDoubleClick(e, element)}
@@ -1616,6 +1805,13 @@ const Canvas = ({
                       className="rz-corner rz-se"
                       onMouseDown={(e) => handleMouseDown(e, element, "se")}
                     />
+                    <div
+                      className="rz-rotate"
+                      onMouseDown={(e) => handleMouseDown(e, element, "rotate")}
+                      title="Rotate (hold Shift for 15° snap)"
+                    >
+                      <i className="fas fa-redo"></i>
+                    </div>
                   </div>
                 )}
               </div>
@@ -1626,88 +1822,9 @@ const Canvas = ({
     }
 
     if (element.type === "shape") {
-      const fill = element.fill || "#2f2f2f";
-      const stroke = element.stroke || "transparent";
-      const strokeWidth = Number.isFinite(element.strokeWidth)
-        ? Math.max(element.strokeWidth, 0)
-        : 0;
-      const opacity = typeof element.opacity === "number" ? element.opacity : 1;
-      const cornerRadius =
-        typeof element.cornerRadius === "number"
-          ? Math.max(element.cornerRadius, 0)
-          : 0;
       const shadowStyle = element.shadow
-        ? "0 18px 32px rgba(0,0,0,0.35)"
+        ? "0 8px 24px rgba(0,0,0,0.15)"
         : "none";
-      const viewWidth = Math.max(element.width, 1);
-      const viewHeight = Math.max(element.height, 1);
-      const inset = strokeWidth / 2;
-
-      let shapeSvg = null;
-
-      if (element.shapeType === "rectangle") {
-        shapeSvg = (
-          <svg
-            width={viewWidth}
-            height={viewHeight}
-            viewBox={`0 0 ${viewWidth} ${viewHeight}`}
-          >
-            <rect
-              x={inset}
-              y={inset}
-              width={Math.max(viewWidth - strokeWidth, 0)}
-              height={Math.max(viewHeight - strokeWidth, 0)}
-              rx={cornerRadius}
-              ry={cornerRadius}
-              fill={fill}
-              stroke={stroke}
-              strokeWidth={strokeWidth}
-              opacity={opacity}
-            />
-          </svg>
-        );
-      } else if (element.shapeType === "circle") {
-        const radiusX = Math.max((viewWidth - strokeWidth) / 2, 0);
-        const radiusY = Math.max((viewHeight - strokeWidth) / 2, 0);
-        shapeSvg = (
-          <svg
-            width={viewWidth}
-            height={viewHeight}
-            viewBox={`0 0 ${viewWidth} ${viewHeight}`}
-          >
-            <ellipse
-              cx={viewWidth / 2}
-              cy={viewHeight / 2}
-              rx={radiusX}
-              ry={radiusY}
-              fill={fill}
-              stroke={stroke}
-              strokeWidth={strokeWidth}
-              opacity={opacity}
-            />
-          </svg>
-        );
-      } else if (element.shapeType === "triangle") {
-        const topPoint = `${viewWidth / 2},${inset}`;
-        const leftPoint = `${inset},${viewHeight - inset}`;
-        const rightPoint = `${viewWidth - inset},${viewHeight - inset}`;
-        shapeSvg = (
-          <svg
-            width={viewWidth}
-            height={viewHeight}
-            viewBox={`0 0 ${viewWidth} ${viewHeight}`}
-          >
-            <polygon
-              points={`${topPoint} ${rightPoint} ${leftPoint}`}
-              fill={fill}
-              stroke={stroke}
-              strokeWidth={strokeWidth}
-              opacity={opacity}
-              strokeLinejoin="round"
-            />
-          </svg>
-        );
-      }
 
       return (
         <div
@@ -1723,24 +1840,17 @@ const Canvas = ({
               top: element.y,
               width: element.width,
               height: element.height,
-              border: isSelected
-                ? "2px solid #1a73e8"
-                : "2px solid transparent",
               cursor: isDragging ? "grabbing" : isSelected ? "move" : "pointer",
-              borderRadius:
-                element.shapeType === "rectangle" ? cornerRadius : 0,
-              boxShadow: shadowStyle,
-              transition: "box-shadow 0.2s ease",
-              background: "transparent",
+              filter: element.shadow ? `drop-shadow(${shadowStyle})` : "none",
+              outline: isSelected ? "2px solid #1a73e8" : "none",
+              outlineOffset: "2px",
+              transform: element.rotation ? `rotate(${element.rotation}deg)` : "none",
+              transformOrigin: "center center",
             }}
             onClick={(e) => handleElementClick(e, element)}
             onMouseDown={(e) => handleMouseDown(e, element)}
           >
-            <div
-              style={{ width: "100%", height: "100%", pointerEvents: "none" }}
-            >
-              {shapeSvg}
-            </div>
+            <ShapeRenderer element={element} />
             {isSelected && !isEditingText && (
               <div className="resize-zones" aria-hidden>
                 <div
@@ -1775,6 +1885,13 @@ const Canvas = ({
                   className="rz-corner rz-se"
                   onMouseDown={(e) => handleMouseDown(e, element, "se")}
                 />
+                <div
+                  className="rz-rotate"
+                  onMouseDown={(e) => handleMouseDown(e, element, "rotate")}
+                  title="Rotate (hold Shift for 15° snap)"
+                >
+                  <i className="fas fa-redo"></i>
+                </div>
               </div>
             )}
           </div>
@@ -1797,6 +1914,8 @@ const Canvas = ({
                 ? "2px solid #1a73e8"
                 : "2px solid transparent",
               cursor: isDragging ? "grabbing" : isSelected ? "move" : "pointer",
+              transform: element.rotation ? `rotate(${element.rotation}deg)` : "none",
+              transformOrigin: "center center",
             }}
             onClick={(e) => handleElementClick(e, element)}
             onMouseDown={(e) => handleMouseDown(e, element)}
@@ -1807,7 +1926,7 @@ const Canvas = ({
               style={{
                 width: "100%",
                 height: "100%",
-                objectFit: "cover",
+                objectFit: "contain",
                 pointerEvents: "none",
               }}
               draggable={false}
@@ -1846,6 +1965,13 @@ const Canvas = ({
                   className="rz-corner rz-se"
                   onMouseDown={(e) => handleMouseDown(e, element, "se")}
                 />
+                <div
+                  className="rz-rotate"
+                  onMouseDown={(e) => handleMouseDown(e, element, "rotate")}
+                  title="Rotate (hold Shift for 15° snap)"
+                >
+                  <i className="fas fa-redo"></i>
+                </div>
               </div>
             )}
           </div>
@@ -1871,6 +1997,8 @@ const Canvas = ({
               borderRadius: "16px",
               backgroundColor: "transparent",
               boxShadow: "none",
+              transform: element.rotation ? `rotate(${element.rotation}deg)` : "none",
+              transformOrigin: "center center",
             }}
             onClick={(e) => handleElementClick(e, element)}
             onDoubleClick={() => {
@@ -1915,6 +2043,13 @@ const Canvas = ({
                   className="rz-corner rz-se"
                   onMouseDown={(e) => handleMouseDown(e, element, "se")}
                 />
+                <div
+                  className="rz-rotate"
+                  onMouseDown={(e) => handleMouseDown(e, element, "rotate")}
+                  title="Rotate (hold Shift for 15° snap)"
+                >
+                  <i className="fas fa-redo"></i>
+                </div>
               </div>
             )}
           </div>
@@ -1939,6 +2074,8 @@ const Canvas = ({
               borderRadius: "4px",
               backgroundColor: "#000",
               cursor: isDragging ? "grabbing" : isSelected ? "move" : "pointer",
+              transform: element.rotation ? `rotate(${element.rotation}deg)` : "none",
+              transformOrigin: "center center",
             }}
             onClick={(e) => handleElementClick(e, element)}
             onMouseDown={(e) => handleMouseDown(e, element)}
@@ -1988,6 +2125,13 @@ const Canvas = ({
                   className="rz-corner rz-se"
                   onMouseDown={(e) => handleMouseDown(e, element, "se")}
                 />
+                <div
+                  className="rz-rotate"
+                  onMouseDown={(e) => handleMouseDown(e, element, "rotate")}
+                  title="Rotate (hold Shift for 15° snap)"
+                >
+                  <i className="fas fa-redo"></i>
+                </div>
               </div>
             )}
           </div>
@@ -2067,7 +2211,7 @@ const Canvas = ({
           backgroundImage: slide.backgroundImage
             ? `url(${slide.backgroundImage})`
             : slide.backgroundGradient || "none",
-          backgroundSize: slide.backgroundImage ? "cover" : "cover",
+          backgroundSize: slide.backgroundImage ? "contain" : "cover",
           backgroundPosition: "center",
           backgroundRepeat: slide.backgroundImage ? "no-repeat" : "no-repeat",
           width: `${CANVAS_WIDTH}px`,
@@ -2102,23 +2246,22 @@ const Canvas = ({
           className="context-menu"
           style={{
             position: "fixed",
-            left: contextMenu.x,
-            top: contextMenu.y,
-            zIndex: 1200,
+            left: `${contextMenu.x}px`,
+            top: `${contextMenu.y}px`,
             background:
-              "linear-gradient(165deg, rgba(12,38,76,0.96) 0%, rgba(22,56,108,0.97) 60%, rgba(10,28,58,0.96) 100%)",
-            borderRadius: "16px",
-            border: "1px solid rgba(88, 164, 255, 0.35)",
+              "linear-gradient(160deg, rgba(14, 44, 85, 0.96) 0%, rgba(28, 73, 141, 0.98) 60%, rgba(14, 32, 68, 0.98) 100%)",
+            backdropFilter: "blur(22px)",
+            border: "1px solid rgba(56, 141, 232, 0.45)",
+            borderRadius: "12px",
             boxShadow:
-              "0 36px 60px rgba(8, 22, 44, 0.66), inset 0 0 0 1px rgba(255, 255, 255, 0.05)",
-            minWidth: "220px",
-            padding: "10px 0",
-            backdropFilter: "blur(18px)",
-            display: "flex",
-            flexDirection: "column",
-            gap: "4px",
+              "0 36px 60px rgba(10, 30, 60, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.06)",
+            minWidth: "260px",
+            maxWidth: "320px",
+            padding: "8px 0",
+            zIndex: 100000,
+            pointerEvents: "auto",
           }}
-          onClick={(e) => e.stopPropagation()}
+          onMouseLeave={() => setHoveredMenuItem(null)}
         >
           {selectedElement ? (
             <>

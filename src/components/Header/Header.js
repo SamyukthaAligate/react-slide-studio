@@ -250,12 +250,14 @@ const Header = ({
       document.removeEventListener("mousedown", handleClickOutsideShare);
   }, [isShareMenuOpen]);
 
-  const handleMenuAction = (action) => {
+  const handleMenuAction = (action, shouldCloseMenu = true) => {
     console.log("Menu action triggered:", action);
-    setActiveMenu(null);
-    setIsMobileMenuOpen(false);
-    setFileSubmenusOpen({ recent: false });
-    closeShareMenu();
+    if (shouldCloseMenu) {
+      setActiveMenu(null);
+      setIsMobileMenuOpen(false);
+      setFileSubmenusOpen({ recent: false });
+      closeShareMenu();
+    }
     if (typeof action === "function") action();
   };
 
@@ -391,7 +393,7 @@ const Header = ({
               >
                 <button
                   className="dropdown-item"
-                  onClick={() => handleMenuAction(onNew)}
+                  onClick={() => handleMenuAction(onNew, false)}
                 >
                   <span className="item-label">
                     <i className="fas fa-file"></i>
@@ -401,7 +403,7 @@ const Header = ({
                 </button>
                 <button
                   className="dropdown-item"
-                  onClick={() => handleMenuAction(onSave)}
+                  onClick={() => handleMenuAction(onSave, false)}
                 >
                   <span className="item-label">
                     <i className="fas fa-save"></i>
@@ -411,7 +413,7 @@ const Header = ({
                 </button>
                 <button
                   className="dropdown-item"
-                  onClick={() => handleMenuAction(onMakeCopy)}
+                  onClick={() => handleMenuAction(onMakeCopy, false)}
                 >
                   <span className="item-label">
                     <i className="fas fa-copy"></i>
@@ -426,6 +428,7 @@ const Header = ({
                     }`}
                     onClick={(e) => {
                       e.stopPropagation();
+                      e.preventDefault();
                       setFileSubmenusOpen((prev) => ({
                         ...prev,
                         recent: !prev.recent,
@@ -453,7 +456,7 @@ const Header = ({
                             <button
                               className="dropdown-item"
                               onClick={() =>
-                                handleMenuAction(() => onOpen && onOpen(ppt.id))
+                                handleMenuAction(() => onOpen && onOpen(ppt.id), false)
                               }
                             >
                               <span className="item-label">
@@ -471,7 +474,8 @@ const Header = ({
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleMenuAction(
-                                  () => onDelete && onDelete(ppt.id)
+                                  () => onDelete && onDelete(ppt.id),
+                                  false
                                 );
                               }}
                               title="Delete presentation"
@@ -491,29 +495,11 @@ const Header = ({
                 <div className="dropdown-divider"></div>
                 <button
                   className="dropdown-item"
-                  onClick={() => handleMenuAction(onDownloadPDF)}
-                >
-                  <span className="item-label">
-                    <i className="fas fa-download"></i>
-                    <span>Download as PDF</span>
-                  </span>
-                </button>
-                <button
-                  className="dropdown-item"
-                  onClick={() => handleMenuAction(onExportPPTX)}
+                  onClick={() => handleMenuAction(onExportPPTX, false)}
                 >
                   <span className="item-label">
                     <i className="fas fa-file-archive"></i>
                     <span>Export as PPTX</span>
-                  </span>
-                </button>
-                <button
-                  className="dropdown-item"
-                  onClick={() => handleMenuAction(onImport)}
-                >
-                  <span className="item-label">
-                    <i className="fas fa-file-import"></i>
-                    <span>Import presentation</span>
                   </span>
                 </button>
               </div>
@@ -541,7 +527,7 @@ const Header = ({
               >
                 <button
                   className="dropdown-item"
-                  onClick={() => handleMenuAction(onStartPresentation)}
+                  onClick={() => handleMenuAction(onStartPresentation, false)}
                 >
                   <span className="item-label">
                     <i className="fas fa-play"></i>
@@ -552,7 +538,7 @@ const Header = ({
                 <div className="dropdown-divider"></div>
                 <button
                   className="dropdown-item"
-                  onClick={() => handleMenuAction(onZoomIn)}
+                  onClick={() => handleMenuAction(onZoomIn, false)}
                 >
                   <span className="item-label">
                     <i className="fas fa-search-plus"></i>
@@ -562,7 +548,7 @@ const Header = ({
                 </button>
                 <button
                   className="dropdown-item"
-                  onClick={() => handleMenuAction(onZoomOut)}
+                  onClick={() => handleMenuAction(onZoomOut, false)}
                 >
                   <span className="item-label">
                     <i className="fas fa-search-minus"></i>
@@ -572,7 +558,7 @@ const Header = ({
                 </button>
                 <button
                   className="dropdown-item"
-                  onClick={() => handleMenuAction(onFitToScreen)}
+                  onClick={() => handleMenuAction(onFitToScreen, false)}
                 >
                   <span className="item-label">
                     <i className="fas fa-expand"></i>
@@ -611,7 +597,7 @@ const Header = ({
               >
                 <button
                   className="dropdown-item"
-                  onClick={() => handleMenuAction(onAddSlide)}
+                  onClick={() => handleMenuAction(onAddSlide, false)}
                 >
                   <span className="item-label">
                     <i className="fas fa-plus-square"></i>
@@ -620,7 +606,7 @@ const Header = ({
                 </button>
                 <button
                   className="dropdown-item"
-                  onClick={() => handleMenuAction(onDeleteCurrentSlide)}
+                  onClick={() => handleMenuAction(onDeleteCurrentSlide, false)}
                   disabled={!onDeleteCurrentSlide || slideCount <= 1}
                 >
                   <span className="item-label">
@@ -630,7 +616,7 @@ const Header = ({
                 </button>
                 <button
                   className="dropdown-item"
-                  onClick={() => handleMenuAction(onDeletePreviousSlide)}
+                  onClick={() => handleMenuAction(onDeletePreviousSlide, false)}
                   disabled={
                     !onDeletePreviousSlide ||
                     slideCount <= 1 ||
@@ -645,7 +631,7 @@ const Header = ({
                 <div className="dropdown-divider"></div>
                 <button
                   className="dropdown-item"
-                  onClick={() => handleMenuAction(onMoveSlideUp)}
+                  onClick={() => handleMenuAction(onMoveSlideUp, false)}
                   disabled={
                     typeof onMoveSlideUp !== "function" ||
                     currentSlideIndex <= 0
@@ -658,7 +644,7 @@ const Header = ({
                 </button>
                 <button
                   className="dropdown-item"
-                  onClick={() => handleMenuAction(onMoveSlideDown)}
+                  onClick={() => handleMenuAction(onMoveSlideDown, false)}
                   disabled={
                     typeof onMoveSlideDown !== "function" ||
                     currentSlideIndex >= slideCount - 1

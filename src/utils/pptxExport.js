@@ -13,9 +13,19 @@ export async function exportToPPTX(slides, title = 'Presentation') {
     // iterate slides and add simple text/image/shape placeholders
     slides.forEach((slide) => {
       const s = pptx.addSlide();
-      // set slide background if present
-      if (slide.background) {
+      
+      // set slide background image if present (takes priority)
+      if (slide.backgroundImage) {
+        s.background = { data: slide.backgroundImage };
+      }
+      // set slide background color if present and no image
+      else if (slide.background) {
         s.background = { fill: slide.background };
+      }
+      // set slide background gradient if present and no image/color
+      else if (slide.backgroundGradient) {
+        // PptxGenJS doesn't support CSS gradients directly, use color fallback
+        s.background = { fill: slide.background || 'FFFFFF' };
       }
 
       slide.elements && slide.elements.forEach(el => {

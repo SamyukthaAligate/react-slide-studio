@@ -252,12 +252,14 @@
 
 .canvas-element {
   position: relative;
+  
 }
 
 /* Ensure elements respect canvas bounds on small screens */
 .canvas-element > * {
   max-width: 100%;
   box-sizing: border-box;
+
 }
 
 .canvas-element.dragging {
@@ -802,4 +804,42 @@
 .rz-edge:hover, .rz-corner:hover {
   outline: 1px dashed rgba(26,115,232,0.35);
   outline-offset: -1px;
+}
+
+/* Rotation handle */
+.rz-rotate {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 28px;
+  background: #1a73e8;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  pointer-events: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.rz-rotate:hover {
+  background: #1557b0;
+  transform: translateX(-50%) scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.rz-rotate:active {
+  cursor: grabbing;
+  background: #0d47a1;
+}
+
+.rz-rotate i {
+  pointer-events: none;
 }

@@ -8,20 +8,26 @@ import PresentationMode from "./components/PresentationMode/PresentationMode";
 import HelpModal from "./components/HelpModal/HelpModal";
 import ShareModal from "./components/ShareModal/ShareModal";
 import ChartModal from "./components/ChartModal/ChartModal";
+import ShapesLibrary from "./components/ShapesLibrary/ShapesLibrary";
 import { exportToPDF } from "./utils/pdfExport";
 import { exportToPPTX } from "./utils/pptxExport";
 import "./App.css";
 
 function createTitlePlaceholder() {
+  const canvasWidth = 960;
+  const canvasHeight = 540;
+  const titleWidth = 560; // Reduced from 720px for better proportions
+  const titleHeight = 100;
+  
   return {
     id: uuidv4(),
     type: "text",
     content: "Click to add Title",
-    x: 160,
-    y: 120,
-    width: 640,
-    height: 120,
-    fontSize: 40,
+    x: (canvasWidth - titleWidth) / 2, // Center horizontally
+    y: (canvasHeight - titleHeight) / 2 - 60, // Center vertically with offset for subtitle
+    width: titleWidth,
+    height: titleHeight,
+    fontSize: 44,
     fontFamily: "Roboto",
     color: "#000000",
     backgroundColor: "transparent",
@@ -31,11 +37,35 @@ function createTitlePlaceholder() {
   };
 }
 
+function createSubtitlePlaceholder() {
+  const canvasWidth = 960;
+  const canvasHeight = 540;
+  const subtitleWidth = 560; // Reduced to match title width
+  const subtitleHeight = 60;
+  
+  return {
+    id: uuidv4(),
+    type: "text",
+    content: "Click to add subtitle",
+    x: (canvasWidth - subtitleWidth) / 2, // Center horizontally
+    y: (canvasHeight - subtitleHeight) / 2 + 60, // Center vertically below title
+    width: subtitleWidth,
+    height: subtitleHeight,
+    fontSize: 20,
+    fontFamily: "Roboto",
+    color: "#666666",
+    backgroundColor: "transparent",
+    textAlign: "center",
+    fontWeight: "normal",
+    fontStyle: "normal",
+  };
+}
+
 function App() {
   const [slides, setSlides] = useState([
     {
       id: uuidv4(),
-      elements: [createTitlePlaceholder()],
+      elements: [createTitlePlaceholder(), createSubtitlePlaceholder()],
       background: "#ffffff",
       backgroundGradient: null,
       backgroundImage: null,
@@ -59,6 +89,7 @@ function App() {
   const [showHelp, setShowHelp] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showChartModal, setShowChartModal] = useState(false);
+  const [showShapesLibrary, setShowShapesLibrary] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showRulers, setShowRulers] = useState(false);
   const [toolbarActiveTab, setToolbarActiveTab] = useState("insert");
@@ -164,7 +195,7 @@ function App() {
       setSlides([
         {
           id: uuidv4(),
-          elements: [createTitlePlaceholder()],
+          elements: [createTitlePlaceholder(), createSubtitlePlaceholder()],
           background: "#ffffff",
           backgroundGradient: null,
           backgroundImage: null,
@@ -281,26 +312,56 @@ function App() {
     try {
       // Load saved presentations
       const saved = localStorage.getItem("savedPresentations");
-      if (saved && saved !== 'undefined' && saved !== 'null') {
-        const parsed = JSON.parse(saved);
-        setSavedPresentations(Array.isArray(parsed) ? parsed : []);
+      if (saved && saved !== 'undefined' && saved !== 'null' && saved.trim() !== '') {
+        try {
+          const parsed = JSON.parse(saved);
+          setSavedPresentations(Array.isArray(parsed) ? parsed : []);
+        } catch (e) {
+          console.error("Error parsing savedPresentations:", e);
+          localStorage.removeItem("savedPresentations");
+          setSavedPresentations([]);
+        }
       } else {
         setSavedPresentations([]);
       }
 
       // Load recent PDFs
       const storedRecent = localStorage.getItem("recentPdfs");
-      if (storedRecent && storedRecent !== 'undefined' && storedRecent !== 'null') {
-        const parsed = JSON.parse(storedRecent);
-        setRecentPdfs(Array.isArray(parsed) ? parsed : []);
+      if (storedRecent && storedRecent !== 'undefined' && storedRecent !== 'null' && storedRecent.trim() !== '') {
+        try {
+          const parsed = JSON.parse(storedRecent);
+          setRecentPdfs(Array.isArray(parsed) ? parsed : []);
+        } catch (e) {
+          console.error("Error parsing recentPdfs:", e);
+          localStorage.removeItem("recentPdfs");
+          setRecentPdfs([]);
+        }
       } else {
         setRecentPdfs([]);
+      }
+
+      // Restore current work if available
+      const currentWork = localStorage.getItem("currentWork");
+      if (currentWork && currentWork !== 'undefined' && currentWork !== 'null' && currentWork.trim() !== '') {
+        try {
+          const parsed = JSON.parse(currentWork);
+          if (parsed.slides && Array.isArray(parsed.slides) && parsed.slides.length > 0) {
+            setSlides(parsed.slides);
+            if (parsed.title) {
+              setPresentationTitle(parsed.title);
+            }
+          }
+        } catch (e) {
+          console.error("Error parsing currentWork:", e);
+          localStorage.removeItem("currentWork");
+        }
       }
     } catch (error) {
       console.error("Error loading data from localStorage:", error);
       // Clear potentially corrupted data
       localStorage.removeItem("savedPresentations");
       localStorage.removeItem("recentPdfs");
+      localStorage.removeItem("currentWork");
       setSavedPresentations([]);
       setRecentPdfs([]);
     }
@@ -398,7 +459,7 @@ function App() {
     alert("A copy of the presentation was saved.");
   }, [slides, presentationTitle, savedPresentations, persistPresentations]);
 
-  // Save state to history for undo/redo
+  // Save state to history for undo/redo and persist to localStorage
   const saveToHistory = useCallback(
     (newSlides) => {
       if (isUndoRedoAction.current) {
@@ -412,9 +473,64 @@ function App() {
         return newHistory.slice(-50); // Keep last 50 states
       });
       setHistoryIndex((prev) => Math.min(prev + 1, 49));
+
+      // Auto-save current work to localStorage
+      try {
+        const currentWork = {
+          slides: newSlides,
+          title: presentationTitle,
+          lastModified: new Date().toISOString(),
+        };
+        localStorage.setItem('currentWork', JSON.stringify(currentWork));
+      } catch (error) {
+        console.warn('Failed to auto-save current work:', error);
+      }
     },
-    [historyIndex]
+    [historyIndex, presentationTitle]
   );
+
+  // Undo functionality
+  const handleUndo = useCallback(() => {
+    if (historyIndex > 0) {
+      isUndoRedoAction.current = true;
+      setHistoryIndex((prev) => prev - 1);
+      setSlides(history[historyIndex - 1]);
+    }
+  }, [history, historyIndex]);
+
+  // Redo functionality
+  const handleRedo = useCallback(() => {
+    if (historyIndex < history.length - 1) {
+      isUndoRedoAction.current = true;
+      setHistoryIndex((prev) => prev + 1);
+      setSlides(history[historyIndex + 1]);
+    }
+  }, [history, historyIndex]);
+
+  // Set up global undo/redo handlers
+  useEffect(() => {
+    window.onUndoAction = handleUndo;
+    window.onRedoAction = handleRedo;
+
+    // Keyboard shortcuts
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          handleRedo();
+        } else {
+          handleUndo();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      delete window.onUndoAction;
+      delete window.onRedoAction;
+    };
+  }, [handleUndo, handleRedo]);
 
   // Handle adding elements from header menu
   const handleHeaderAddElement = useCallback(
@@ -578,26 +694,52 @@ function App() {
   }, [undo, redo]);
 
   const addSlide = useCallback(() => {
-    const defaultTextElement = {
+    const canvasWidth = 960;
+    const canvasHeight = 540;
+    
+    // Create centered title placeholder
+    const titleWidth = 560; // Reduced from 720px
+    const titleHeight = 100;
+    const titleElement = {
       id: uuidv4(),
       type: "text",
-      content: "Click to add text",
-      x: 100,
-      y: 100,
-      width: 300,
-      height: 80,
-      fontSize: 24,
+      content: "Click to add Title",
+      x: (canvasWidth - titleWidth) / 2,
+      y: (canvasHeight - titleHeight) / 2 - 60,
+      width: titleWidth,
+      height: titleHeight,
+      fontSize: 44,
       fontFamily: "Roboto",
       color: "#000000",
       backgroundColor: "transparent",
-      textAlign: "left",
+      textAlign: "center",
+      fontWeight: "bold",
+      fontStyle: "normal",
+    };
+    
+    // Create centered subtitle placeholder
+    const subtitleWidth = 560; // Reduced from 720px
+    const subtitleHeight = 60;
+    const subtitleElement = {
+      id: uuidv4(),
+      type: "text",
+      content: "Click to add subtitle",
+      x: (canvasWidth - subtitleWidth) / 2,
+      y: (canvasHeight - subtitleHeight) / 2 + 60,
+      width: subtitleWidth,
+      height: subtitleHeight,
+      fontSize: 20,
+      fontFamily: "Roboto",
+      color: "#666666",
+      backgroundColor: "transparent",
+      textAlign: "center",
       fontWeight: "normal",
       fontStyle: "normal",
     };
 
     const newSlide = {
       id: uuidv4(),
-      elements: [defaultTextElement],
+      elements: [titleElement, subtitleElement],
       background: "#ffffff",
       backgroundGradient: null,
       backgroundImage: null,
@@ -1139,6 +1281,7 @@ function App() {
         toolbarActiveTab={toolbarActiveTab}
         setToolbarActiveTab={setToolbarActiveTab}
         onShowChartModal={() => setShowChartModal(true)}
+        onShowShapesLibrary={() => setShowShapesLibrary(true)}
       />
       <div className="main-content">
         <SlidePanel
@@ -1186,6 +1329,14 @@ function App() {
         <ChartModal
           onClose={() => setShowChartModal(false)}
           onCreateChart={addElement}
+        />
+      )}
+      {showShapesLibrary && (
+        <ShapesLibrary
+          onClose={() => setShowShapesLibrary(false)}
+          onAddShape={addElement}
+          slides={slides}
+          currentSlideIndex={currentSlideIndex}
         />
       )}
       {showSettings && (

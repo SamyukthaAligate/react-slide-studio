@@ -45,6 +45,7 @@ const Toolbar = ({
   toolbarActiveTab,
   setToolbarActiveTab,
   onShowChartModal,
+  onShowShapesLibrary,
 }) => {
   // expose grid toggle via prop callbacks if parent passes them
   // We'll call onToggleGrid(true/false) when user toggles grid
@@ -284,7 +285,6 @@ const Toolbar = ({
       fontWeight: "normal",
       fontStyle: "normal",
     });
-    setActiveDropdown(null);
   };
 
   const addShape = (shapeType) => {
@@ -431,8 +431,8 @@ const Toolbar = ({
     const slide =
       slides && slides[currentSlideIndex] ? slides[currentSlideIndex] : null;
     const padding = 20;
-    const canvasW = 800;
-    const canvasH = 600;
+    const canvasW = 960; // Updated to match actual canvas width
+    const canvasH = 540; // Updated to match actual canvas height
     let x = padding;
     let y = padding;
 
@@ -499,6 +499,11 @@ const Toolbar = ({
     document.addEventListener("mousedown", handleOutside);
     return () => document.removeEventListener("mousedown", handleOutside);
   }, []);
+
+  // Prevent dropdown from closing when clicking inside dropdown content
+  const handleDropdownClick = (e) => {
+    e.stopPropagation();
+  };
 
   const toggleDropdown = (name) => {
     setActiveDropdown((prev) => (prev === name ? null : name));
@@ -648,12 +653,11 @@ const Toolbar = ({
                   </svg>
                   <span>Title & Text</span>
                 </button>
-                <div className="dropdown-content">
+                <div className="dropdown-content" onClick={handleDropdownClick}>
                   <button
                     className="dropdown-item"
                     onClick={() => {
                       addTitleBox();
-                      setActiveDropdown(null);
                     }}
                   >
                     <i className="fas fa-heading"></i>
@@ -663,7 +667,6 @@ const Toolbar = ({
                     className="dropdown-item"
                     onClick={() => {
                       addContentBox();
-                      setActiveDropdown(null);
                     }}
                   >
                     <i className="fas fa-font"></i>
@@ -685,7 +688,7 @@ const Toolbar = ({
                   <i className="fas fa-list-ul"></i>
                   <span>Bullets</span>
                 </button>
-                <div className="dropdown-content" style={{ minWidth: '40px', padding: '8px 4px' }}>
+                <div className="dropdown-content" onClick={handleDropdownClick} style={{ minWidth: '40px', padding: '8px 4px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                     {bulletStyles.map((style) => (
                       <button
@@ -729,7 +732,7 @@ const Toolbar = ({
                   <i className="fas fa-image"></i>
                   <span>Image</span>
                 </button>
-                <div className="dropdown-content">
+                <div className="dropdown-content" onClick={handleDropdownClick}>
                   <label className="dropdown-item">
                     <i className="fas fa-upload"></i>
                     Upload
@@ -738,7 +741,6 @@ const Toolbar = ({
                       accept="image/*"
                       onChange={(e) => {
                         handleImageUpload(e);
-                        setActiveDropdown(null);
                       }}
                       style={{ display: "none" }}
                     />
@@ -759,7 +761,7 @@ const Toolbar = ({
                   <i className="fas fa-video"></i>
                   <span>Video</span>
                 </button>
-                <div className="dropdown-content">
+                <div className="dropdown-content" onClick={handleDropdownClick}>
                   <label className="dropdown-item">
                     <i className="fas fa-upload"></i>
                     Upload Video
@@ -768,7 +770,6 @@ const Toolbar = ({
                       accept="video/*"
                       onChange={(e) => {
                         handleVideoUpload(e);
-                        setActiveDropdown(null);
                       }}
                       style={{ display: "none" }}
                     />
@@ -798,12 +799,11 @@ const Toolbar = ({
                   </svg>
                   <span>Shape</span>
                 </button>
-                <div className="dropdown-content">
+                <div className="dropdown-content" onClick={handleDropdownClick}>
                   <button
                     className="dropdown-item"
                     onClick={() => {
                       addShape("rectangle");
-                      setActiveDropdown(null);
                     }}
                   >
                     <i className="fas fa-square"></i>
@@ -813,7 +813,6 @@ const Toolbar = ({
                     className="dropdown-item"
                     onClick={() => {
                       addShape("circle");
-                      setActiveDropdown(null);
                     }}
                   >
                     <i className="fas fa-circle"></i>
@@ -823,11 +822,23 @@ const Toolbar = ({
                     className="dropdown-item"
                     onClick={() => {
                       addShape("triangle");
-                      setActiveDropdown(null);
                     }}
                   >
                     <i className="fas fa-play"></i>
                     Triangle
+                  </button>
+                  <div className="dropdown-divider"></div>
+                  <button
+                    className="dropdown-item"
+                    onClick={() => {
+                      if (onShowShapesLibrary) {
+                        onShowShapesLibrary();
+                      }
+                    }}
+                    style={{ fontWeight: '600', color: '#1a73e8' }}
+                  >
+                    <i className="fas fa-shapes"></i>
+                    More Shapes...
                   </button>
                 </div>
               </div>
@@ -854,12 +865,11 @@ const Toolbar = ({
                   </svg>
                   <span>Chart</span>
                 </button>
-                <div className="dropdown-content">
+                <div className="dropdown-content" onClick={handleDropdownClick}>
                   <button
                     className="dropdown-item"
                     onClick={() => {
                       addChart("bar");
-                      setActiveDropdown(null);
                     }}
                   >
                     <i className="fas fa-chart-bar"></i>
@@ -869,7 +879,6 @@ const Toolbar = ({
                     className="dropdown-item"
                     onClick={() => {
                       addChart("pie");
-                      setActiveDropdown(null);
                     }}
                   >
                     <i className="fas fa-chart-pie"></i>
@@ -879,7 +888,6 @@ const Toolbar = ({
                     className="dropdown-item"
                     onClick={() => {
                       addChart("line");
-                      setActiveDropdown(null);
                     }}
                   >
                     <i className="fas fa-chart-line"></i>
@@ -889,7 +897,6 @@ const Toolbar = ({
                     className="dropdown-item"
                     onClick={() => {
                       onShowChartModal();
-                      setActiveDropdown(null);
                     }}
                   >
                     <i className="fas fa-chart-network"></i>
@@ -970,14 +977,13 @@ const Toolbar = ({
                           : "Chart Type"}
                       </span>
                     </button>
-                    <div className="dropdown-content">
+                    <div className="dropdown-content" onClick={handleDropdownClick}>
                       <button
                         className={`dropdown-item ${
                           selectedElement.chartType === "bar" ? "active" : ""
                         }`}
                         onClick={() => {
                           updateChartProperties({ chartType: "bar" });
-                          setActiveDropdown(null);
                         }}
                       >
                         <i className="fas fa-chart-bar"></i>
@@ -989,7 +995,6 @@ const Toolbar = ({
                         }`}
                         onClick={() => {
                           updateChartProperties({ chartType: "pie" });
-                          setActiveDropdown(null);
                         }}
                       >
                         <i className="fas fa-chart-pie"></i>
@@ -1001,7 +1006,6 @@ const Toolbar = ({
                         }`}
                         onClick={() => {
                           updateChartProperties({ chartType: "line" });
-                          setActiveDropdown(null);
                         }}
                       >
                         <i className="fas fa-chart-line"></i>
@@ -1035,12 +1039,11 @@ const Toolbar = ({
                         Data ({Array.isArray(selectedElement.data) ? selectedElement.data.length : 0} points)
                       </span>
                     </button>
-                    <div className="dropdown-content">
+                    <div className="dropdown-content" onClick={handleDropdownClick}>
                       <button
                         className="dropdown-item"
                         onClick={() => {
                           addChartDataPoint();
-                          setActiveDropdown(null);
                         }}
                       >
                         <i className="fas fa-plus"></i>
@@ -1131,7 +1134,7 @@ const Toolbar = ({
                           <i className="fas fa-font"></i>
                           <span>{selectedElement.fontFamily || "Roboto"}</span>
                         </button>
-                        <div className="dropdown-content">
+                        <div className="dropdown-content" onClick={handleDropdownClick}>
                           {fontFamilies.map((font) => (
                             <button
                               key={font}
@@ -1140,7 +1143,6 @@ const Toolbar = ({
                               }`}
                               onClick={() => {
                                 updateSelectedElement("fontFamily", font);
-                                setActiveDropdown(null);
                               }}
                               style={{ fontFamily: font }}
                             >
@@ -1163,7 +1165,7 @@ const Toolbar = ({
                           <i className="fas fa-text-height"></i>
                           <span>{selectedElement.fontSize || 16}px</span>
                         </button>
-                        <div className="dropdown-content">
+                        <div className="dropdown-content" onClick={handleDropdownClick}>
                           {fontSizes.map((size) => (
                             <button
                               key={size}
@@ -1172,7 +1174,6 @@ const Toolbar = ({
                               }`}
                               onClick={() => {
                                 updateSelectedElement("fontSize", size);
-                                setActiveDropdown(null);
                               }}
                             >
                               {size}px
@@ -1254,7 +1255,7 @@ const Toolbar = ({
                   <i className="fas fa-palette"></i>
                   <span>Background Themes</span>
                 </button>
-                <div className="dropdown-content">
+                <div className="dropdown-content" onClick={handleDropdownClick}>
                   {backgroundThemes.map((theme) => (
                     <button
                       key={theme.name}

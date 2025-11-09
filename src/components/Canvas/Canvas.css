@@ -772,38 +772,136 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 3;
+  z-index: 20;
 }
 
-/* Edges placed INSIDE the box */
+/* Edges placed INSIDE the box - larger hit areas for easier grabbing */
 .rz-edge {
   position: absolute;
   pointer-events: auto;
   background: transparent;
+  transition: background-color 0.15s ease;
 }
 
-.rz-n { top: 0; left: 0; right: 0; height: 10px; cursor: n-resize; }
-.rz-s { bottom: 0; left: 0; right: 0; height: 10px; cursor: s-resize; }
-.rz-w { top: 0; bottom: 0; left: 0; width: 10px; cursor: w-resize; }
-.rz-e { top: 0; bottom: 0; right: 0; width: 10px; cursor: e-resize; }
+.rz-n { 
+  top: -2px; 
+  left: 0; 
+  right: 0; 
+  height: 16px; 
+  cursor: n-resize; 
+}
 
-/* Corners inside the box too */
+.rz-s { 
+  bottom: -2px; 
+  left: 0; 
+  right: 0; 
+  height: 16px; 
+  cursor: s-resize; 
+}
+
+.rz-w { 
+  top: 0; 
+  bottom: 0; 
+  left: -2px; 
+  width: 16px; 
+  cursor: w-resize; 
+}
+
+.rz-e { 
+  top: 0; 
+  bottom: 0; 
+  right: -2px; 
+  width: 16px; 
+  cursor: e-resize; 
+}
+
+/* Corners - larger and more visible */
 .rz-corner {
   position: absolute;
-  width: 14px;
-  height: 14px;
+  width: 20px;
+  height: 20px;
   pointer-events: auto;
-  background: transparent;
+  background: #ffffff;
+  border: 2px solid #1a73e8;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.15s ease;
+  z-index: 22;
 }
 
-.rz-nw { top: 0; left: 0; cursor: nw-resize; }
-.rz-ne { top: 0; right: 0; cursor: ne-resize; }
-.rz-sw { bottom: 0; left: 0; cursor: sw-resize; }
-.rz-se { bottom: 0; right: 0; cursor: se-resize; }
+.rz-nw { 
+  top: -10px; 
+  left: -10px; 
+  cursor: nw-resize; 
+}
 
-.rz-edge:hover, .rz-corner:hover {
-  outline: 1px dashed rgba(26,115,232,0.35);
-  outline-offset: -1px;
+.rz-ne { 
+  top: -10px; 
+  right: -10px; 
+  cursor: ne-resize; 
+}
+
+.rz-sw { 
+  bottom: -10px; 
+  left: -10px; 
+  cursor: sw-resize; 
+}
+
+.rz-se { 
+  bottom: -10px; 
+  right: -10px; 
+  cursor: se-resize; 
+}
+
+.rz-edge:hover {
+  background-color: rgba(26, 115, 232, 0.15);
+}
+
+.rz-corner:hover {
+  background: #1a73e8;
+  transform: scale(1.2);
+  box-shadow: 0 2px 8px rgba(26, 115, 232, 0.4);
+}
+
+.rz-corner:active {
+  transform: scale(1.1);
+  background: #0d47a1;
+}
+
+/* Middle edge handles for better visibility */
+.rz-edge::after {
+  content: '';
+  position: absolute;
+  background: #ffffff;
+  border: 2px solid #1a73e8;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.15s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.rz-n::after,
+.rz-s::after {
+  width: 16px;
+  height: 16px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.rz-e::after,
+.rz-w::after {
+  width: 16px;
+  height: 16px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.rz-edge:hover::after {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.1);
 }
 
 /* Rotation handle */

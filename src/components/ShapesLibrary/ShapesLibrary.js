@@ -324,6 +324,7 @@ const ShapesLibrary = ({ onAddShape, onClose, slides, currentSlideIndex }) => {
       cornerRadius: shape.cornerRadius || 0,
       opacity: 0.95,
       shadow: true,
+      rotation: 0,
     };
     onAddShape(newShape);
     onClose(); // Close modal after adding shape

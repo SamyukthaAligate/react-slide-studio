@@ -16,14 +16,14 @@ import "./App.css";
 function createTitlePlaceholder() {
   const canvasWidth = 960;
   const canvasHeight = 540;
-  const titleWidth = 560; // Reduced from 720px for better proportions
+  const titleWidth = 640; // Optimized width to fit within canvas with proper margins
   const titleHeight = 100;
   
   return {
     id: uuidv4(),
     type: "text",
     content: "Click to add Title",
-    x: (canvasWidth - titleWidth) / 2, // Center horizontally
+    x: (canvasWidth - titleWidth) / 2, // Center horizontally (160px margin on each side)
     y: (canvasHeight - titleHeight) / 2 - 60, // Center vertically with offset for subtitle
     width: titleWidth,
     height: titleHeight,
@@ -34,20 +34,21 @@ function createTitlePlaceholder() {
     textAlign: "center",
     fontWeight: "bold",
     fontStyle: "normal",
+    rotation: 0,
   };
 }
 
 function createSubtitlePlaceholder() {
   const canvasWidth = 960;
   const canvasHeight = 540;
-  const subtitleWidth = 560; // Reduced to match title width
+  const subtitleWidth = 640; // Optimized width to fit within canvas with proper margins
   const subtitleHeight = 60;
   
   return {
     id: uuidv4(),
     type: "text",
     content: "Click to add subtitle",
-    x: (canvasWidth - subtitleWidth) / 2, // Center horizontally
+    x: (canvasWidth - subtitleWidth) / 2, // Center horizontally (160px margin on each side)
     y: (canvasHeight - subtitleHeight) / 2 + 60, // Center vertically below title
     width: subtitleWidth,
     height: subtitleHeight,
@@ -58,6 +59,7 @@ function createSubtitlePlaceholder() {
     textAlign: "center",
     fontWeight: "normal",
     fontStyle: "normal",
+    rotation: 0,
   };
 }
 
@@ -697,8 +699,9 @@ function App() {
     const canvasWidth = 960;
     const canvasHeight = 540;
     
+    // Always add title/subtitle containers for "New Slide" button
     // Create centered title placeholder
-    const titleWidth = 560; // Reduced from 720px
+    const titleWidth = 640;
     const titleHeight = 100;
     const titleElement = {
       id: uuidv4(),
@@ -715,10 +718,11 @@ function App() {
       textAlign: "center",
       fontWeight: "bold",
       fontStyle: "normal",
+      rotation: 0,
     };
     
     // Create centered subtitle placeholder
-    const subtitleWidth = 560; // Reduced from 720px
+    const subtitleWidth = 640;
     const subtitleHeight = 60;
     const subtitleElement = {
       id: uuidv4(),
@@ -735,11 +739,31 @@ function App() {
       textAlign: "center",
       fontWeight: "normal",
       fontStyle: "normal",
+      rotation: 0,
     };
+    
+    const elements = [titleElement, subtitleElement];
 
     const newSlide = {
       id: uuidv4(),
-      elements: [titleElement, subtitleElement],
+      elements: elements,
+      background: "#ffffff",
+      backgroundGradient: null,
+      backgroundImage: null,
+      theme: "default",
+      themeAccent: null,
+      themeAccentSecondary: null,
+    };
+    const newSlides = [...slides, newSlide];
+    setSlides(newSlides);
+    setCurrentSlideIndex(slides.length);
+    saveToHistory(newSlides);
+  }, [slides, saveToHistory]);
+
+  const addEmptySlide = useCallback(() => {
+    const newSlide = {
+      id: uuidv4(),
+      elements: [],
       background: "#ffffff",
       backgroundGradient: null,
       backgroundImage: null,
@@ -1246,6 +1270,7 @@ function App() {
         slideCount={slides.length}
         currentSlideIndex={currentSlideIndex}
         onAddSlide={addSlide}
+        onAddEmptySlide={addEmptySlide}
         onDeleteCurrentSlide={deleteCurrentSlide}
         onDeletePreviousSlide={deletePreviousSlide}
         onMoveSlideUp={moveCurrentSlideUp}
@@ -1276,6 +1301,7 @@ function App() {
         currentSlideIndex={currentSlideIndex}
         onUpdateSlide={updateSlide}
         onAddSlide={addSlide}
+        onAddEmptySlide={addEmptySlide}
         onDeleteCurrentSlide={deleteCurrentSlide}
         onDeletePreviousSlide={deletePreviousSlide}
         toolbarActiveTab={toolbarActiveTab}
@@ -1289,6 +1315,7 @@ function App() {
           currentSlideIndex={currentSlideIndex}
           onSlideSelect={setCurrentSlideIndex}
           onAddSlide={addSlide}
+          onAddEmptySlide={addEmptySlide}
           onDeleteSlide={deleteSlide}
           onDuplicateSlide={duplicateSlide}
           onReorderSlides={reorderSlides}

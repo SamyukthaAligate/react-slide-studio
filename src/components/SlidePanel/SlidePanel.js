@@ -6,6 +6,7 @@ const SlidePanel = ({
   currentSlideIndex, 
   onSlideSelect, 
   onAddSlide, 
+  onAddEmptySlide,
   onDeleteSlide, 
   onDuplicateSlide,
   onReorderSlides
@@ -220,9 +221,14 @@ const SlidePanel = ({
             <h3>Slides</h3>
             <span className="slide-count">{slides.length} {slides.length === 1 ? 'slide' : 'slides'}</span>
           </div>
-          <button className="add-slide-btn" onClick={onAddSlide} title="Add slide">
-            <i className="fas fa-plus"></i>
-          </button>
+          <div className="slide-panel-actions">
+            <button className="add-slide-btn" onClick={onAddSlide} title="Add slide">
+              <i className="fas fa-plus"></i>
+            </button>
+            <button className="add-slide-btn" onClick={onAddEmptySlide} title="Add empty slide">
+              <i className="far fa-square"></i>
+            </button>
+          </div>
         </div>
         
         <div className="slides-container">

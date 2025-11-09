@@ -40,6 +40,7 @@ const Toolbar = ({
   currentSlideIndex,
   onUpdateSlide,
   onAddSlide,
+  onAddEmptySlide,
   onDeleteCurrentSlide,
   onDeletePreviousSlide,
   toolbarActiveTab,
@@ -217,45 +218,53 @@ const Toolbar = ({
   ];
 
   const addTitleBox = () => {
-    const { x, y } = findNonOverlappingPosition(720, 180);
+    const width = 640;
+    const height = 120;
+    const { x, y } = findNonOverlappingPosition(width, height);
     onAddElement({
       type: "text",
       content: "Click to add Title",
       x,
       y,
-      width: 660,
-      height: 160,
-      fontSize: 42,
+      width,
+      height,
+      fontSize: 36,
       fontFamily: "Roboto",
       color: "#000000",
       backgroundColor: "transparent",
       textAlign: "center",
       fontWeight: "bold",
       fontStyle: "normal",
+      rotation: 0,
     });
   };
 
   const addContentBox = () => {
-    const { x, y } = findNonOverlappingPosition(520, 240);
+    const width = 480;
+    const height = 200;
+    const { x, y } = findNonOverlappingPosition(width, height);
     onAddElement({
       type: "text",
       content: "Click to add text",
       x,
       y,
-      width: 540,
-      height: 260,
-      fontSize: 20,
+      width,
+      height,
+      fontSize: 18,
       fontFamily: "Roboto",
       color: "#000000",
       backgroundColor: "transparent",
       textAlign: "left",
       fontWeight: "normal",
       fontStyle: "normal",
+      rotation: 0,
     });
   };
 
   const addBulletList = (style) => {
-    const { x, y } = findNonOverlappingPosition(560, 280);
+    const width = 480;
+    const height = 220;
+    const { x, y } = findNonOverlappingPosition(width, height);
     const bulletContent = (() => {
       switch (style) {
         case "circle":
@@ -275,15 +284,16 @@ const Toolbar = ({
       listType: style,
       x,
       y,
-      width: 580,
-      height: 280,
-      fontSize: 20,
+      width,
+      height,
+      fontSize: 18,
       fontFamily: "Roboto",
       color: bulletColor,
       backgroundColor: "transparent",
       textAlign: "left",
       fontWeight: "normal",
       fontStyle: "normal",
+      rotation: 0,
     });
   };
 
@@ -304,6 +314,7 @@ const Toolbar = ({
         opacity: 0.95,
         cornerRadius: 18,
         shadow: true,
+        rotation: 0,
       },
       circle: {
         type: "shape",
@@ -317,6 +328,7 @@ const Toolbar = ({
         strokeWidth: 3,
         opacity: 0.95,
         shadow: true,
+        rotation: 0,
       },
       triangle: {
         type: "shape",
@@ -330,6 +342,7 @@ const Toolbar = ({
         strokeWidth: 3,
         opacity: 0.95,
         shadow: true,
+        rotation: 0,
       },
     };
 
@@ -353,6 +366,7 @@ const Toolbar = ({
           { label: "Gamma", value: 78, color: CHART_PALETTE[2] },
         ],
         color: CHART_PALETTE[0],
+        rotation: 0,
       },
       pie: {
         type: "chart",
@@ -367,6 +381,7 @@ const Toolbar = ({
           { label: "Gamma", value: 22, color: CHART_PALETTE[6] },
           { label: "Delta", value: 15, color: CHART_PALETTE[7] },
         ],
+        rotation: 0,
       },
       line: {
         type: "chart",
@@ -382,6 +397,7 @@ const Toolbar = ({
           { label: "Q4", value: 29, color: CHART_PALETTE[3] },
         ],
         color: CHART_PALETTE[2],
+        rotation: 0,
       },
     };
 
@@ -401,6 +417,7 @@ const Toolbar = ({
           y,
           width: 200,
           height: 150,
+          rotation: 0,
         });
       };
       reader.readAsDataURL(file);
@@ -420,6 +437,7 @@ const Toolbar = ({
           y,
           width: 400,
           height: 300,
+          rotation: 0,
         });
       };
       reader.readAsDataURL(file);
@@ -917,6 +935,18 @@ const Toolbar = ({
               >
                 <i className="fas fa-plus-square"></i>
                 <span>New Slide</span>
+              </button>
+              <button
+                className="tool-btn"
+                onClick={() => {
+                  if (typeof onAddEmptySlide === "function") {
+                    onAddEmptySlide();
+                  }
+                }}
+                title="Add empty slide"
+              >
+                <i className="far fa-square"></i>
+                <span>Empty Slide</span>
               </button>
               <button
                 className="tool-btn"

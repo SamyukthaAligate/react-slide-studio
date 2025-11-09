@@ -37,6 +37,7 @@ const Header = ({
   slideCount,
   currentSlideIndex,
   onAddSlide,
+  onAddEmptySlide,
   onDeleteCurrentSlide,
   onDeletePreviousSlide,
   onMoveSlideUp,
@@ -602,6 +603,15 @@ const Header = ({
                   <span className="item-label">
                     <i className="fas fa-plus-square"></i>
                     <span>Add New Slide</span>
+                  </span>
+                </button>
+                <button
+                  className="dropdown-item"
+                  onClick={() => handleMenuAction(onAddEmptySlide, false)}
+                >
+                  <span className="item-label">
+                    <i className="far fa-square"></i>
+                    <span>Add Empty Slide</span>
                   </span>
                 </button>
                 <button

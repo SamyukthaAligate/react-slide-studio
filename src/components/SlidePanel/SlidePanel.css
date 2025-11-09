@@ -74,6 +74,14 @@
   z-index: 1;
 }
 
+.slide-panel-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
 .add-slide-btn {
   width: 36px;
   height: 36px;

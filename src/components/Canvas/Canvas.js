@@ -154,26 +154,34 @@ const Canvas = ({
     const canvasLeft = canvasBounds.left;
     const canvasTop = canvasBounds.top;
     
-    // Position menu at cursor, but ensure it stays within canvas bounds
-    let clampedX = e.clientX;
-    let clampedY = e.clientY;
+    // Position menu at cursor with minimal offset
+    let menuX = e.clientX + 2; // Small offset to avoid cursor overlap
+    let menuY = e.clientY + 2;
     
-    // If menu would go off right edge of canvas, position it to the left
-    if (clampedX + menuWidth > canvasRight) {
-      clampedX = Math.max(canvasLeft, canvasRight - menuWidth - 10);
+    // If menu would go off right edge of canvas, position it to the left of cursor
+    if (menuX + menuWidth > canvasRight) {
+      menuX = e.clientX - menuWidth - 2;
+      // If still off-screen to the left, clamp to canvas left edge
+      if (menuX < canvasLeft) {
+        menuX = canvasLeft + 10;
+      }
     }
     
-    // If menu would go off bottom edge of canvas, position it above
-    if (clampedY + menuHeight > canvasBottom) {
-      clampedY = Math.max(canvasTop, canvasBottom - menuHeight - 10);
+    // If menu would go off bottom edge of canvas, position it above cursor
+    if (menuY + menuHeight > canvasBottom) {
+      menuY = e.clientY - menuHeight - 2;
+      // If still off-screen to the top, clamp to canvas top edge
+      if (menuY < canvasTop) {
+        menuY = canvasTop + 10;
+      }
     }
     
-    // Ensure menu doesn't go off left or top edges
-    clampedX = Math.max(canvasLeft, clampedX);
-    clampedY = Math.max(canvasTop, clampedY);
+    // Ensure menu stays within canvas bounds
+    menuX = Math.max(canvasLeft + 10, Math.min(menuX, canvasRight - menuWidth - 10));
+    menuY = Math.max(canvasTop + 10, Math.min(menuY, canvasBottom - menuHeight - 10));
 
     setHoveredMenuItem(null);
-    setContextMenu({ show: true, x: clampedX, y: clampedY, absolutePosition });
+    setContextMenu({ show: true, x: menuX, y: menuY, absolutePosition });
   };
 
   const hideContextMenu = () => {
@@ -289,6 +297,7 @@ const Canvas = ({
               y: Math.max(0, y),
               width: 200,
               height: 150,
+              rotation: 0,
             });
           }
         };
@@ -308,6 +317,7 @@ const Canvas = ({
               y: Math.max(0, y),
               width: 400,
               height: 300,
+              rotation: 0,
             });
           }
         };
@@ -873,40 +883,33 @@ const Canvas = ({
     
     // Calculate new height based on content
     node.style.height = 'auto';
-    const lineHeight = parseInt(window.getComputedStyle(node).lineHeight) || 24; // Default to 24px if can't compute
-    const minHeight = lineHeight * 1.5; // At least 1.5 lines height
-    const newHeight = Math.max(minHeight, Math.ceil(node.scrollHeight));
+    const newHeight = Math.max(30, node.scrollHeight);
     
-    // Get canvas container
-    const canvasContainer = node.closest('.canvas-container');
-    if (!canvasContainer) return;
+    // Calculate maximum available space within canvas
+    const maxHeight = CANVAS_HEIGHT - element.y - 20; // 20px padding from bottom
+    const maxWidth = CANVAS_WIDTH - element.x - 20;   // 20px padding from right
     
-    const canvasRect = canvasContainer.getBoundingClientRect();
-    const elementRect = node.parentElement.getBoundingClientRect();
+    // Constrain dimensions to canvas bounds
+    const finalHeight = Math.min(newHeight, maxHeight);
+    const finalWidth = Math.min(element.width, maxWidth);
     
-    // Calculate available space
-    const maxAvailableHeight = canvasRect.height - element.y - 20; // 20px padding from bottom
-    const maxAvailableWidth = canvasRect.width - element.x - 20;   // 20px padding from right
-    
-    // Calculate new dimensions
-    const finalHeight = Math.min(newHeight, maxAvailableHeight);
-    const finalWidth = Math.min(Math.max(200, elementRect.width), maxAvailableWidth); // Min width 200px
-    
-    // Apply new dimensions to textarea
+    // Apply height to textarea
     node.style.height = `${finalHeight}px`;
-    node.style.overflowY = newHeight > finalHeight ? 'auto' : 'hidden';
     
-    // Update element state
+    // Enable scrolling if content exceeds available space
+    if (newHeight > finalHeight) {
+      node.style.overflowY = 'auto';
+      node.scrollTop = node.scrollHeight;
+    } else {
+      node.style.overflowY = 'hidden';
+    }
+    
+    // Update element with new content and dimensions
     onUpdateElement(element.id, { 
       content,
       height: finalHeight,
       width: finalWidth
     });
-    
-    // Auto-scroll the container if needed
-    if (node.scrollHeight > node.clientHeight) {
-      node.scrollTop = node.scrollHeight;
-    }
   };
 
   const handleTextKeyDown = (e, element) => {
@@ -1675,7 +1678,11 @@ const Canvas = ({
           {isEditingText && isSelected ? (
             <textarea
               style={{
-                ...elementStyle,
+                position: "absolute",
+                left: element.x,
+                top: element.y,
+                width: element.width,
+                height: element.height,
                 fontSize: element.fontSize,
                 fontFamily: element.fontFamily,
                 color: element.color,
@@ -1693,14 +1700,8 @@ const Canvas = ({
                 boxShadow: "0 0 8px rgba(26, 115, 232, 0.3)",
                 boxSizing: "border-box",
                 minHeight: "30px",
-                overflow: "hidden",
-                height: element.height,
-              }}
-              onFocus={(e) => {
-                const node = e.currentTarget;
-                node.style.height = "auto";
-                node.style.height =
-                  Math.max(30, Math.ceil(node.scrollHeight)) + "px";
+                overflowY: "auto",
+                overflowX: "hidden",
               }}
               value={element.content || ""}
               onChange={(e) => handleTextChange(e, element)}

@@ -518,3 +518,140 @@ html, body, #root {
     width: 100%;
   }
 }
+
+/* Bootstrap Enhanced Responsiveness */
+.container-fluid {
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -15px;
+  margin-left: -15px;
+}
+
+/* Fullscreen mode support */
+.app:-webkit-full-screen {
+  width: 100%;
+  height: 100%;
+}
+
+.app:-moz-full-screen {
+  width: 100%;
+  height: 100%;
+}
+
+.app:-ms-fullscreen {
+  width: 100%;
+  height: 100%;
+}
+
+.app:fullscreen {
+  width: 100%;
+  height: 100%;
+}
+
+/* Presentation mode fullscreen */
+.presentation-mode:-webkit-full-screen {
+  width: 100vw;
+  height: 100vh;
+}
+
+.presentation-mode:-moz-full-screen {
+  width: 100vw;
+  height: 100vh;
+}
+
+.presentation-mode:-ms-fullscreen {
+  width: 100vw;
+  height: 100vh;
+}
+
+.presentation-mode:fullscreen {
+  width: 100vw;
+  height: 100vh;
+}
+
+/* Responsive utilities for all devices */
+@media (max-width: 575.98px) {
+  /* Extra small devices (phones) */
+  .d-sm-none { display: none !important; }
+  .flex-column-sm { flex-direction: column !important; }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+  /* Small devices (tablets) */
+  .d-md-none { display: none !important; }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+  /* Medium devices (tablets) */
+  .d-lg-none { display: none !important; }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  /* Large devices (desktops) */
+  .d-xl-none { display: none !important; }
+}
+
+@media (min-width: 1200px) {
+  /* Extra large devices (large desktops) */
+  .d-xxl-block { display: block !important; }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .app {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  button, .tool-btn, .control-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* High DPI screens */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .app {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Landscape orientation on mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .main-content {
+    flex-direction: row;
+  }
+  
+  .slide-panel {
+    width: 200px;
+    height: 100%;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .app {
+    background: white;
+    color: black;
+  }
+  
+  .header, .toolbar, .slide-panel {
+    display: none !important;
+  }
+  
+  .canvas-container {
+    width: 100%;
+    height: 100%;
+  }
+}

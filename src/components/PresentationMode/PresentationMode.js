@@ -12,11 +12,45 @@ const computeScale = () => {
   }
   const widthRatio = window.innerWidth / BASE_WIDTH;
   const heightRatio = window.innerHeight / BASE_HEIGHT;
-  return Math.min(widthRatio, heightRatio, 1);
+  return Math.min(widthRatio, heightRatio);
 };
 
 const PresentationMode = ({ slides, currentSlideIndex, onSlideChange, onExit }) => {
   const [scale, setScale] = useState(() => computeScale());
+  const presentationRef = React.useRef(null);
+
+  // Enter fullscreen when component mounts
+  useEffect(() => {
+    const enterFullscreen = async () => {
+      try {
+        const elem = presentationRef.current || document.documentElement;
+        if (elem.requestFullscreen) {
+          await elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) { // Safari
+          await elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { // IE11
+          await elem.msRequestFullscreen();
+        }
+      } catch (err) {
+        console.warn('Could not enter fullscreen mode:', err);
+      }
+    };
+
+    enterFullscreen();
+
+    // Exit fullscreen when component unmounts
+    return () => {
+      if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+          document.msExitFullscreen();
+        }
+      }
+    };
+  }, []);
 
   const nextSlide = useCallback(() => {
     if (currentSlideIndex < slides.length - 1) {
@@ -466,7 +500,7 @@ const PresentationMode = ({ slides, currentSlideIndex, onSlideChange, onExit }) 
   };
 
   return (
-    <div className="presentation-mode">
+    <div className="presentation-mode" ref={presentationRef}>
       <div className="presentation-controls">
         <button className="control-btn" onClick={onExit} title="Exit presentation (Esc)">
           <i className="fas fa-times"></i>

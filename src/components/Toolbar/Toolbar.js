@@ -317,6 +317,17 @@ const Toolbar = ({
         cornerRadius: 18,
         shadow: true,
         rotation: 0,
+        zIndex: 1,
+        text: "",
+        textPlaceholder: "Double-click to add text",
+        fontSize: 16,
+        fontFamily: "Roboto",
+        textColor: "#FFFFFF",
+        textAlign: "center",
+        verticalAlign: "middle",
+        fontWeight: "normal",
+        fontStyle: "normal",
+        textDecoration: "none",
       },
       circle: {
         type: "shape",
@@ -331,6 +342,17 @@ const Toolbar = ({
         opacity: 0.95,
         shadow: true,
         rotation: 0,
+        zIndex: 1,
+        text: "",
+        textPlaceholder: "Double-click to add text",
+        fontSize: 16,
+        fontFamily: "Roboto",
+        textColor: "#FFFFFF",
+        textAlign: "center",
+        verticalAlign: "middle",
+        fontWeight: "normal",
+        fontStyle: "normal",
+        textDecoration: "none",
       },
       triangle: {
         type: "shape",
@@ -345,6 +367,17 @@ const Toolbar = ({
         opacity: 0.95,
         shadow: true,
         rotation: 0,
+        zIndex: 1,
+        text: "",
+        textPlaceholder: "Double-click to add text",
+        fontSize: 16,
+        fontFamily: "Roboto",
+        textColor: "#FFFFFF",
+        textAlign: "center",
+        verticalAlign: "middle",
+        fontWeight: "normal",
+        fontStyle: "normal",
+        textDecoration: "none",
       },
     };
 
@@ -1151,7 +1184,7 @@ const Toolbar = ({
               ) : (
                 // Text/shape formatting options (existing code)
                 <div className="tool-group">
-                  {selectedElement.type === "text" && (
+                  {(selectedElement.type === "text" || selectedElement.type === "shape") && (
                     <>
                       <div
                         className={`tool-dropdown ${
@@ -1216,9 +1249,16 @@ const Toolbar = ({
 
                       <input
                         type="color"
-                        value={selectedElement.color || "#000000"}
+                        value={
+                          selectedElement.type === "shape"
+                            ? selectedElement.textColor || "#FFFFFF"
+                            : selectedElement.color || "#000000"
+                        }
                         onChange={(e) =>
-                          updateSelectedElement("color", e.target.value)
+                          updateSelectedElement(
+                            selectedElement.type === "shape" ? "textColor" : "color",
+                            e.target.value
+                          )
                         }
                         className="color-input-large"
                         title="Text Color"
@@ -1250,6 +1290,39 @@ const Toolbar = ({
                           : "Background Color"
                       }
                     />
+                  )}
+
+                  {/* Text alignment for shapes */}
+                  {selectedElement.type === "shape" && (
+                    <>
+                      <button
+                        className={`tool-btn ${
+                          selectedElement.textAlign === "left" ? "active" : ""
+                        }`}
+                        onClick={() => updateSelectedElement("textAlign", "left")}
+                        title="Align text left"
+                      >
+                        <i className="fas fa-align-left"></i>
+                      </button>
+                      <button
+                        className={`tool-btn ${
+                          selectedElement.textAlign === "center" ? "active" : ""
+                        }`}
+                        onClick={() => updateSelectedElement("textAlign", "center")}
+                        title="Align text center"
+                      >
+                        <i className="fas fa-align-center"></i>
+                      </button>
+                      <button
+                        className={`tool-btn ${
+                          selectedElement.textAlign === "right" ? "active" : ""
+                        }`}
+                        onClick={() => updateSelectedElement("textAlign", "right")}
+                        title="Align text right"
+                      >
+                        <i className="fas fa-align-right"></i>
+                      </button>
+                    </>
                   )}
 
                   <button

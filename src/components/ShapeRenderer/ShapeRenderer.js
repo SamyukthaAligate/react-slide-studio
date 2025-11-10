@@ -351,7 +351,15 @@ const ShapeRenderer = ({ element }) => {
   };
 
   return (
-    <div style={{ width: "100%", height: "100%", pointerEvents: "none" }}>
+    <div style={{ 
+      width: "100%", 
+      height: "100%", 
+      pointerEvents: "none",
+      position: "relative",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center"
+    }}>
       {renderShape()}
     </div>
   );

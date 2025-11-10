@@ -365,7 +365,7 @@ const Canvas = ({
 
   const handleElementDoubleClick = (e, element) => {
     e.stopPropagation();
-    if (element.type === "text") {
+    if (element.type === "text" || element.type === "shape") {
       startTextEdit(element);
     }
   };
@@ -879,6 +879,16 @@ const Canvas = ({
   const handleTextChange = (e, element) => {
     const node = e.target;
     const rawValue = node.value;
+    
+    // For shapes, just update text without bullet continuation or resizing
+    if (element.type === "shape") {
+      onUpdateElement(element.id, { 
+        text: rawValue
+      });
+      return;
+    }
+    
+    // For text elements, apply bullet continuation and auto-resize
     const content = applyBulletContinuation(rawValue, element.listType);
     
     // Calculate new height based on content
@@ -893,16 +903,8 @@ const Canvas = ({
     const finalHeight = Math.min(newHeight, maxHeight);
     const finalWidth = Math.min(element.width, maxWidth);
     
-    // Apply height to textarea
+    // Apply height to textarea - no scrollbars, just expand
     node.style.height = `${finalHeight}px`;
-    
-    // Enable scrolling if content exceeds available space
-    if (newHeight > finalHeight) {
-      node.style.overflowY = 'auto';
-      node.scrollTop = node.scrollHeight;
-    } else {
-      node.style.overflowY = 'hidden';
-    }
     
     // Update element with new content and dimensions
     onUpdateElement(element.id, { 
@@ -1665,6 +1667,7 @@ const Canvas = ({
       height: element.height,
       cursor: isDragging ? "grabbing" : isSelected ? "move" : "pointer",
       userSelect: "none",
+      zIndex: element.zIndex || 1,
     };
 
     if (element.type === "text") {
@@ -1677,6 +1680,7 @@ const Canvas = ({
         >
           {isEditingText && isSelected ? (
             <textarea
+              ref={(el) => editorRefs.current.set(element.id, el)}
               style={{
                 position: "absolute",
                 left: element.x,
@@ -1700,8 +1704,7 @@ const Canvas = ({
                 boxShadow: "0 0 8px rgba(26, 115, 232, 0.3)",
                 boxSizing: "border-box",
                 minHeight: "30px",
-                overflowY: "auto",
-                overflowX: "hidden",
+                overflow: "hidden",
               }}
               value={element.content || ""}
               onChange={(e) => handleTextChange(e, element)}
@@ -1852,11 +1855,111 @@ const Canvas = ({
               outlineOffset: "2px",
               transform: element.rotation ? `rotate(${element.rotation}deg)` : "none",
               transformOrigin: "center center",
+              zIndex: element.zIndex || 1,
             }}
             onClick={(e) => handleElementClick(e, element)}
+            onDoubleClick={(e) => handleElementDoubleClick(e, element)}
             onMouseDown={(e) => handleMouseDown(e, element)}
           >
             <ShapeRenderer element={element} />
+            
+            {/* Text overlay for shapes */}
+            {isEditingText && isSelected ? (
+              <textarea
+                ref={(el) => editorRefs.current.set(element.id, el)}
+                className="shape-text-editor"
+                style={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  width: `calc(100% - ${element.textPadding || 20}px)`,
+                  maxHeight: `calc(100% - ${element.textPadding || 20}px)`,
+                  fontSize: element.fontSize || 16,
+                  fontFamily: element.fontFamily || "Roboto",
+                  color: element.textColor || "#FFFFFF",
+                  backgroundColor: "transparent",
+                  fontWeight: element.fontWeight || "normal",
+                  fontStyle: element.fontStyle || "normal",
+                  textAlign: element.textAlign || "center",
+                  textDecoration: element.textDecoration || "none",
+                  border: "2px solid #1a73e8",
+                  outline: "none",
+                  resize: "none",
+                  padding: "8px",
+                  borderRadius: "4px",
+                  boxShadow: "0 0 8px rgba(26, 115, 232, 0.3)",
+                  zIndex: 100,
+                  overflow: "auto",
+                  wordWrap: "break-word",
+                  whiteSpace: "pre-wrap",
+                }}
+                value={element.text || ""}
+                onChange={(e) => handleTextChange(e, element)}
+                onBlur={handleTextBlur}
+                onKeyDown={(e) => {
+                  handleTextKeyDown(e, element);
+                  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+                    if (e.shiftKey) {
+                      if (typeof window.onRedoAction === "function") {
+                        window.onRedoAction();
+                      }
+                    } else {
+                      if (typeof window.onUndoAction === "function") {
+                        window.onUndoAction();
+                      }
+                    }
+                  }
+                  if (e.key === "Escape") {
+                    handleTextBlur();
+                  }
+                  e.stopPropagation();
+                }}
+                autoFocus
+                placeholder={element.textPlaceholder || "Type your text here..."}
+              />
+            ) : (
+              <div
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  display: "flex",
+                  alignItems: element.verticalAlign === "top" ? "flex-start" : 
+                             element.verticalAlign === "bottom" ? "flex-end" : "center",
+                  justifyContent: element.textAlign === "left" ? "flex-start" : 
+                                 element.textAlign === "right" ? "flex-end" : "center",
+                  padding: `${element.textPadding || 10}px`,
+                  pointerEvents: "none",
+                  overflow: "hidden",
+                  wordWrap: "break-word",
+                  whiteSpace: "pre-wrap",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: element.fontSize || 16,
+                    fontFamily: element.fontFamily || "Roboto",
+                    color: !element.text && element.textPlaceholder 
+                      ? "rgba(255, 255, 255, 0.4)" 
+                      : element.textColor || "#FFFFFF",
+                    fontWeight: element.fontWeight || "normal",
+                    fontStyle: !element.text && element.textPlaceholder 
+                      ? "italic" 
+                      : element.fontStyle || "normal",
+                    textAlign: element.textAlign || "center",
+                    textDecoration: element.textDecoration || "none",
+                    textShadow: "0 1px 2px rgba(0, 0, 0, 0.2)",
+                    userSelect: "none",
+                  }}
+                >
+                  {element.text || element.textPlaceholder || ""}
+                </span>
+              </div>
+            )}
+            
             {isSelected && !isEditingText && (
               <div className="resize-zones" aria-hidden>
                 <div

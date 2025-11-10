@@ -325,6 +325,18 @@ const ShapesLibrary = ({ onAddShape, onClose, slides, currentSlideIndex }) => {
       opacity: 0.95,
       shadow: true,
       rotation: 0,
+      zIndex: 1,
+      // Text properties
+      text: "",
+      textPlaceholder: "Double-click to add text",
+      fontSize: 16,
+      fontFamily: "Roboto",
+      textColor: "#FFFFFF",
+      textAlign: "center",
+      verticalAlign: "middle",
+      fontWeight: "normal",
+      fontStyle: "normal",
+      textDecoration: "none",
     };
     onAddShape(newShape);
     onClose(); // Close modal after adding shape

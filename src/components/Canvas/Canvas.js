@@ -1725,7 +1725,7 @@ const Canvas = ({
                 e.stopPropagation();
               }}
               autoFocus
-              placeholder="Type your text here..."
+              placeholder={element.placeholder || "Type your text here..."}
             />
           ) : (
             <div
@@ -1768,8 +1768,13 @@ const Canvas = ({
                   !isEditingText && handleMouseDown(e, element)
                 }
               >
-                {/* 2) The content */}
-                {element.content || "Click to edit text"}
+                {/* 2) The content or placeholder */}
+                <span style={{
+                  color: !element.content && element.placeholder ? "#999999" : "inherit",
+                  fontStyle: !element.content && element.placeholder ? "italic" : "inherit",
+                }}>
+                  {element.content || element.placeholder || "Click to add text"}
+                </span>
 
                 {/* 3) The overlay hit areas */}
                 {isSelected && !isEditingText && (

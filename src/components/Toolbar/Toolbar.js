@@ -223,7 +223,8 @@ const Toolbar = ({
     const { x, y } = findNonOverlappingPosition(width, height);
     onAddElement({
       type: "text",
-      content: "Click to add Title",
+      content: "",
+      placeholder: "Click to add title",
       x,
       y,
       width,
@@ -245,7 +246,8 @@ const Toolbar = ({
     const { x, y } = findNonOverlappingPosition(width, height);
     onAddElement({
       type: "text",
-      content: "Click to add text",
+      content: "",
+      placeholder: "Click to add text",
       x,
       y,
       width,

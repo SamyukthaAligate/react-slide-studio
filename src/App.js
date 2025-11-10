@@ -22,7 +22,8 @@ function createTitlePlaceholder() {
   return {
     id: uuidv4(),
     type: "text",
-    content: "Click to add Title",
+    content: "",
+    placeholder: "Click to add title",
     x: (canvasWidth - titleWidth) / 2, // Center horizontally (160px margin on each side)
     y: (canvasHeight - titleHeight) / 2 - 60, // Center vertically with offset for subtitle
     width: titleWidth,
@@ -47,7 +48,8 @@ function createSubtitlePlaceholder() {
   return {
     id: uuidv4(),
     type: "text",
-    content: "Click to add subtitle",
+    content: "",
+    placeholder: "Click to add subtitle",
     x: (canvasWidth - subtitleWidth) / 2, // Center horizontally (160px margin on each side)
     y: (canvasHeight - subtitleHeight) / 2 + 60, // Center vertically below title
     width: subtitleWidth,
@@ -558,7 +560,8 @@ function App() {
         case "text":
           addElementWrapper({
             type: "text",
-            content: "Click to edit text",
+            content: "",
+            placeholder: "Click to add text",
             x: 100,
             y: 100,
             width: 200,
@@ -706,7 +709,8 @@ function App() {
     const titleElement = {
       id: uuidv4(),
       type: "text",
-      content: "Click to add Title",
+      content: "",
+      placeholder: "Click to add title",
       x: (canvasWidth - titleWidth) / 2,
       y: (canvasHeight - titleHeight) / 2 - 60,
       width: titleWidth,
@@ -727,7 +731,8 @@ function App() {
     const subtitleElement = {
       id: uuidv4(),
       type: "text",
-      content: "Click to add subtitle",
+      content: "",
+      placeholder: "Click to add subtitle",
       x: (canvasWidth - subtitleWidth) / 2,
       y: (canvasHeight - subtitleHeight) / 2 + 60,
       width: subtitleWidth,

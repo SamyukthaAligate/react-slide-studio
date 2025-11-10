@@ -1247,6 +1247,122 @@ const Toolbar = ({
                         </div>
                       </div>
 
+                      {/* Text Alignment Dropdown */}
+                      {selectedElement.type === "text" && (
+                        <div
+                          className={`tool-dropdown ${
+                            activeDropdown === "textAlign" ? "open" : ""
+                          }`}
+                        >
+                          <button
+                            className="tool-btn dropdown-toggle"
+                            title="Text alignment"
+                            onClick={() => toggleDropdown("textAlign")}
+                          >
+                            <i className={`fas fa-align-${selectedElement.textAlign || "left"}`}></i>
+                            <span>Align</span>
+                          </button>
+                          <div className="dropdown-content" onClick={handleDropdownClick}>
+                            <button
+                              className={`dropdown-item ${
+                                selectedElement.textAlign === "left" ? "active" : ""
+                              }`}
+                              onClick={() => {
+                                updateSelectedElement("textAlign", "left");
+                              }}
+                            >
+                              <i className="fas fa-align-left"></i>
+                              Left
+                            </button>
+                            <button
+                              className={`dropdown-item ${
+                                selectedElement.textAlign === "center" ? "active" : ""
+                              }`}
+                              onClick={() => {
+                                updateSelectedElement("textAlign", "center");
+                              }}
+                            >
+                              <i className="fas fa-align-center"></i>
+                              Center
+                            </button>
+                            <button
+                              className={`dropdown-item ${
+                                selectedElement.textAlign === "right" ? "active" : ""
+                              }`}
+                              onClick={() => {
+                                updateSelectedElement("textAlign", "right");
+                              }}
+                            >
+                              <i className="fas fa-align-right"></i>
+                              Right
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Text Styling Dropdown */}
+                      {selectedElement.type === "text" && (
+                        <div
+                          className={`tool-dropdown ${
+                            activeDropdown === "textStyle" ? "open" : ""
+                          }`}
+                        >
+                          <button
+                            className="tool-btn dropdown-toggle"
+                            title="Text styling"
+                            onClick={() => toggleDropdown("textStyle")}
+                          >
+                            <i className="fas fa-font"></i>
+                            <span>Style</span>
+                          </button>
+                          <div className="dropdown-content" onClick={handleDropdownClick}>
+                            <button
+                              className={`dropdown-item ${
+                                selectedElement.fontWeight === "bold" ? "active" : ""
+                              }`}
+                              onClick={() => {
+                                updateSelectedElement(
+                                  "fontWeight",
+                                  selectedElement.fontWeight === "bold" ? "normal" : "bold"
+                                );
+                              }}
+                            >
+                              <i className="fas fa-bold"></i>
+                              Bold
+                            </button>
+                            <button
+                              className={`dropdown-item ${
+                                selectedElement.fontStyle === "italic" ? "active" : ""
+                              }`}
+                              onClick={() => {
+                                updateSelectedElement(
+                                  "fontStyle",
+                                  selectedElement.fontStyle === "italic" ? "normal" : "italic"
+                                );
+                              }}
+                            >
+                              <i className="fas fa-italic"></i>
+                              Italic
+                            </button>
+                            <button
+                              className={`dropdown-item ${
+                                selectedElement.textDecoration === "underline" ? "active" : ""
+                              }`}
+                              onClick={() => {
+                                updateSelectedElement(
+                                  "textDecoration",
+                                  selectedElement.textDecoration === "underline" ? "none" : "underline"
+                                );
+                              }}
+                            >
+                              <i className="fas fa-underline"></i>
+                              Underline
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Text Color */}
                       <input
                         type="color"
                         value={

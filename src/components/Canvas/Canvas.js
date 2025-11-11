@@ -58,7 +58,7 @@ const Canvas = ({
     : [];
   const [guides, setGuides] = useState({ v: null, h: null }); // { v: x | null, h: y | null }
   const SNAP_TOLERANCE = 6; // px tolerance for guide snapping
-  // put near the top, inside the component
+
   const getLocalPoint = (e) => {
     const rect = canvasRef.current.getBoundingClientRect();
     const scale = (zoomLevel || 100) / 100;
@@ -91,6 +91,7 @@ const Canvas = ({
     setIsEditingText(false);
     setEditingId(null);
   };
+
   const handleCanvasBackgroundMouseDown = (e) => {
     if (isEditingText) return; // don't kill selection while typing
     onSelectElement(null);
@@ -397,6 +398,7 @@ const Canvas = ({
 
     onSelectElement(element);
   };
+
   const getElementEdges = (el) => ({
     left: el.x,
     right: el.x + el.width,
@@ -1755,6 +1757,7 @@ const Canvas = ({
                     : "2px solid transparent",
                   whiteSpace: "pre-wrap",
                   wordWrap: "break-word",
+                  overflowWrap: "anywhere",
                   overflow: "hidden",
                   height: element.height,
                   cursor: isSelected && !isEditingText ? "move" : "pointer",
@@ -1773,6 +1776,7 @@ const Canvas = ({
               >
                 {/* 2) The content or placeholder */}
                 <span style={{
+                  pointerEvents: isEditingText ? "auto" : "none",
                   color: !element.content && element.placeholder ? "#999999" : "inherit",
                   fontStyle: !element.content && element.placeholder ? "italic" : "inherit",
                 }}>

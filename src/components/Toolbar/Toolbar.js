@@ -1213,6 +1213,23 @@ const Toolbar = ({
                     <span>Delete</span>
                   </button>
                 </div>
+              ) : selectedElement.type === "video" || selectedElement.type === "image" ? (
+                // Video/Image formatting options
+                <div className="tool-group">
+                  <div className="element-info">
+                    <i className={selectedElement.type === "video" ? "fas fa-video" : "fas fa-image"}></i>
+                    <span>{selectedElement.type === "video" ? "Video Element" : "Image Element"}</span>
+                  </div>
+
+                  <button
+                    className="tool-btn"
+                    onClick={deleteSelectedElement}
+                    title={`Delete ${selectedElement.type}`}
+                  >
+                    <i className="fas fa-trash"></i>
+                    <span>Delete</span>
+                  </button>
+                </div>
               ) : (
                 // Text/shape formatting options (existing code)
                 <div className="tool-group">

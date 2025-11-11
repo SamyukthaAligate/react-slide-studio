@@ -2185,6 +2185,7 @@ const Canvas = ({
               cursor: isDragging ? "grabbing" : isSelected ? "move" : "pointer",
               transform: element.rotation ? `rotate(${element.rotation}deg)` : "none",
               transformOrigin: "center center",
+              overflow: "hidden",
             }}
             onClick={(e) => handleElementClick(e, element)}
             onMouseDown={(e) => handleMouseDown(e, element)}
@@ -2196,10 +2197,41 @@ const Canvas = ({
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
-                pointerEvents: "none",
+                pointerEvents: "auto",
                 borderRadius: "4px",
+                display: "block",
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              onMouseDown={(e) => {
+                e.stopPropagation();
               }}
             />
+            
+            {/* Draggable area - top portion above video controls */}
+            {isSelected && !isDragging && !isResizing && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: "calc(100% - 50px)",
+                  cursor: "move",
+                  zIndex: 14,
+                  pointerEvents: "auto",
+                }}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                  handleMouseDown(e, element);
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              />
+            )}
+            
             {isSelected && !isEditingText && (
               <div className="resize-zones" aria-hidden>
                 <div

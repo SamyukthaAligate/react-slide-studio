@@ -2171,6 +2171,15 @@ const Canvas = ({
     }
 
     if (element.type === "video") {
+      const controlBuffer = Math.min(
+        60,
+        Math.max(32, Math.round((element.height || 0) * 0.3))
+      );
+      const dragZoneBottom =
+        isSelected && element.height > controlBuffer + 8
+          ? `${controlBuffer}px`
+          : 0;
+
       return (
         <div
           key={element.id}
@@ -2189,11 +2198,26 @@ const Canvas = ({
               cursor: isDragging ? "grabbing" : isSelected ? "move" : "pointer",
               transform: element.rotation ? `rotate(${element.rotation}deg)` : "none",
               transformOrigin: "center center",
-              overflow: "hidden",
             }}
             onClick={(e) => handleElementClick(e, element)}
             onMouseDown={(e) => handleMouseDown(e, element)}
           >
+            {isSelected && !isEditingText && (
+              <div
+                className="video-hit-surface"
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: dragZoneBottom,
+                  cursor: isDragging ? "grabbing" : "move",
+                  zIndex: 14,
+                  pointerEvents: isResizing ? "none" : "auto",
+                }}
+                onMouseDown={(e) => handleMouseDown(e, element)}
+              />
+            )}
             <video
               src={element.src}
               controls
@@ -2205,37 +2229,7 @@ const Canvas = ({
                 borderRadius: "4px",
                 display: "block",
               }}
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-              onMouseDown={(e) => {
-                e.stopPropagation();
-              }}
             />
-            
-            {/* Draggable area - top portion above video controls */}
-            {isSelected && !isDragging && !isResizing && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: "calc(100% - 50px)",
-                  cursor: "move",
-                  zIndex: 14,
-                  pointerEvents: "auto",
-                }}
-                onMouseDown={(e) => {
-                  e.stopPropagation();
-                  handleMouseDown(e, element);
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-              />
-            )}
-            
             {isSelected && !isEditingText && (
               <div className="resize-zones" aria-hidden>
                 <div

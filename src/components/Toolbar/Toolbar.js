@@ -240,6 +240,29 @@ const Toolbar = ({
     });
   };
 
+  const addSubtitleBox = () => {
+    const width = 560;
+    const height = 80;
+    const { x, y } = findNonOverlappingPosition(width, height);
+    onAddElement({
+      type: "text",
+      content: "",
+      placeholder: "Click to add subtitle",
+      x,
+      y,
+      width,
+      height,
+      fontSize: 24,
+      fontFamily: "Roboto",
+      color: "#333333",
+      backgroundColor: "transparent",
+      textAlign: "center",
+      fontWeight: "500",
+      fontStyle: "normal",
+      rotation: 0,
+    });
+  };
+
   const addContentBox = () => {
     const width = 480;
     const height = 200;
@@ -715,6 +738,15 @@ const Toolbar = ({
                   >
                     <i className="fas fa-heading"></i>
                     Title Box
+                  </button>
+                  <button
+                    className="dropdown-item"
+                    onClick={() => {
+                      addSubtitleBox();
+                    }}
+                  >
+                    <i className="fas fa-text-height"></i>
+                    Subtitle
                   </button>
                   <button
                     className="dropdown-item"

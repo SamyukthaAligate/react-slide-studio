@@ -20,7 +20,6 @@ const Header = ({
   onAddElement,
   onShowHelp,
   onShowShare,
-  onShowChartModal,
   onZoomIn,
   onZoomOut,
   onFitToScreen,

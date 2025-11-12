@@ -346,6 +346,15 @@
   transform: translateY(-0.5px);
 }
 
+.preview-viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .preview-bars {
   display: flex;
   align-items: flex-end;
@@ -391,6 +400,14 @@
   border-radius: 16px;
   background: radial-gradient(circle at top, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.4));
   border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.preview-pie-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 
 .preview-pie {

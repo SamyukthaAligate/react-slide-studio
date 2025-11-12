@@ -1339,32 +1339,69 @@ const Canvas = ({
 
     if (chartType === "pie") {
       const renderPieChart = ({ width, height }) => {
-        const safeWidth = Math.max(width, 160);
-        const safeHeight = Math.max(height, 160);
+        const chartWidth = Math.max(width, 60);
+        const chartHeight = Math.max(height, 60);
         const total =
           data.reduce(
             (sum, item) =>
               sum + (typeof item.value === "number" ? item.value : 0),
             0
           ) || 1;
-        const radius =
-          Math.min(safeWidth, safeHeight) / 2 -
-          Math.max(Math.min(safeWidth, safeHeight) * 0.1, 24);
-        const centerX = safeWidth / 2;
-        const centerY = safeHeight / 2;
+        const minSide = Math.min(chartWidth, chartHeight);
+        const labelFont = Math.max(Math.min(minSide * 0.11, 13), 9);
+        const viewBoxSize = 200;
+        const centerPoint = viewBoxSize / 2;
+        const piePadding = Math.max(viewBoxSize * 0.08, 16);
+        const radius = Math.max(
+          centerPoint - piePadding,
+          viewBoxSize * 0.2
+        );
         let currentAngle = -90;
-        const labelFont = Math.max(Math.min(radius * 0.22, 13), 9);
+
+        const headerPaddingY = Math.max(chartHeight * 0.04, 12);
+        const headerPaddingX = Math.max(chartWidth * 0.06, 16);
+        const headerFontSize = Math.max(Math.min(chartWidth * 0.05, 16), 12);
+
+        const plotPaddingTop = Math.max(chartHeight * 0.04, 12);
+        const plotPaddingX = Math.max(chartWidth * 0.06, 18);
+        const plotPaddingBottom = Math.max(chartHeight * 0.06, 18);
+        const innerGap = Math.max(minSide * 0.06, 10);
+
+        const availableWidth = Math.max(chartWidth - plotPaddingX * 2, 60);
+        const contentHeight = Math.max(
+          chartHeight - (headerPaddingY + 4 + headerFontSize) - plotPaddingTop - plotPaddingBottom,
+          60
+        );
+
+        const approxLegendItemWidth = Math.max(labelFont * 8, 80);
+        const legendRowCapacity = Math.max(
+          Math.floor(availableWidth / approxLegendItemWidth),
+          1
+        );
+        const legendRows = Math.ceil(data.length / legendRowCapacity);
+        const legendRowHeight = Math.max(labelFont * 1.6, 16);
+        const legendGap = legendRows > 1 ? Math.max(labelFont * 0.6, 6) : 0;
+        const legendHeight =
+          legendRows * legendRowHeight + Math.max(legendRows - 1, 0) * legendGap;
+
+        const minPieSize = 48;
+        const hasLegendSpace =
+          contentHeight >= legendHeight + innerGap + minPieSize;
+
+        const legendHeightForSizing = hasLegendSpace ? legendHeight : 0;
+
+        const maxSvgSide = Math.max(
+          Math.min(availableWidth, contentHeight - legendHeightForSizing - innerGap),
+          minPieSize
+        );
 
         return (
           <div className="chart-card">
             <div
               className="chart-card__header"
               style={{
-                padding: `${Math.max(safeHeight * 0.04, 12)}px ${Math.max(
-                  safeWidth * 0.06,
-                  16
-                )}px 4px`,
-                fontSize: Math.max(Math.min(safeWidth * 0.05, 16), 12),
+                padding: `${headerPaddingY}px ${headerPaddingX}px 4px`,
+                fontSize: headerFontSize,
               }}
             >
               Pie chart
@@ -1372,10 +1409,7 @@ const Canvas = ({
             <div
               className="chart-card__plot"
               style={{
-                padding: `0 ${Math.max(safeWidth * 0.06, 18)}px ${Math.max(
-                  safeHeight * 0.06,
-                  18
-                )}px`,
+                padding: `${plotPaddingTop}px ${plotPaddingX}px ${plotPaddingBottom}px`,
               }}
             >
               <div
@@ -1386,76 +1420,92 @@ const Canvas = ({
                   flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: "12px",
+                  gap: hasLegendSpace ? innerGap : 0,
                 }}
               >
-                <svg
-                  width={safeWidth}
-                  height={safeHeight}
-                  viewBox={`0 0 ${safeWidth} ${safeHeight}`}
-                >
-                  {data.map((item, index) => {
-                    const value =
-                      typeof item.value === "number" ? item.value : 0;
-                    const angle = (value / total) * 360;
-                    const startAngle = currentAngle;
-                    const endAngle = currentAngle + angle;
-                    currentAngle += angle;
-                    const largeArcFlag = angle > 180 ? 1 : 0;
-
-                    const x1 =
-                      centerX + radius * Math.cos((startAngle * Math.PI) / 180);
-                    const y1 =
-                      centerY + radius * Math.sin((startAngle * Math.PI) / 180);
-                    const x2 =
-                      centerX + radius * Math.cos((endAngle * Math.PI) / 180);
-                    const y2 =
-                      centerY + radius * Math.sin((endAngle * Math.PI) / 180);
-
-                    return (
-                      <path
-                        key={index}
-                        d={`M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`}
-                        fill={item.color || fallbackColor}
-                        stroke="#ffffff"
-                        strokeWidth="1.2"
-                        opacity="0.96"
-                      />
-                    );
-                  })}
-                </svg>
                 <div
                   style={{
-                    width: "100%",
-                    display: "flex",
-                    flexWrap: "wrap",
-                    justifyContent: "center",
-                    gap: "10px",
-                    fontSize: labelFont,
-                    color: "#475569",
+                    width: maxSvgSide,
+                    height: maxSvgSide,
+                    maxWidth: "100%",
+                    maxHeight: "100%",
                   }}
                 >
-                  {data.map((item, index) => (
-                    <span
-                      key={index}
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "6px",
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: labelFont * 0.6,
-                          height: labelFont * 0.6,
-                          borderRadius: "50%",
-                          background: item.color || fallbackColor,
-                        }}
-                      ></span>
-                      {truncated(item.label || `Slice ${index + 1}`, 18)}
-                    </span>
-                  ))}
+                  <svg
+                    width="100%"
+                    height="100%"
+                    viewBox={`0 0 ${viewBoxSize} ${viewBoxSize}`}
+                    preserveAspectRatio="xMidYMid meet"
+                  >
+                    {data.map((item, index) => {
+                      const value =
+                        typeof item.value === "number" ? item.value : 0;
+                      const angle = (value / total) * 360;
+                      const startAngle = currentAngle;
+                      const endAngle = currentAngle + angle;
+                      currentAngle += angle;
+                      const largeArcFlag = angle > 180 ? 1 : 0;
+
+                      const x1 =
+                        centerPoint +
+                        radius * Math.cos((startAngle * Math.PI) / 180);
+                      const y1 =
+                        centerPoint +
+                        radius * Math.sin((startAngle * Math.PI) / 180);
+                      const x2 =
+                        centerPoint +
+                        radius * Math.cos((endAngle * Math.PI) / 180);
+                      const y2 =
+                        centerPoint +
+                        radius * Math.sin((endAngle * Math.PI) / 180);
+
+                      return (
+                        <path
+                          key={index}
+                          d={`M ${centerPoint} ${centerPoint} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`}
+                          fill={item.color || fallbackColor}
+                          stroke="#ffffff"
+                          strokeWidth="1.6"
+                          opacity="0.96"
+                        />
+                      );
+                    })}
+                  </svg>
                 </div>
+                {hasLegendSpace && (
+                  <div
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      flexWrap: "wrap",
+                      justifyContent: "center",
+                      gap: Math.max(labelFont * 0.8, 8),
+                      fontSize: labelFont,
+                      color: "#475569",
+                    }}
+                  >
+                    {data.map((item, index) => (
+                      <span
+                        key={index}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        <span
+                          style={{
+                            width: labelFont * 0.6,
+                            height: labelFont * 0.6,
+                            borderRadius: "50%",
+                            background: item.color || fallbackColor,
+                          }}
+                        ></span>
+                        {truncated(item.label || `Slice ${index + 1}`, 18)}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -2114,11 +2164,6 @@ const Canvas = ({
               transformOrigin: "center center",
             }}
             onClick={(e) => handleElementClick(e, element)}
-            onDoubleClick={() => {
-              if (typeof window.openChartEditor === "function") {
-                window.openChartEditor(element); // parent can hook this to show ChartModal prefilled
-              }
-            }}
             onMouseDown={(e) => handleMouseDown(e, element)}
           >
             {renderChart(element)}

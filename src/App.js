@@ -7,7 +7,6 @@ import Canvas from "./components/Canvas/Canvas";
 import PresentationMode from "./components/PresentationMode/PresentationMode";
 import HelpModal from "./components/HelpModal/HelpModal";
 import ShareModal from "./components/ShareModal/ShareModal";
-import ChartModal from "./components/ChartModal/ChartModal";
 import ShapesLibrary from "./components/ShapesLibrary/ShapesLibrary";
 import { exportToPDF } from "./utils/pdfExport";
 import { exportToPPTX } from "./utils/pptxExport";
@@ -92,7 +91,6 @@ function App() {
   const [recentPdfs, setRecentPdfs] = useState([]);
   const [showHelp, setShowHelp] = useState(false);
   const [showShare, setShowShare] = useState(false);
-  const [showChartModal, setShowChartModal] = useState(false);
   const [showShapesLibrary, setShowShapesLibrary] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showRulers, setShowRulers] = useState(false);
@@ -100,7 +98,6 @@ function App() {
   const [history, setHistory] = useState([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const isUndoRedoAction = useRef(false);
-  const [chartEditing, setChartEditing] = useState(null);
   const [zoomLevel, setZoomLevel] = useState(100);
 
   const handleSelectElement = useCallback((element) => {
@@ -685,14 +682,11 @@ function App() {
   }, [history, historyIndex]);
 
   useEffect(() => {
-    window.openChartEditor = (el) => setChartEditing(el);
-
     // map to your real functions
     window.onUndoAction = undo;
     window.onRedoAction = redo;
 
     return () => {
-      delete window.openChartEditor;
       delete window.onUndoAction;
       delete window.onRedoAction;
     };
@@ -1259,7 +1253,6 @@ function App() {
         onAddElement={handleHeaderAddElement}
         onShowHelp={() => setShowHelp(true)}
         onShowShare={() => setShowShare(true)}
-        onShowChartModal={() => setShowChartModal(true)}
         onZoomIn={zoomIn}
         onZoomOut={zoomOut}
         onFitToScreen={fitToScreen}
@@ -1311,7 +1304,6 @@ function App() {
         onDeletePreviousSlide={deletePreviousSlide}
         toolbarActiveTab={toolbarActiveTab}
         setToolbarActiveTab={setToolbarActiveTab}
-        onShowChartModal={() => setShowChartModal(true)}
         onShowShapesLibrary={() => setShowShapesLibrary(true)}
       />
       <div className="main-content">
@@ -1355,12 +1347,6 @@ function App() {
           onClose={() => setShowShare(false)}
           presentationTitle={presentationTitle}
           savedPresentations={savedPresentations}
-        />
-      )}
-      {showChartModal && (
-        <ChartModal
-          onClose={() => setShowChartModal(false)}
-          onCreateChart={addElement}
         />
       )}
       {showShapesLibrary && (
@@ -1417,22 +1403,6 @@ function App() {
             </div>
           </div>
         </div>
-      )}
-      {chartEditing && (
-        <ChartModal
-          initialData={chartEditing}
-          onCreateChart={(chart) => {
-            if (chart.id) {
-              // update existing chart in-place
-              updateElement(chart.id, chart);
-            } else {
-              // add new chart; addElement already creates a fresh id
-              addElement(chart);
-            }
-            setChartEditing(null);
-          }}
-          onClose={() => setChartEditing(null)}
-        />
       )}
     </div>
   );

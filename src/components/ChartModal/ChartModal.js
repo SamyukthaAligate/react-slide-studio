@@ -310,64 +310,67 @@ const ChartModal = ({ onClose, onCreateChart, initialData }) => {
                   <div className="guide horizontal"></div>
                 </>
               )}
-
-              {chartType === "bar" && (
-                <div className="preview-bars">
-                  {chartData.map((item, index) => (
-                    <div key={index} className="preview-column">
-                      <div
-                        className="preview-bar"
-                        style={{
-                          height: `${((item.value || 0) / maxValue) * 100}%`,
-                          background: `linear-gradient(180deg, ${item.color} 0%, #111 100%)`,
-                        }}
-                      />
-                      <span>{item.label}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {chartType === "line" && (
-                <div className="preview-line">
-                  <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-                    <polyline
-                      points={linePoints}
-                      fill="none"
-                      stroke={chartColor}
-                      strokeWidth="2"
-                    />
-                    {chartData.map((item, index) => {
-                      const step =
-                        chartData.length === 1
-                          ? 100
-                          : 100 / (chartData.length - 1);
-                      const cx = index * step;
-                      const cy = 100 - ((item.value || 0) / maxValue) * 100;
-                      return (
-                        <circle
-                          key={index}
-                          cx={cx}
-                          cy={cy}
-                          r={2.8}
-                          fill="#ffffff"
-                          stroke={chartColor}
-                          strokeWidth="1"
+              <div className="preview-viewport">
+                {chartType === "bar" && (
+                  <div className="preview-bars">
+                    {chartData.map((item, index) => (
+                      <div key={index} className="preview-column">
+                        <div
+                          className="preview-bar"
+                          style={{
+                            height: `${((item.value || 0) / maxValue) * 100}%`,
+                            background: `linear-gradient(180deg, ${item.color} 0%, #111 100%)`,
+                          }}
                         />
-                      );
-                    })}
-                  </svg>
-                </div>
-              )}
+                        <span>{item.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-              {chartType === "pie" && (
-                <div
-                  className="preview-pie"
-                  style={{ backgroundImage: pieGradient }}
-                >
-                  <div className="pie-center" />
-                </div>
-              )}
+                {chartType === "line" && (
+                  <div className="preview-line">
+                    <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+                      <polyline
+                        points={linePoints}
+                        fill="none"
+                        stroke={chartColor}
+                        strokeWidth="2"
+                      />
+                      {chartData.map((item, index) => {
+                        const step =
+                          chartData.length === 1
+                            ? 100
+                            : 100 / (chartData.length - 1);
+                        const cx = index * step;
+                        const cy = 100 - ((item.value || 0) / maxValue) * 100;
+                        return (
+                          <circle
+                            key={index}
+                            cx={cx}
+                            cy={cy}
+                            r={2.8}
+                            fill="#ffffff"
+                            stroke={chartColor}
+                            strokeWidth="1"
+                          />
+                        );
+                      })}
+                    </svg>
+                  </div>
+                )}
+
+                {chartType === "pie" && (
+                  <div className="preview-pie-wrapper">
+                    <div
+                      className="preview-pie"
+                      style={{ backgroundImage: pieGradient }}
+                    >
+                      <div className="pie-center" />
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="preview-meta">

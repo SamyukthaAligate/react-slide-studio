@@ -467,6 +467,48 @@ const Canvas = ({
     return { x: snapX, y: snapY, vGuide, hGuide };
   };
 
+  const measureTextHeight = useCallback((element, width) => {
+    if (!element || typeof document === "undefined") {
+      return MIN_ELEMENT_HEIGHT;
+    }
+
+    const measurementNode = document.createElement("div");
+    measurementNode.style.position = "absolute";
+    measurementNode.style.visibility = "hidden";
+    measurementNode.style.pointerEvents = "none";
+    measurementNode.style.zIndex = "-1";
+    measurementNode.style.whiteSpace = "pre-wrap";
+    measurementNode.style.wordWrap = "break-word";
+    measurementNode.style.overflowWrap = "anywhere";
+    measurementNode.style.lineHeight = element.lineHeight
+      ? String(element.lineHeight)
+      : "normal";
+    measurementNode.style.letterSpacing = element.letterSpacing
+      ? `${element.letterSpacing}px`
+      : "normal";
+    measurementNode.style.fontSize = `${element.fontSize || 16}px`;
+    measurementNode.style.fontFamily = element.fontFamily || "Roboto";
+    measurementNode.style.fontWeight = element.fontWeight || "normal";
+    measurementNode.style.fontStyle = element.fontStyle || "normal";
+    measurementNode.style.textDecoration = element.textDecoration || "none";
+    measurementNode.style.boxSizing = "border-box";
+    measurementNode.style.padding = "8px";
+    measurementNode.style.width = `${Math.max(
+      MIN_ELEMENT_WIDTH,
+      width || MIN_ELEMENT_WIDTH
+    )}px`;
+    measurementNode.textContent =
+      element.content && element.content.length > 0
+        ? element.content
+        : element.placeholder || "";
+
+    document.body.appendChild(measurementNode);
+    const measuredHeight = Math.ceil(measurementNode.scrollHeight);
+    document.body.removeChild(measurementNode);
+
+    return Math.max(measuredHeight, MIN_ELEMENT_HEIGHT);
+  }, []);
+
   const handleMouseMove = useCallback(
     (e) => {
       if (!selectedElement || (!isDragging && !isResizing && !isRotating) || isEditingText)
@@ -688,6 +730,36 @@ const Canvas = ({
           width: updates.width ?? selectedElement.width,
           height: updates.height ?? selectedElement.height,
         });
+
+        if (selectedElement.type === "text") {
+          const horizontalOnly = resizeHandle === "e" || resizeHandle === "w";
+          const availableHeight = Math.max(
+            MIN_ELEMENT_HEIGHT,
+            CANVAS_HEIGHT - rect.y
+          );
+
+          const currentMeasured = measureTextHeight(
+            selectedElement,
+            selectedElement.width
+          );
+          const extraSpace = Math.max(0, selectedElement.height - currentMeasured);
+
+          const targetMeasured = measureTextHeight(
+            { ...selectedElement, ...rect },
+            rect.width
+          );
+          const desiredHeight = Math.min(
+            Math.max(targetMeasured + extraSpace, MIN_ELEMENT_HEIGHT),
+            availableHeight
+          );
+
+          if (horizontalOnly) {
+            rect.height = desiredHeight;
+          } else {
+            rect.height = Math.max(rect.height, desiredHeight);
+          }
+        }
+
         onUpdateElement(selectedElement.id, rect);
 
         setDragStart({ x: currentX, y: currentY });
@@ -743,6 +815,7 @@ const Canvas = ({
       snapToGrid,
       isShiftDown,
       gridSize,
+      measureTextHeight,
     ]
   );
 
@@ -1732,6 +1805,7 @@ const Canvas = ({
         >
           {isEditingText && isSelected ? (
             <textarea
+              className="canvas-text-editor"
               ref={(el) => editorRefs.current.set(element.id, el)}
               style={{
                 position: "absolute",
@@ -1747,6 +1821,12 @@ const Canvas = ({
                 fontStyle: element.fontStyle,
                 textAlign: element.textAlign,
                 textDecoration: element.textDecoration,
+                lineHeight: element.lineHeight
+                  ? String(element.lineHeight)
+                  : "normal",
+                letterSpacing: element.letterSpacing
+                  ? `${element.letterSpacing}px`
+                  : "normal",
                 border: "2px solid #1a73e8",
                 outline: "none",
                 resize: "none",
@@ -1757,6 +1837,9 @@ const Canvas = ({
                 boxSizing: "border-box",
                 minHeight: "30px",
                 overflow: "hidden",
+                whiteSpace: "pre-wrap",
+                wordWrap: "break-word",
+                overflowWrap: "anywhere",
               }}
               value={element.content || ""}
               onChange={(e) => handleTextChange(e, element)}
@@ -1808,7 +1891,7 @@ const Canvas = ({
                   whiteSpace: "pre-wrap",
                   wordWrap: "break-word",
                   overflowWrap: "anywhere",
-                  overflow: "hidden",
+                  overflow: "visible",
                   height: element.height,
                   cursor: isSelected && !isEditingText ? "move" : "pointer",
                   borderRadius: "4px",
@@ -1825,11 +1908,28 @@ const Canvas = ({
                 }
               >
                 {/* 2) The content or placeholder */}
-                <span style={{
-                  pointerEvents: isEditingText ? "auto" : "none",
-                  color: !element.content && element.placeholder ? "#999999" : "inherit",
-                  fontStyle: !element.content && element.placeholder ? "italic" : "inherit",
-                }}>
+                <span
+                  style={{
+                    pointerEvents: isEditingText ? "auto" : "none",
+                    color:
+                      !element.content && element.placeholder
+                        ? "#999999"
+                        : "inherit",
+                    fontStyle:
+                      !element.content && element.placeholder
+                        ? "italic"
+                        : "inherit",
+                    lineHeight: element.lineHeight
+                      ? String(element.lineHeight)
+                      : "normal",
+                    letterSpacing: element.letterSpacing
+                      ? `${element.letterSpacing}px`
+                      : "normal",
+                    display: "block",
+                    width: "100%",
+                    height: "100%",
+                  }}
+                >
                   {element.content || element.placeholder || "Click to add text"}
                 </span>
 

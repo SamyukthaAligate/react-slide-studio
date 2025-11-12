@@ -1,3 +1,10 @@
+.canvas-text-editor {
+  scrollbar-width: none;
+}
+
+.canvas-text-editor::-webkit-scrollbar {
+  display: none;
+}
 .canvas-container {
   flex: 1;
   display: flex;

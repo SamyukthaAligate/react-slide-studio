@@ -354,9 +354,16 @@ const Header = ({
           <div className="menu-dropdown">
             <button
               className="menu-item"
-              onClick={onUndo}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (canUndo && onUndo) {
+                  onUndo();
+                }
+              }}
               disabled={!canUndo}
               title="Undo (Ctrl+Z)"
+              type="button"
             >
               <i className="fas fa-undo"></i>
             </button>
@@ -364,9 +371,16 @@ const Header = ({
           <div className="menu-dropdown">
             <button
               className="menu-item"
-              onClick={onRedo}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (canRedo && onRedo) {
+                  onRedo();
+                }
+              }}
               disabled={!canRedo}
               title="Redo (Ctrl+Y)"
+              type="button"
             >
               <i className="fas fa-redo"></i>
             </button>

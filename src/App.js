@@ -462,15 +462,21 @@ function App() {
 
   // Save state to history for undo/redo and persist to localStorage
   const saveToHistory = useCallback(
-    (newSlides) => {
+    (newSlides, newSlideIndex = null, newSelectedElement = null) => {
       if (isUndoRedoAction.current) {
         isUndoRedoAction.current = false;
         return;
       }
 
+      const appState = {
+        slides: JSON.parse(JSON.stringify(newSlides)),
+        currentSlideIndex: newSlideIndex !== null ? newSlideIndex : currentSlideIndex,
+        selectedElement: newSelectedElement !== null ? JSON.parse(JSON.stringify(newSelectedElement || null)) : JSON.parse(JSON.stringify(selectedElement || null))
+      };
+
       setHistory((prev) => {
         const newHistory = prev.slice(0, historyIndex + 1);
-        newHistory.push(JSON.parse(JSON.stringify(newSlides)));
+        newHistory.push(appState);
         return newHistory.slice(-50); // Keep last 50 states
       });
       setHistoryIndex((prev) => Math.min(prev + 1, 49));
@@ -487,15 +493,27 @@ function App() {
         console.warn('Failed to auto-save current work:', error);
       }
     },
-    [historyIndex, presentationTitle]
+    [historyIndex, presentationTitle, currentSlideIndex, selectedElement]
   );
 
   // Undo functionality
   const handleUndo = useCallback(() => {
     if (historyIndex > 0) {
       isUndoRedoAction.current = true;
+      const previousState = history[historyIndex - 1];
+      
+      // Restore complete application state
+      if (previousState.slides) {
+        setSlides(JSON.parse(JSON.stringify(previousState.slides)));
+      }
+      if (typeof previousState.currentSlideIndex === 'number') {
+        setCurrentSlideIndex(previousState.currentSlideIndex);
+      }
+      if (previousState.selectedElement !== undefined) {
+        setSelectedElement(previousState.selectedElement ? JSON.parse(JSON.stringify(previousState.selectedElement)) : null);
+      }
+      
       setHistoryIndex((prev) => prev - 1);
-      setSlides(history[historyIndex - 1]);
     }
   }, [history, historyIndex]);
 
@@ -503,8 +521,20 @@ function App() {
   const handleRedo = useCallback(() => {
     if (historyIndex < history.length - 1) {
       isUndoRedoAction.current = true;
+      const nextState = history[historyIndex + 1];
+      
+      // Restore complete application state
+      if (nextState.slides) {
+        setSlides(JSON.parse(JSON.stringify(nextState.slides)));
+      }
+      if (typeof nextState.currentSlideIndex === 'number') {
+        setCurrentSlideIndex(nextState.currentSlideIndex);
+      }
+      if (nextState.selectedElement !== undefined) {
+        setSelectedElement(nextState.selectedElement ? JSON.parse(JSON.stringify(nextState.selectedElement)) : null);
+      }
+      
       setHistoryIndex((prev) => prev + 1);
-      setSlides(history[historyIndex + 1]);
     }
   }, [history, historyIndex]);
 
@@ -533,6 +563,19 @@ function App() {
     };
   }, [handleUndo, handleRedo]);
 
+  // Initialize history with current state
+  useEffect(() => {
+    if (history.length === 0 && slides.length > 0) {
+      const initialState = {
+        slides: JSON.parse(JSON.stringify(slides)),
+        currentSlideIndex: currentSlideIndex,
+        selectedElement: selectedElement ? JSON.parse(JSON.stringify(selectedElement)) : null
+      };
+      setHistory([initialState]);
+      setHistoryIndex(0);
+    }
+  }, [slides, currentSlideIndex, selectedElement, history.length]);
+
   // Handle adding elements from header menu
   const handleHeaderAddElement = useCallback(
     (elementType) => {
@@ -550,7 +593,7 @@ function App() {
             : slide
         );
         setSlides(newSlides);
-        saveToHistory(newSlides);
+        saveToHistory(newSlides, currentSlideIndex, newElement);
       };
 
       switch (elementType) {
@@ -659,38 +702,6 @@ function App() {
     [slides, currentSlideIndex, saveToHistory]
   );
 
-  // Undo functionality
-  const undo = useCallback(() => {
-    if (historyIndex > 0) {
-      isUndoRedoAction.current = true;
-      const previousState = history[historyIndex - 1];
-      setSlides(JSON.parse(JSON.stringify(previousState)));
-      setHistoryIndex((prev) => prev - 1);
-      setSelectedElement(null);
-    }
-  }, [history, historyIndex]);
-
-  // Redo functionality
-  const redo = useCallback(() => {
-    if (historyIndex < history.length - 1) {
-      isUndoRedoAction.current = true;
-      const nextState = history[historyIndex + 1];
-      setSlides(JSON.parse(JSON.stringify(nextState)));
-      setHistoryIndex((prev) => prev + 1);
-      setSelectedElement(null);
-    }
-  }, [history, historyIndex]);
-
-  useEffect(() => {
-    // map to your real functions
-    window.onUndoAction = undo;
-    window.onRedoAction = redo;
-
-    return () => {
-      delete window.onUndoAction;
-      delete window.onRedoAction;
-    };
-  }, [undo, redo]);
 
   const addSlide = useCallback(() => {
     const canvasWidth = 960;
@@ -758,7 +769,7 @@ function App() {
     newSlides.splice(insertIndex, 0, newSlide);
     setSlides(newSlides);
     setCurrentSlideIndex(insertIndex);
-    saveToHistory(newSlides);
+    saveToHistory(newSlides, insertIndex, null);
   }, [slides, currentSlideIndex, saveToHistory]);
 
   const addEmptySlide = useCallback(() => {
@@ -777,7 +788,7 @@ function App() {
     newSlides.splice(insertIndex, 0, newSlide);
     setSlides(newSlides);
     setCurrentSlideIndex(insertIndex);
-    saveToHistory(newSlides);
+    saveToHistory(newSlides, insertIndex, null);
   }, [slides, currentSlideIndex, saveToHistory]);
 
   const deleteSlide = useCallback(
@@ -785,10 +796,12 @@ function App() {
       if (slides.length > 1) {
         const newSlides = slides.filter((_, i) => i !== index);
         setSlides(newSlides);
+        let newSlideIndex = currentSlideIndex;
         if (currentSlideIndex >= index && currentSlideIndex > 0) {
-          setCurrentSlideIndex((prev) => prev - 1);
+          newSlideIndex = currentSlideIndex - 1;
+          setCurrentSlideIndex(newSlideIndex);
         }
-        saveToHistory(newSlides);
+        saveToHistory(newSlides, newSlideIndex, null);
       }
     },
     [slides, currentSlideIndex, saveToHistory]
@@ -822,7 +835,7 @@ function App() {
       setSlides(newSlides);
       const newIndex = targetIndex;
       setCurrentSlideIndex(newIndex);
-      saveToHistory(newSlides);
+      saveToHistory(newSlides, newIndex, null);
     },
     [slides, saveToHistory]
   );
@@ -851,7 +864,7 @@ function App() {
       const newSlides = [...slides];
       newSlides.splice(index + 1, 0, newSlide);
       setSlides(newSlides);
-      saveToHistory(newSlides);
+      saveToHistory(newSlides, currentSlideIndex, null);
     },
     [slides, saveToHistory]
   );
@@ -879,7 +892,7 @@ function App() {
         return merged;
       });
       setSlides(newSlides);
-      saveToHistory(newSlides);
+      saveToHistory(newSlides, currentSlideIndex, selectedElement);
     },
     [slides, saveToHistory]
   );
@@ -919,7 +932,7 @@ function App() {
           : slide
       );
       setSlides(newSlides);
-      saveToHistory(newSlides);
+      saveToHistory(newSlides, currentSlideIndex, selectedElement);
       // If the updated element is currently selected, update selectedElement too
       setSelectedElement((prev) =>
         prev && prev.id === elementId ? { ...prev, ...updates } : prev
@@ -940,7 +953,7 @@ function App() {
       );
       setSlides(newSlides);
       handleSelectElement(null);
-      saveToHistory(newSlides);
+      saveToHistory(newSlides, currentSlideIndex, null);
     },
     [currentSlideIndex, slides, saveToHistory, handleSelectElement]
   );
@@ -1028,7 +1041,7 @@ function App() {
         i === currentSlideIndex ? { ...slide, elements } : slide
       );
       setSlides(newSlides);
-      saveToHistory(newSlides);
+      saveToHistory(newSlides, currentSlideIndex, element);
       handleSelectElement(element);
     },
     [currentSlideIndex, slides, saveToHistory, handleSelectElement]
@@ -1161,10 +1174,10 @@ function App() {
       if (e.ctrlKey || e.metaKey) {
         if (e.key === "z" && !e.shiftKey) {
           e.preventDefault();
-          undo();
+          handleUndo();
         } else if (e.key === "y" || (e.key === "z" && e.shiftKey)) {
           e.preventDefault();
-          redo();
+          handleRedo();
         } else if (e.key === "s") {
           e.preventDefault();
           handleSave();
@@ -1190,8 +1203,8 @@ function App() {
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [
-    undo,
-    redo,
+    handleUndo,
+    handleRedo,
     handleSave,
     createNewPresentation,
     startPresentation,
@@ -1278,8 +1291,8 @@ function App() {
         onMoveSlideUp={moveCurrentSlideUp}
         onMoveSlideDown={moveCurrentSlideDown}
         onStartPresentation={startPresentation}
-        onUndo={undo}
-        onRedo={redo}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
         canUndo={historyIndex > 0}
         canRedo={historyIndex < history.length - 1}
         presentationTitle={presentationTitle}

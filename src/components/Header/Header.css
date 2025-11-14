@@ -183,6 +183,23 @@
   transform: translateY(-2px);
 }
 
+/* Ensure undo/redo buttons are properly clickable */
+.menu-dropdown > .menu-item:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.menu-dropdown > .menu-item:not(:disabled) {
+  pointer-events: auto;
+  user-select: none;
+}
+
+.menu-dropdown > .menu-item:not(:disabled):active {
+  transform: translateY(0px);
+  transition: transform 0.1s ease;
+}
+
 .dropdown-menu {
   position: absolute;
   top: calc(100% + 12px);

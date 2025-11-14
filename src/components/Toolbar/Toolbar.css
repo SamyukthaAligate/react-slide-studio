@@ -98,6 +98,16 @@
   align-items: center;
 }
 
+/* Center tools specifically in format mode */
+.toolbar-content.format-mode {
+  justify-content: center;
+}
+
+/* Center tools specifically in design mode */
+.toolbar-content.design-mode {
+  justify-content: center;
+}
+
 .toolbar-content.dropdown-open {
   overflow: visible;
 }

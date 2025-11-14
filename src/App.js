@@ -753,11 +753,13 @@ function App() {
       themeAccent: null,
       themeAccentSecondary: null,
     };
-    const newSlides = [...slides, newSlide];
+    const insertIndex = Math.min(currentSlideIndex + 1, slides.length);
+    const newSlides = [...slides];
+    newSlides.splice(insertIndex, 0, newSlide);
     setSlides(newSlides);
-    setCurrentSlideIndex(slides.length);
+    setCurrentSlideIndex(insertIndex);
     saveToHistory(newSlides);
-  }, [slides, saveToHistory]);
+  }, [slides, currentSlideIndex, saveToHistory]);
 
   const addEmptySlide = useCallback(() => {
     const newSlide = {
@@ -770,11 +772,13 @@ function App() {
       themeAccent: null,
       themeAccentSecondary: null,
     };
-    const newSlides = [...slides, newSlide];
+    const insertIndex = Math.min(currentSlideIndex + 1, slides.length);
+    const newSlides = [...slides];
+    newSlides.splice(insertIndex, 0, newSlide);
     setSlides(newSlides);
-    setCurrentSlideIndex(slides.length);
+    setCurrentSlideIndex(insertIndex);
     saveToHistory(newSlides);
-  }, [slides, saveToHistory]);
+  }, [slides, currentSlideIndex, saveToHistory]);
 
   const deleteSlide = useCallback(
     (index) => {

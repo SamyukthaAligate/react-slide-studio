@@ -341,22 +341,8 @@ function App() {
         setRecentPdfs([]);
       }
 
-      // Restore current work if available
-      const currentWork = localStorage.getItem("currentWork");
-      if (currentWork && currentWork !== 'undefined' && currentWork !== 'null' && currentWork.trim() !== '') {
-        try {
-          const parsed = JSON.parse(currentWork);
-          if (parsed.slides && Array.isArray(parsed.slides) && parsed.slides.length > 0) {
-            setSlides(parsed.slides);
-            if (parsed.title) {
-              setPresentationTitle(parsed.title);
-            }
-          }
-        } catch (e) {
-          console.error("Error parsing currentWork:", e);
-          localStorage.removeItem("currentWork");
-        }
-      }
+      // Clear any previous work to start fresh on browser refresh
+      localStorage.removeItem("currentWork");
     } catch (error) {
       console.error("Error loading data from localStorage:", error);
       // Clear potentially corrupted data

@@ -1,4 +1,5 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import ShapeRenderer from '../ShapeRenderer/ShapeRenderer';
 import './PresentationMode.css';
 
 const BASE_WIDTH = 960;
@@ -351,82 +352,62 @@ const PresentationMode = ({ slides, currentSlideIndex, onSlideChange, onExit }) 
     }
 
     if (element.type === 'shape') {
-      const fill = element.fill || '#2f2f2f';
-      const stroke = element.stroke || 'transparent';
-      const strokeWidth = Number.isFinite(element.strokeWidth) ? Math.max(element.strokeWidth, 0) : 0;
-      const opacity = typeof element.opacity === 'number' ? element.opacity : 1;
-      const cornerRadius = typeof element.cornerRadius === 'number' ? Math.max(element.cornerRadius, 0) : 0;
+      const padding = Number.isFinite(element.textPadding)
+        ? Math.max(element.textPadding, 0)
+        : 10;
       const shadowStyle = element.shadow ? '0 18px 32px rgba(0,0,0,0.35)' : 'none';
-      const viewWidth = Math.max(element.width, 1);
-      const viewHeight = Math.max(element.height, 1);
-      const inset = strokeWidth / 2;
-
-      let shapeSvg = null;
-
-      if (element.shapeType === 'rectangle') {
-        shapeSvg = (
-          <svg width={viewWidth} height={viewHeight} viewBox={`0 0 ${viewWidth} ${viewHeight}`}>
-            <rect
-              x={inset}
-              y={inset}
-              width={Math.max(viewWidth - strokeWidth, 0)}
-              height={Math.max(viewHeight - strokeWidth, 0)}
-              rx={cornerRadius}
-              ry={cornerRadius}
-              fill={fill}
-              stroke={stroke}
-              strokeWidth={strokeWidth}
-              opacity={opacity}
-            />
-          </svg>
-        );
-      } else if (element.shapeType === 'circle') {
-        const radiusX = Math.max((viewWidth - strokeWidth) / 2, 0);
-        const radiusY = Math.max((viewHeight - strokeWidth) / 2, 0);
-        shapeSvg = (
-          <svg width={viewWidth} height={viewHeight} viewBox={`0 0 ${viewWidth} ${viewHeight}`}>
-            <ellipse
-              cx={viewWidth / 2}
-              cy={viewHeight / 2}
-              rx={radiusX}
-              ry={radiusY}
-              fill={fill}
-              stroke={stroke}
-              strokeWidth={strokeWidth}
-              opacity={opacity}
-            />
-          </svg>
-        );
-      } else if (element.shapeType === 'triangle') {
-        const topPoint = `${viewWidth / 2},${inset}`;
-        const leftPoint = `${inset},${viewHeight - inset}`;
-        const rightPoint = `${viewWidth - inset},${viewHeight - inset}`;
-        shapeSvg = (
-          <svg width={viewWidth} height={viewHeight} viewBox={`0 0 ${viewWidth} ${viewHeight}`}>
-            <polygon
-              points={`${topPoint} ${rightPoint} ${leftPoint}`}
-              fill={fill}
-              stroke={stroke}
-              strokeWidth={strokeWidth}
-              opacity={opacity}
-              strokeLinejoin="round"
-            />
-          </svg>
-        );
-      }
+      const textContent = (element.text || '').trim();
 
       return (
         <div
           key={element.id}
           style={{
             ...baseStyle,
-            borderRadius: element.shapeType === 'rectangle' ? cornerRadius : 0,
-            boxShadow: shadowStyle
+            boxShadow: shadowStyle,
+            pointerEvents: 'none',
+            transform: element.rotation ? `rotate(${element.rotation}deg)` : 'none',
+            transformOrigin: 'center center',
           }}
         >
-          <div style={{ width: '100%', height: '100%' }}>
-            {shapeSvg}
-          </div>
+          <ShapeRenderer element={element} />
+          {textContent ? (
+            <div
+              style={{
+                position: 'absolute',
+                top: padding,
+                left: padding,
+                right: padding,
+                bottom: padding,
+                display: 'flex',
+                alignItems:
+                  element.verticalAlign === 'top'
+                    ? 'flex-start'
+                    : element.verticalAlign === 'bottom'
+                    ? 'flex-end'
+                    : 'center',
+                justifyContent:
+                  element.textAlign === 'left'
+                    ? 'flex-start'
+                    : element.textAlign === 'right'
+                    ? 'flex-end'
+                    : 'center',
+                textAlign: element.textAlign || 'center',
+                fontFamily: element.fontFamily || 'Roboto',
+                fontSize: element.fontSize || 16,
+                color: element.textColor || '#FFFFFF',
+                fontWeight: element.fontWeight || 'normal',
+                fontStyle: element.fontStyle || 'normal',
+                textDecoration: element.textDecoration || 'none',
+                whiteSpace: 'pre-wrap',
+                wordWrap: 'break-word',
+                overflowWrap: 'anywhere',
+                lineHeight: element.lineHeight ? String(element.lineHeight) : 'normal',
+                letterSpacing: element.letterSpacing ? `${element.letterSpacing}px` : 'normal',
+              }}
+            >
+              {textContent}
+            </div>
+          ) : null}
         </div>
       );
     }

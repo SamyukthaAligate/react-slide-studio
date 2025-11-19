@@ -1034,9 +1034,9 @@ function App() {
   );
 
   const startPresentation = useCallback(() => {
+    setPresentationSlideIndex(0);
     setIsPresentationMode(true);
-    setPresentationSlideIndex(currentSlideIndex);
-  }, [currentSlideIndex]);
+  }, []);
 
   const exitPresentation = useCallback(() => {
     setIsPresentationMode(false);

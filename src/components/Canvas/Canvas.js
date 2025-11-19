@@ -2432,8 +2432,6 @@ const Canvas = ({
     <div 
       className="canvas-container"
       style={{
-        transform: `scale(${zoomScale})`,
-        transformOrigin: "center center",
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
@@ -2488,39 +2486,79 @@ const Canvas = ({
         </>
       )}
       <div
-        ref={canvasRef}
-        className={`canvas ${isDragOver ? "drag-over" : ""}`}
+        className="canvas-zoom-wrapper"
         style={{
-          backgroundColor: slide.background,
-          backgroundImage: slide.backgroundImage
-            ? `url(${slide.backgroundImage})`
-            : slide.backgroundGradient || "none",
-          backgroundSize: slide.backgroundImage ? "contain" : "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: slide.backgroundImage ? "no-repeat" : "no-repeat",
+          transform: `scale(${zoomScale})`,
+          transformOrigin: 'center center',
+          position: 'relative',
           width: `${CANVAS_WIDTH}px`,
           height: `${CANVAS_HEIGHT}px`,
-          margin: '0 auto',
-          position: 'relative',
-          overflow: 'hidden',
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
-          flexShrink: 0,
-          boxSizing: 'border-box'
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
         }}
-        onMouseDown={handleCanvasBackgroundMouseDown}
-        onContextMenu={handleContextMenu}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
       >
-        {slide.elements.map(renderElement)}
-        {isDragOver && (
-          <div className="drag-overlay">
-            <div className="drag-message">
-              <i className="fas fa-cloud-upload-alt"></i>
-              <p>Drop images, videos, or text files here</p>
+        <div
+          ref={canvasRef}
+          className={`canvas ${isDragOver ? "drag-over" : ""}`}
+          style={{
+            backgroundColor: slide.background,
+            backgroundImage: slide.backgroundImage
+              ? `url(${slide.backgroundImage})`
+              : slide.backgroundGradient || "none",
+            backgroundSize: slide.backgroundImage ? "contain" : "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: slide.backgroundImage ? "no-repeat" : "no-repeat",
+            width: `${CANVAS_WIDTH}px`,
+            height: `${CANVAS_HEIGHT}px`,
+            margin: 0,
+            position: 'relative',
+            overflow: 'hidden',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+            flexShrink: 0,
+            boxSizing: 'border-box'
+          }}
+          onMouseDown={handleCanvasBackgroundMouseDown}
+          onContextMenu={handleContextMenu}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          {slide.elements.map(renderElement)}
+          {isDragOver && (
+            <div className="drag-overlay">
+              <div className="drag-message">
+                <i className="fas fa-cloud-upload-alt"></i>
+                <p>Drop images, videos, or text files here</p>
+              </div>
             </div>
-          </div>
+          )}
+        </div>
+        {guides.v !== null && (
+          <div
+            style={{
+              position: "absolute",
+              left: `${guides.v}px`,
+              top: 0,
+              bottom: 0,
+              width: "1px",
+              background: "rgba(26,115,232,0.7)",
+              pointerEvents: "none",
+            }}
+          />
+        )}
+        {guides.h !== null && (
+          <div
+            style={{
+              position: "absolute",
+              top: `${guides.h}px`,
+              left: 0,
+              right: 0,
+              height: "1px",
+              background: "rgba(26,115,232,0.7)",
+              pointerEvents: "none",
+            }}
+          />
         )}
       </div>
 
@@ -2670,32 +2708,6 @@ const Canvas = ({
             </>
           )}
         </div>
-      )}
-      {guides.v !== null && (
-        <div
-          style={{
-            position: "absolute",
-            left: `${guides.v}px`,
-            top: 0,
-            bottom: 0,
-            width: "1px",
-            background: "rgba(26,115,232,0.7)",
-            pointerEvents: "none",
-          }}
-        />
-      )}
-      {guides.h !== null && (
-        <div
-          style={{
-            position: "absolute",
-            top: `${guides.h}px`,
-            left: 0,
-            right: 0,
-            height: "1px",
-            background: "rgba(26,115,232,0.7)",
-            pointerEvents: "none",
-          }}
-        />
       )}
     </div>
   );

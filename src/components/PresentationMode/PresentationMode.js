@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ShapeRenderer from '../ShapeRenderer/ShapeRenderer';
 import './PresentationMode.css';
+import LineChartPreview from '../LineChartPreview/LineChartPreview';
 
 const BASE_WIDTH = 960;
 const BASE_HEIGHT = 540;
@@ -110,8 +111,9 @@ const PresentationMode = ({ slides, currentSlideIndex, onSlideChange, onExit }) 
   const renderChart = (element) => {
     const data = Array.isArray(element.data) ? element.data : [];
     const fallbackColor = element.color || '#4F46E5';
-    const chartWidth = Math.max(element.width || 320, 140);
-    const chartHeight = Math.max(element.height || 240, 160);
+    const outerPadding = 32; // matches 16px padding on the chart container
+    const chartWidth = Math.max((element.width || 320) - outerPadding, 140);
+    const chartHeight = Math.max((element.height || 240) - outerPadding, 160);
 
     if (data.length === 0) {
       return (
@@ -259,49 +261,9 @@ const PresentationMode = ({ slides, currentSlideIndex, onSlideChange, onExit }) 
     }
 
     if (element.chartType === 'line') {
-      const values = data.map(item => (typeof item.value === 'number' ? item.value : 0));
-      const maxValue = Math.max(...values);
-      const minValue = Math.min(...values);
-      const range = maxValue - minValue || 1;
-
-      const points = data.map((item, index) => {
-      	const value = typeof item.value === 'number' ? item.value : 0;
-        const x = (index / Math.max(data.length - 1, 1)) * (chartWidth - 40) + 20;
-        const normalized = clamp((value - minValue) / range, 0, 1);
-        const rawY = (chartHeight - 72) - normalized * (chartHeight - 96);
-        const y = clamp(rawY, 12, chartHeight - 40);
-        return `${x},${y}`;
-      }).join(' ');
-
       return (
         <div className="presentation-chart-area">
-          <div className="presentation-chart-title">Line chart</div>
-          <svg width={chartWidth} height={chartHeight - 40} style={{ display: 'block' }}>
-            <polyline
-              fill="none"
-              stroke={fallbackColor}
-              strokeWidth="3"
-              strokeLinejoin="round"
-              strokeLinecap="round"
-              points={points}
-            />
-            {data.map((item, index) => {
-              const value = typeof item.value === 'number' ? item.value : 0;
-              const x = (index / Math.max(data.length - 1, 1)) * (chartWidth - 40) + 20;
-              const normalized = clamp((value - minValue) / range, 0, 1);
-              const rawY = (chartHeight - 72) - normalized * (chartHeight - 96);
-              const y = clamp(rawY, 12, chartHeight - 40);
-
-              return (
-                <g key={index}>
-                  <circle cx={x} cy={y} r="5" fill="#ffffff" stroke={item.color || fallbackColor} strokeWidth="2" />
-                  <text x={x} y={chartHeight - 18} textAnchor="middle" fontSize="11" fill="#334155">
-                    {item.label || `Point ${index + 1}`}
-                  </text>
-                </g>
-              );
-            })}
-          </svg>
+          <LineChartPreview data={data} width={chartWidth} height={chartHeight} fallbackColor={fallbackColor} />
         </div>
       );
     }

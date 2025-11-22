@@ -434,7 +434,6 @@ const Header = ({
                     <span>Make a copy</span>
                   </span>
                 </button>
-                <div className="dropdown-divider"></div>
                 <div className="dropdown-submenu">
                   <button
                     className={`dropdown-item submenu-toggle ${
@@ -475,12 +474,7 @@ const Header = ({
                             >
                               <span className="item-label">
                                 <i className="fas fa-file-powerpoint"></i>
-                                <span>{ppt.title}</span>
-                              </span>
-                              <span className="file-date">
-                                {ppt.lastModified
-                                  ? new Date(ppt.lastModified).toLocaleString()
-                                  : "Unsaved"}
+                                <span>{ppt.title || "Untitled"}</span>
                               </span>
                             </button>
                             <button
@@ -506,6 +500,16 @@ const Header = ({
                     </div>
                   )}
                 </div>
+                <div className="dropdown-divider"></div>
+                <button
+                  className="dropdown-item"
+                  onClick={() => handleMenuAction(onDownloadPDF, false)}
+                >
+                  <span className="item-label">
+                    <i className="fas fa-file-pdf"></i>
+                    <span>Download as PDF</span>
+                  </span>
+                </button>
                 <div className="dropdown-divider"></div>
                 <button
                   className="dropdown-item"

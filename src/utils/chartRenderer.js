@@ -18,6 +18,17 @@ ChartJS.register(
   ChartDataLabels // Register the datalabels plugin
 );
 
+const safeNumber = (value, fallback) => {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : fallback;
+};
+
+const getChartType = (chartElement) => {
+  return typeof chartElement?.chartType === 'string'
+    ? chartElement.chartType.trim().toLowerCase()
+    : '';
+};
+
 const formatChartData = (chartElement) => {
   if (!chartElement.data || !Array.isArray(chartElement.data)) {
     // Return empty dataset if data is invalid
@@ -37,7 +48,9 @@ const formatChartData = (chartElement) => {
     };
   }
 
-  if (chartElement.chartType === 'pie') {
+  const chartType = getChartType(chartElement);
+
+  if (chartType === 'pie' || chartType === 'doughnut') {
     return {
       labels: chartElement.data.map(item => item.label || ''),
       datasets: [{
@@ -63,7 +76,7 @@ const formatChartData = (chartElement) => {
       barThickness: 'flex',
       categoryPercentage: 0.8,
       barPercentage: 0.9,
-      fill: chartElement.chartType === 'line',
+      fill: chartType === 'line',
       tension: 0.3,
       pointBackgroundColor: chartElement.color || '#4285f4',
       pointBorderColor: '#fff',
@@ -101,6 +114,15 @@ export const renderChart = (element, chartElement) => {
   const defaultOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    animation: false,
+    animations: {
+      tension: { duration: 0 },
+      numbers: { duration: 0 }
+    },
+    transitions: {
+      active: { animation: false },
+      resize: { animation: false }
+    },
     layout: {
       padding: {
         top: 20,
@@ -174,13 +196,15 @@ export const renderChart = (element, chartElement) => {
     }
   };
   
+  const chartType = getChartType(chartElement);
+
   // Get chart type specific options
   const chartOptions = {
     ...defaultOptions,
     plugins: {
       ...defaultOptions.plugins,
       // Override specific plugin options for different chart types
-      ...(chartElement.chartType === 'pie' && {
+      ...(chartType === 'pie' && {
         legend: {
           ...defaultOptions.plugins.legend,
           position: 'right',
@@ -203,18 +227,19 @@ export const renderChart = (element, chartElement) => {
     }
   };
 
-  switch (chartElement.chartType) {
+  switch (chartType) {
     case 'bar':
       root.render(<Bar {...chartProps} />);
       break;
     case 'pie':
+    case 'doughnut':
       root.render(<Pie {...chartProps} />);
       break;
     case 'line':
       root.render(<Line {...chartProps} />);
       break;
     default:
-      console.warn('Unsupported chart type:', chartElement.chartType);
+      console.warn('Unsupported chart type:', chartElement?.chartType);
       return Promise.resolve();
   }
   
@@ -240,4 +265,39 @@ export const renderChart = (element, chartElement) => {
     // Continue with export even if there's an error
     return Promise.resolve();
   });
+};
+
+export const cloneChartCanvas = async (chartElement) => {
+  const offscreen = document.createElement('div');
+  offscreen.style.position = 'fixed';
+  offscreen.style.left = '-9999px';
+  offscreen.style.top = '0';
+  offscreen.style.width = `${safeNumber(chartElement?.width, 300)}px`;
+  offscreen.style.height = `${safeNumber(chartElement?.height, 200)}px`;
+  offscreen.style.pointerEvents = 'none';
+  offscreen.style.opacity = '0';
+  offscreen.style.zIndex = '-1';
+
+  document.body.appendChild(offscreen);
+
+  try {
+    await renderChart(offscreen, chartElement);
+    const canvas = offscreen.querySelector('canvas');
+    if (!canvas) {
+      return null;
+    }
+
+    const clonedCanvas = document.createElement('canvas');
+    clonedCanvas.width = canvas.width;
+    clonedCanvas.height = canvas.height;
+    const context = clonedCanvas.getContext('2d');
+    context.drawImage(canvas, 0, 0);
+
+    clonedCanvas.style.width = `${safeNumber(chartElement?.width, canvas.width)}px`;
+    clonedCanvas.style.height = `${safeNumber(chartElement?.height, canvas.height)}px`;
+
+    return clonedCanvas;
+  } finally {
+    document.body.removeChild(offscreen);
+  }
 };

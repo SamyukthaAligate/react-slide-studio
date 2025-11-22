@@ -283,6 +283,9 @@ const Header = ({
               onBlur={handleTitleBlur}
               onKeyPress={handleTitleKeyPress}
               className="title-input"
+              id="presentation-title-input"
+              name="presentationTitle"
+              aria-label="Presentation title"
               autoFocus
             />
           ) : (
@@ -294,7 +297,12 @@ const Header = ({
       </div>
 
       <div className="header-center" ref={menuRef}>
-        <button className="mobile-menu-toggle" onClick={toggleMobileMenu}>
+        <button
+          className="mobile-menu-toggle"
+          type="button"
+          onClick={toggleMobileMenu}
+          aria-label={isMobileMenuOpen ? "Close mobile menu" : "Open mobile menu"}
+        >
           <i className={`fas ${isMobileMenuOpen ? "fa-times" : "fa-bars"}`}></i>
         </button>
 

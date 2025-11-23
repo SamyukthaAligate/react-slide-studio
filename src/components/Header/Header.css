@@ -65,7 +65,7 @@
 
 .title-section {
   position: relative;
-  max-width: 160px; /* Reduced from clamp(220px, 24vw, 360px) */
+  max-width: 140px;
   margin-left: 4px;
 }
 
@@ -88,9 +88,10 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 140px; /* Reduced from 200px */
+  max-width: 120px;
   display: inline-block;
   vertical-align: middle;
+  text-align: center;
 }
 
 .presentation-title:hover {
@@ -104,7 +105,9 @@
   background: rgba(24, 24, 24, 0.9);
   color: #f4f4f4;
   font-size: 16px;
-  min-width: 220px;
+  width: fit-content;
+  min-width: 10ch;
+  max-width: calc(12ch + 28px);
 }
 
 .title-input:focus {
@@ -572,14 +575,39 @@
   .header {
     padding: 14px clamp(16px, 3vw, 40px);
     gap: 16px;
+    grid-template-columns: minmax(260px, 1fr) minmax(280px, max-content) minmax(250px, 1fr);
+    column-gap: clamp(24px, 3vw, 40px);
   }
 
   .header-center {
     flex-direction: row;
     gap: 12px;
-    justify-content: flex-end;
+    justify-content: flex-start;
     padding: 0;
-    margin-left: auto;
+    margin: 0;
+    justify-self: start;
+    margin-left: 0;
+    margin-right: clamp(20px, 2.5vw, 48px);
+    flex: 1;
+    width: 100%;
+  }
+
+  .header-left {
+    justify-content: flex-start;
+    min-width: auto;
+    flex: 1;
+    padding-left: 2px;
+    justify-self: start;
+  }
+
+  .title-section {
+    max-width: clamp(120px, 18vw, 180px);
+  }
+
+  .header-right {
+    justify-content: flex-end;
+    padding-right: 2px;
+    justify-self: end;
   }
 
   .header-tabs {
@@ -594,6 +622,15 @@
 
   .menu-items {
     gap: 12px;
+  }
+
+  .menu-items {
+    margin-right: auto;
+  }
+
+  .header-center .menu-items {
+    margin-left: auto;
+    justify-content: flex-end;
   }
 
   .menu-dropdown > .menu-item {
@@ -758,7 +795,7 @@
   }
 
   .title-input {
-    min-width: 140px;
+    max-width: 100px;
     font-size: 14px;
     padding: 6px 10px;
   }

@@ -66,16 +66,24 @@
 .title-section {
   position: relative;
   max-width: 140px;
+  width: 140px;
+  min-width: 120px;
   margin-left: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .title-section h1,
 .title-section .title-input {
+  width: 100%;
   max-width: 100%;
 }
 
 .title-section .title-input {
   width: 100%;
+  box-sizing: border-box;
 }
 
 .presentation-title {
@@ -88,9 +96,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 120px;
-  display: inline-block;
-  vertical-align: middle;
+  display: block;
   text-align: center;
 }
 

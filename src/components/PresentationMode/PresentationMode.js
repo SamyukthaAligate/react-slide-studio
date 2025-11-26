@@ -337,7 +337,7 @@ const PresentationMode = ({ slides, currentSlideIndex, onSlideChange, onExit }) 
       const padding = Number.isFinite(element.textPadding)
         ? Math.max(element.textPadding, 0)
         : 10;
-      const shadowStyle = element.shadow ? '0 18px 32px rgba(0,0,0,0.35)' : 'none';
+      const shadowStyle = 'none';
       const textContent = (element.text || '').trim();
 
       return (
@@ -345,7 +345,7 @@ const PresentationMode = ({ slides, currentSlideIndex, onSlideChange, onExit }) 
           key={element.id}
           style={{
             ...baseStyle,
-            boxShadow: shadowStyle,
+            boxShadow: 'none',
             pointerEvents: 'none',
             transform: element.rotation ? `rotate(${element.rotation}deg)` : 'none',
             transformOrigin: 'center center',

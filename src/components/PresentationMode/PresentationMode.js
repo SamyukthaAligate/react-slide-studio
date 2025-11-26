@@ -287,6 +287,7 @@ const PresentationMode = ({ slides, currentSlideIndex, onSlideChange, onExit }) 
     if (element.type === 'text') {
       const lineHeight = element.lineHeight ? String(element.lineHeight) : 'normal';
       const letterSpacing = element.letterSpacing ? `${element.letterSpacing}px` : 'normal';
+      const rotationStyle = element.rotation ? `rotate(${element.rotation}deg)` : 'none';
 
       return (
         <div
@@ -311,7 +312,9 @@ const PresentationMode = ({ slides, currentSlideIndex, onSlideChange, onExit }) 
               ? '0 14px 32px rgba(15, 23, 42, 0.14)'
               : 'none',
             lineHeight,
-            letterSpacing
+            letterSpacing,
+            transform: rotationStyle,
+            transformOrigin: 'center center'
           }}
         >
           <span

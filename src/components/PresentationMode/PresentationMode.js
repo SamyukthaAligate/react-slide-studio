@@ -285,6 +285,9 @@ const PresentationMode = ({ slides, currentSlideIndex, onSlideChange, onExit }) 
     };
 
     if (element.type === 'text') {
+      const lineHeight = element.lineHeight ? String(element.lineHeight) : 'normal';
+      const letterSpacing = element.letterSpacing ? `${element.letterSpacing}px` : 'normal';
+
       return (
         <div
           key={element.id}
@@ -301,14 +304,31 @@ const PresentationMode = ({ slides, currentSlideIndex, onSlideChange, onExit }) 
             padding: '8px',
             whiteSpace: 'pre-wrap',
             wordWrap: 'break-word',
-            overflow: 'hidden',
+            overflow: 'visible',
             borderRadius: '4px',
+            boxSizing: 'border-box',
             boxShadow: element.backgroundColor && element.backgroundColor !== 'transparent'
               ? '0 14px 32px rgba(15, 23, 42, 0.14)'
-              : 'none'
+              : 'none',
+            lineHeight,
+            letterSpacing
           }}
         >
-          {element.content}
+          <span
+            style={{
+              pointerEvents: 'none',
+              display: 'block',
+              color: 'inherit',
+              fontStyle: 'inherit',
+              whiteSpace: 'pre-wrap',
+              wordWrap: 'break-word',
+              overflowWrap: 'anywhere',
+              lineHeight,
+              letterSpacing
+            }}
+          >
+            {element.content}
+          </span>
         </div>
       );
     }

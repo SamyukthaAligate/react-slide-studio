@@ -2,6 +2,8 @@ import PptxGenJS from 'pptxgenjs';
 
 const DEFAULT_DPI = 96;
 const DEFAULT_TEXT_PADDING = 8;
+const SLIDE_WIDTH = 960;
+const SLIDE_HEIGHT = 540;
 
 const pxToInches = (value = 0) => {
   const numeric = typeof value === 'number' ? value : parseFloat(value);
@@ -173,6 +175,68 @@ const sanitizeText = (value, placeholder = '') => {
   return String(value);
 };
 
+const resolveLineHeightPx = (element, fontSize) => {
+  const rawValue = element?.lineHeight;
+  if (typeof rawValue === 'string' && rawValue.toLowerCase().includes('px')) {
+    const parsed = parseFloat(rawValue);
+    if (Number.isFinite(parsed) && parsed > 0) {
+      return parsed;
+    }
+  }
+
+  const numeric = sanitizeNumber(rawValue, 0);
+  if (numeric > 0 && numeric <= 10) {
+    return Math.max(numeric * fontSize, fontSize);
+  }
+  if (numeric > 0) {
+    return numeric;
+  }
+
+  return Math.max(fontSize * 1.25, fontSize);
+};
+
+const estimateWrappedLines = (content, availableWidth, fontSize) => {
+  const safeWidth = Math.max(1, availableWidth);
+  const approxCharWidth = Math.max(fontSize * 0.55, 5);
+  const maxCharsPerLine = Math.max(1, Math.floor(safeWidth / approxCharWidth));
+  return content.split('\n').reduce((total, line) => {
+    const trimmed = line.replace(/\s+/g, ' ').trim();
+    const length = Math.max(1, trimmed.length);
+    return total + Math.max(1, Math.ceil(length / maxCharsPerLine));
+  }, 0);
+};
+
+const estimateTextHeightPx = (element, options = {}) => {
+  const fontSize = sanitizeNumber(element?.fontSize, 18);
+  const padding = sanitizeNumber(
+    options.padding ?? element?.padding ?? element?.textPadding ?? DEFAULT_TEXT_PADDING,
+    DEFAULT_TEXT_PADDING
+  );
+  const width = Math.max(1, sanitizeNumber(options.width ?? element?.width, SLIDE_WIDTH));
+  const content = sanitizeText(
+    options.content ?? element?.content ?? element?.text ?? element?.placeholder ?? '',
+    ''
+  );
+  const lineSpacingMultiple = Math.max(1, options.lineSpacingMultiple ?? 1);
+
+  const availableWidth = Math.max(1, width - padding * 2);
+  const lines = Math.max(1, estimateWrappedLines(content, availableWidth, fontSize));
+  const lineHeightPx = resolveLineHeightPx(element, fontSize);
+  return lines * lineHeightPx * lineSpacingMultiple + padding * 2;
+};
+
+const normalizeListContent = (text, listType) => {
+  if (!listType) return text;
+  const style = String(listType).toLowerCase();
+  return text
+    .split('\n')
+    .map((line) => {
+      const trimmed = line.replace(/^[•◦▪\d\.]+\s*/, '').trimStart();
+      return trimmed;
+    })
+    .join('\n');
+};
+
 const createShapeTypeResolver = (pptx) => {
   const map = {
     rectangle: pptx.ShapeType.rect,
@@ -263,11 +327,25 @@ export async function exportToPPTX(slides, title = 'Presentation') {
         try {
           if (el?.type === 'text') {
             const fontSize = sanitizeNumber(el.fontSize, 18);
+            const lineSpacingMultiple = Math.max(1, parseLineHeightMultiple(el.lineHeight, fontSize) || 1);
+            const contentText = sanitizeText(el.content, el.placeholder || '');
+            const normalizedText = normalizeListContent(contentText, el.listType);
+
+            const estimatedHeightPx = Math.max(
+              estimateTextHeightPx(el, {
+                content: contentText,
+                padding: el.padding ?? el.textPadding,
+                lineSpacingMultiple,
+                width: el.width || 300,
+              }),
+              sanitizeNumber(el.height, 0)
+            );
+
             const textOptions = {
-              x: pxToInches(el.x || 0),
-              y: pxToInches(el.y || 0),
-              w: pxToInches(el.width || 300),
-              h: pxToInches(el.height || 50),
+              x: pxToInches(clamp(sanitizeNumber(el.x, 0), 0, SLIDE_WIDTH)),
+              y: pxToInches(clamp(sanitizeNumber(el.y, 0), 0, SLIDE_HEIGHT - estimatedHeightPx)),
+              w: pxToInches(clamp(sanitizeNumber(el.width, 0), 0, SLIDE_WIDTH)),
+              h: pxToInches(Math.min(estimatedHeightPx, SLIDE_HEIGHT)),
               fontSize,
               fontFace: el.fontFamily || 'Roboto',
               color: getColorHex(el.color, '000000') || '000000',
@@ -278,14 +356,10 @@ export async function exportToPPTX(slides, title = 'Presentation') {
               align: mapAlign(el.textAlign) || 'left',
               valign: mapVerticalAlign(el.verticalAlign) || 'top',
               rotate: normalizeRotation(el.rotation),
-              margin: buildMargin(el.padding),
+              margin: buildMargin(el.padding ?? el.textPadding),
               wrap: true,
+              lineSpacingMultiple,
             };
-
-            const lineSpacingMultiple = parseLineHeightMultiple(el.lineHeight, fontSize);
-            if (lineSpacingMultiple) {
-              textOptions.lineSpacingMultiple = lineSpacingMultiple;
-            }
 
             const fill = buildFill(el.backgroundColor, 1, null);
             if (fill) {
@@ -296,8 +370,7 @@ export async function exportToPPTX(slides, title = 'Presentation') {
               textOptions.bullet = String(el.listType).toLowerCase() === 'decimal' ? { type: 'number' } : true;
             }
 
-            const textContent = sanitizeText(el.content, el.placeholder || '');
-            s.addText(textContent, textOptions);
+            s.addText(normalizedText, textOptions);
           } else if (el?.type === 'image' && el.src) {
             s.addImage({
               data: el.src,

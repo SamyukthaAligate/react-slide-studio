@@ -9,6 +9,7 @@ import { cloneChartCanvas } from './chartRenderer';
 const SLIDE_WIDTH = 960;
 const SLIDE_HEIGHT = 540;
 const EXPORT_SCALE = 2;
+const DEFAULT_TEXT_PADDING = 8;
 
 const sanitizeNumber = (value, fallback = 0) => {
   const numeric = Number(value);
@@ -16,6 +17,46 @@ const sanitizeNumber = (value, fallback = 0) => {
 };
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+const sanitizeText = (value, placeholder = '') => {
+  if (value === null || value === undefined) return placeholder;
+  if (typeof value === 'string') return value.replace(/\r\n?/g, '\n');
+  return String(value);
+};
+
+const resolveLineHeightPx = (fontSize, lineHeight) => {
+  if (typeof lineHeight === 'string' && lineHeight.toLowerCase().includes('px')) {
+    const value = parseFloat(lineHeight);
+    if (Number.isFinite(value) && value > 0) return value;
+  }
+  const numeric = sanitizeNumber(lineHeight, 0);
+  if (numeric > 0 && numeric <= 10) {
+    return Math.max(numeric * fontSize, fontSize);
+  }
+  if (numeric > 0) return numeric;
+  return Math.max(fontSize * 1.25, fontSize);
+};
+
+const estimateWrappedLines = (content, width, fontSize) => {
+  const safeWidth = Math.max(1, width);
+  const approxCharWidth = Math.max(fontSize * 0.55, 5);
+  const maxCharsPerLine = Math.max(1, Math.floor(safeWidth / approxCharWidth));
+  return content.split('\n').reduce((total, line) => {
+    const trimmed = line.replace(/\s+/g, ' ');
+    const length = Math.max(1, trimmed.length);
+    return total + Math.max(1, Math.ceil(length / maxCharsPerLine));
+  }, 0);
+};
+
+const estimateTextHeightPx = (element) => {
+  const fontSize = sanitizeNumber(element?.fontSize, 18);
+  const padding = sanitizeNumber(element?.padding ?? element?.textPadding, DEFAULT_TEXT_PADDING);
+  const content = sanitizeText(element?.content ?? element?.text ?? element?.placeholder ?? '', '');
+  const width = Math.min(Math.max(1, sanitizeNumber(element?.width, 300)), SLIDE_WIDTH);
+  const lines = estimateWrappedLines(content, width, fontSize);
+  const lineHeight = resolveLineHeightPx(fontSize, element?.lineHeight);
+  return lines * lineHeight + padding * 2;
+};
 
 const sortElementsForStacking = (elements = []) => {
   return [...elements].sort((a, b) => {
@@ -311,18 +352,23 @@ const prepareSlideElement = (slide, cleanupCallbacks, asyncTasks) => {
     const base = document.createElement('div');
 
     const width = clamp(sanitizeNumber(element?.width, 0), 0, SLIDE_WIDTH);
-    const height = clamp(sanitizeNumber(element?.height, 0), 0, SLIDE_HEIGHT);
+    const rawHeight = clamp(sanitizeNumber(element?.height, 0), 0, SLIDE_HEIGHT);
+    const estimatedHeight = element?.type === 'text' ? estimateTextHeightPx(element) : rawHeight;
+    const height = Math.max(rawHeight, Math.min(estimatedHeight, SLIDE_HEIGHT));
     const left = sanitizeNumber(element?.x, 0);
-    const top = sanitizeNumber(element?.y, 0);
+    const topLimit = Math.max(0, SLIDE_HEIGHT - height);
+    const top = clamp(sanitizeNumber(element?.y, 0), 0, topLimit);
 
     base.style.position = 'absolute';
     base.style.left = `${left}px`;
     base.style.top = `${top}px`;
     base.style.width = `${width}px`;
-    base.style.height = `${height}px`;
+    base.style.minHeight = `${height}px`;
+    base.style.height = element?.type === 'text' ? 'auto' : `${height}px`;
     base.style.zIndex = String(sanitizeNumber(element?.zIndex, index));
     base.style.boxSizing = 'border-box';
     base.style.pointerEvents = 'none';
+    base.style.overflow = 'visible';
 
     applyRotation(base, element?.rotation);
 

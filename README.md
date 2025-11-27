@@ -81,6 +81,15 @@ A fully functional, modern presentation tool built with React and CSS. Create st
 - **Charts**: Create bar, pie, and line charts with custom data
 - **Shapes**: Rectangles, circles, triangles with customizable colors
 
+### 🧱 **Advanced Shapes Library**
+- **Rich categories**: Launch the Shape Library modal to browse Basic, Arrows, Stars, Callouts, and Flowchart collections with 20+ professionally designed shapes.
+- **Smart insertion**: Each selection auto-sizes, avoids collisions via canvas-aware placement, and closes the modal after adding, so you can keep building without interruption.
+
+### 🌀 **Canvas Intelligence & Media Import**
+- **Drag & drop files**: Directly drop images, video clips, or plain text files onto the canvas to instantly create editable elements without using the Insert menu.
+- **Context-aware clipboard**: Right-click anywhere on the canvas to open a clamp-aware context menu that keeps Paste, Cut, and Copy options visible and lets you drop elements exactly where you clicked.
+- **Smooth rotation**: Selected elements surface a rotation handle that lets you spin around the center with requestAnimationFrame-driven smoothing and Shift-key snapping for precise angles.
+
 ## 🚀 Features
 
 ### 🎨 **Core Functionality**
